@@ -20,6 +20,9 @@ from bayes.function.math import (
     sum_squared_error,
     sum
 )
+from bayes.function.nonlinear import (
+    sigmoid
+)
 
 
 __all__ = [
@@ -34,6 +37,7 @@ __all__ = [
     "mean",
     "multiply",
     "power",
+    "sigmoid",
     "sqrt",
     "square",
     "subtract",
