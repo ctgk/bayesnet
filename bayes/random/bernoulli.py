@@ -21,11 +21,12 @@ class Bernoulli(RandomVariable):
         prob : tensor_like
             prob of value 1 for each element
         """
+        self.parameter = dict()
         self.prob = prob
 
     @property
     def prob(self):
-        return self._prob
+        return self.parameter["prob"]
 
     @prob.setter
     def prob(self, prob):
@@ -35,7 +36,7 @@ class Bernoulli(RandomVariable):
             pass
 
         if isinstance(prob, Tensor):
-            self._prob = prob
+            self.parameter["prob"] = prob
         else:
             raise TypeError(f"{type(prob)} is not acceptable for prob")
 

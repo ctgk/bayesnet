@@ -23,6 +23,7 @@ class Gaussian(RandomVariable):
         sigma : tensor_like
             std of each element
         """
+        self.parameter = dict()
         self.mu = mu
         self.sigma = sigma
 
@@ -35,7 +36,7 @@ class Gaussian(RandomVariable):
 
     @property
     def mu(self):
-        return self._mu
+        return self.parameter["mu"]
 
     @mu.setter
     def mu(self, mu):
@@ -45,7 +46,9 @@ class Gaussian(RandomVariable):
             pass
 
         if isinstance(mu, Tensor):
-            self._mu = mu
+            self.parameter["mu"] = mu
+        elif isinstance(mu, RandomVariable):
+            self.parameter["mu"] = mu
         else:
             raise TypeError(f"{type(mu)} is not acceptable for mu")
 
@@ -61,54 +64,56 @@ class Gaussian(RandomVariable):
             pass
 
         if isinstance(sigma, Tensor):
-            self._sigma = sigma
+            self.parameter["sigma"] = sigma
+        elif isinstance(sigma, RandomVariable):
+            self.parameter["sigma"] = sigma
         else:
             raise TypeError(f"{type(sigma)} is not acceptable for sigma")
 
     @property
     def ndim(self):
-        return self._mu.ndim
+        return self.mu.ndim
 
     @property
     def size(self):
-        return self._mu.size
+        return self.mu.size
 
     @property
     def shape(self):
-        return self._mu.shape
+        return self.mu.shape
 
     @property
     def mean(self):
-        if isinstance(self._mu, Tensor):
-            return self._mu.value
+        if isinstance(self.mu, Tensor):
+            return self.mu.value
         else:
             raise NotImplementedError
 
     @property
     def var(self):
-        if isinstance(self._sigma, Tensor):
-            return self._sigma.value ** 2
+        if isinstance(self.sigma, Tensor):
+            return self.sigma.value ** 2
         else:
             raise NotImplementedError
 
     def _nll(self, x):
-        d = x - self._mu
-        n = x.size / self._sigma.size
+        d = x - self.mu
+        n = x.size / self.sigma.size
         return (
-            0.5 * square(d / self._sigma).sum()
-            + n * log(self._sigma)
+            0.5 * square(d / self.sigma).sum()
+            + n * log(self.sigma)
         )
 
     def _pdf(self, x):
-        d = x - self._mu.value
+        d = x - self.mu.value
         return (
-            np.exp(-0.5 * (d / self._sigma.value) ** 2)
-            / np.sqrt(2 * np.pi * self._sigma.value ** 2)
+            np.exp(-0.5 * (d / self.sigma.value) ** 2)
+            / np.sqrt(2 * np.pi * self.sigma.value ** 2)
         )
 
     def _draw(self, sample_size=1):
         return np.random.normal(
-            loc=self._mu.value,
-            scale=self._sigma.value,
+            loc=self.mu.value,
+            scale=self.sigma.value,
             size=(sample_size,) + self.shape
         )
