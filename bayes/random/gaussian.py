@@ -54,7 +54,7 @@ class Gaussian(RandomVariable):
 
     @property
     def sigma(self):
-        return self._sigma
+        return self.parameter["sigma"]
 
     @sigma.setter
     def sigma(self, sigma):
