@@ -17,7 +17,6 @@ class Sum(Function):
 
     def _forward(self, x):
         x = self._convert2tensor(x)
-        self._atleast_ndim(x, 1)
         self.x = x
         output = x.value.sum(axis=self.axis, keepdims=self.keepdims)
         return Tensor(output, function=self)

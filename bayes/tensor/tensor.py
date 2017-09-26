@@ -7,7 +7,7 @@ class Tensor(object):
     """
     __array_ufunc__ = None
 
-    def __init__(self, value, function=None):
+    def __init__(self, value, function=None, prior=None):
         """
         construct Tensor object
 
@@ -17,6 +17,8 @@ class Tensor(object):
             value of this tensor
         function : Function
             function output this tensor
+        prior : RandomVariable
+            prior distribution of this tensor
         """
         if not isinstance(value, (int, float, np.number, np.ndarray)):
             raise TypeError(
@@ -24,6 +26,10 @@ class Tensor(object):
             )
         self.value = value
         self.function = function
+        self.prior = prior
+
+    def __format__(self, *args, **kwargs):
+        return self.__repr__()
 
     def __repr__(self):
         if isinstance(self.value, np.ndarray):
