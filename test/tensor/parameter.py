@@ -1,6 +1,6 @@
 import unittest
 import numpy as np
-from bayes.tensor import Parameter
+from bayesnet import Parameter
 
 
 class TestParameter(unittest.TestCase):
@@ -19,3 +19,7 @@ class TestParameter(unittest.TestCase):
                 self.assertEqual(p.grad, d)
             p.cleargrad()
             self.assertIs(p.grad, None)
+
+
+if __name__ == '__main__':
+    unittest.main()

@@ -1,6 +1,6 @@
 import unittest
 import numpy as np
-from bayes.tensor import Tensor
+from bayesnet import Tensor
 
 
 class TestTensor(unittest.TestCase):
@@ -36,3 +36,7 @@ class TestTensor(unittest.TestCase):
         t = Tensor(np.ones((2, 3)))
         self.assertRaises(ValueError, t.backward, 1)
         self.assertRaises(ValueError, t.backward, np.zeros((3, 3)))
+
+
+if __name__ == '__main__':
+    unittest.main()
