@@ -3,28 +3,30 @@ class Optimizer(object):
     Optimizer to train neural network
     """
 
-    def __init__(self, parameters, learning_rate):
+    def __init__(self, parameter, learning_rate):
         """
         construct optimizer
 
         Parameters
         ----------
-        parameters : list
-            list of parameters to be optimized
+        parameter : list, dict
+            list of parameter to be optimized
         learning_rate : float
-            update rate of parameters to be optimized
+            update rate of parameter to be optimized
 
         Attributes
         ----------
         n_iter : int
             number of iterations performed
         """
-        self.parameters = parameters
+        if isinstance(parameter, dict):
+            parameter = list(parameter.values())
+        self.parameter = parameter
         self.learning_rate = learning_rate
         self.n_iter = 0
 
     def cleargrad(self):
-        for p in self.parameters:
+        for p in self.parameter:
             p.cleargrad()
 
     def set_decay(self, decay_rate, decay_step):

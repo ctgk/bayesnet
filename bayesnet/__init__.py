@@ -13,10 +13,13 @@ from bayesnet.math.sqrt import sqrt
 from bayesnet.math.square import square
 from bayesnet.math.sum_squared_error import sum_squared_error
 from bayesnet.math.sum import sum
+from bayesnet import optimizer
+from bayesnet.network import Network
 
 
 __all__ = [
     "Constant",
+    "Network",
     "Parameter",
     "Tensor",
     "exp",
@@ -24,11 +27,12 @@ __all__ = [
     "log",
     "mean_squared_error",
     "mean",
+    "optimizer",
     "power",
     "reshape",
     "split",
     "sqrt",
-    "square"
+    "square",
     "sum_squared_error",
     "sum"
 ]

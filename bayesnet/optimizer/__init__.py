@@ -1,5 +1,5 @@
-from bayes.optimizer.adam import Adam
-from bayes.optimizer.gradient_descent import GradientDescent
+from bayesnet.optimizer.adam import Adam
+from bayesnet.optimizer.gradient_descent import GradientDescent
 
 
 __all__ = [

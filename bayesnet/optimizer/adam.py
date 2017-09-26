@@ -1,5 +1,5 @@
 import numpy as np
-from bayes.optimizer.optimizer import Optimizer
+from bayesnet.optimizer.optimizer import Optimizer
 
 
 class Adam(Optimizer):
@@ -17,7 +17,7 @@ class Adam(Optimizer):
     param -= learning_rate * m1 / (sqrt(m2) + epsilon)
     """
 
-    def __init__(self, parameters, learning_rate=0.001, beta1=0.9, beta2=0.999, epsilon=1e-8):
+    def __init__(self, parameter, learning_rate=0.001, beta1=0.9, beta2=0.999, epsilon=1e-8):
         """
         construct Adam optimizer
         Parameters
@@ -40,26 +40,26 @@ class Adam(Optimizer):
         moment2 : dict
             2nd moment of each learnable parameter
         """
-        super().__init__(parameters, learning_rate)
+        super().__init__(parameter, learning_rate)
         self.beta1 = beta1
         self.beta2 = beta2
         self.epsilon = epsilon
         self.moment1 = []
         self.moment2 = []
-        for p in self.parameters:
+        for p in self.parameter:
             self.moment1.append(np.zeros(p.shape))
             self.moment2.append(np.zeros(p.shape))
 
     def update(self):
         """
-        update parameters of the neural network
+        update parameter of the neural network
         """
         self.increment_iteration()
         lr = (
             self.learning_rate
             * (1 - self.beta2 ** self.n_iter) ** 0.5
             / (1 - self.beta1 ** self.n_iter))
-        for p, m1, m2 in zip(self.parameters, self.moment1, self.moment2):
+        for p, m1, m2 in zip(self.parameter, self.moment1, self.moment2):
             m1 += (1 - self.beta1) * (p.grad - m1)
             m2 += (1 - self.beta2) * (p.grad ** 2 - m2)
             p.value -= lr * m1 / (np.sqrt(m2) + self.epsilon)
