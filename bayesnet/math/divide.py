@@ -26,7 +26,7 @@ class Divide(Function):
         self.x = x
         self.y = y
         if isinstance(self.x, Constant) and isinstance(self.y, Constant):
-            return Constant(x.value + y.value)
+            return Constant(x.value / y.value)
         return Tensor(x.value / y.value, function=self)
 
     def _backward(self, delta):
