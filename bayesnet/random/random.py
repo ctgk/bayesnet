@@ -50,18 +50,6 @@ class RandomVariable(Function):
         string += ")"
         return string
 
-    def observe(self, data):
-        """
-        set observation
-
-        Parameters
-        ----------
-        data : tensor_like
-            observed data
-        """
-        self.observed = True
-        self.data = data
-
     def draw(self):
         """
         generate a sample
@@ -131,7 +119,7 @@ class RandomVariable(Function):
         kl : Tensor
             KL divergence from this distribution to the given argument
         """
-        if hasattr(self, "_kl_divergence"):
+        if hasattr(self, "_KLqp"):
             if p is None:
                 return self._KLqp(self.prior)
             return self._KLqp(p)
