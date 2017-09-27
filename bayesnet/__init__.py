@@ -15,6 +15,7 @@ from bayesnet.math.sum_squared_error import sum_squared_error
 from bayesnet.math.sum import sum
 from bayesnet import optimizer
 from bayesnet.network import Network
+from bayesnet.random.gaussian import gaussian
 
 
 __all__ = [
@@ -24,6 +25,7 @@ __all__ = [
     "Tensor",
     "exp",
     "flatten",
+    "gaussian",
     "log",
     "mean_squared_error",
     "mean",

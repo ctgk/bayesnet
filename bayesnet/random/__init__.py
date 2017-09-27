@@ -1,8 +1,6 @@
-from bayes.random.bernoulli import Bernoulli
-from bayes.random.gaussian import Gaussian
+from bayesnet.random.gaussian import Gaussian
 
 
 __all__ = [
-    "Bernoulli",
     "Gaussian"
 ]

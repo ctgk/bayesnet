@@ -1,14 +1,19 @@
-class RandomVariable(object):
+from bayesnet.function import Function
+
+
+class RandomVariable(Function):
     """
     base class for random variables
     """
 
-    def __init__(self, name):
+    def __init__(self, prior=None, name=None):
         """
         construct a random variable
 
         Parameters
         ----------
+        prior : RandomVariable
+            prior distribution
         name : str
             name of this random variable
 
@@ -20,49 +25,29 @@ class RandomVariable(object):
         if not isinstance(name, str) and name is not None:
             raise TypeError("name must be str")
         self.name = name
-        self.data = None
+        self.prior = prior
         self.parameter = dict()
+
+    @property
+    def prior(self):
+        return self._prior
+
+    @prior.setter
+    def prior(self, prior):
+        if prior is not None and not isinstance(prior, RandomVariable):
+            raise TypeError("prior must be RandomVariable")
+        self._prior = prior
 
     def __repr__(self):
         string = f"{self.__class__.__name__}(\n"
         for key, value in self.parameter.items():
             string += (" " * 4)
-            if isinstance(value, float):
-                string += f"{key}={value}"
-            else:
-                string += f"{key}=" + value.__format__(depth=4)
+            string += f"{key}={value}"
             string += "\n"
         string += ")"
         return string
 
-    def __format__(self, depth="4"):
-        indent = 4
-        depth = int(depth) + indent
-
-        string = f"{self.__class__.__name__}(\n"
-        for key, value in self.parameter.items():
-            string += (" " * depth)
-            if isinstance(value, float):
-                string += f"{key}={value}"
-            else:
-                string += f"{key}=" + value.__format__(depth=depth)
-            string += "\n"
-        string += " " * (depth - indent)
-        string += ")"
-        return string
-
-    def observe(self, x):
-        """
-        set observed value
-
-        Parameters
-        ----------
-        x : array_like
-            observed data
-        """
-        self.data = x
-
-    def pdf(self, x=None):
+    def pdf(self, x):
         """
         compute probability density function
         p(x|parameter)
@@ -78,12 +63,7 @@ class RandomVariable(object):
             value of probability density function for each input
         """
         if hasattr(self, "_pdf"):
-            if x is None:
-                if self.data is None:
-                    raise ValueError("x must not be None")
-                return self._pdf(self.data)
-            else:
-                return self._pdf(x)
+            return self._pdf(x)
         else:
             raise NotImplementedError
 
@@ -102,34 +82,6 @@ class RandomVariable(object):
             logarithm of probability density function
         """
         if hasattr(self, "_log_pdf"):
-            if x is None:
-                if self.data is None:
-                    raise ValueError("x must not be None")
-                return self._log_pdf(self.data)
-            else:
-                return self._log_pdf(x)
-        else:
-            raise NotImplementedError
-
-    def draw(self, sample_size=1):
-        """
-        draw samples from the distribution
-
-        Parameters
-        ----------
-        sample_size : int
-            sample size
-
-        Returns
-        -------
-        sample : (sample_size, self.shape) np.ndarray
-            generated samples from the distribution
-        """
-        assert isinstance(sample_size, int)
-        if hasattr(self, "_draw"):
-            sample = self._draw(sample_size)
-            if sample.size == 1:
-                return sample.item()
-            return sample
+            return self._log_pdf(x)
         else:
             raise NotImplementedError

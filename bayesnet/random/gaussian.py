@@ -1,5 +1,12 @@
 import numpy as np
-from bayes.random.random import RandomVariable
+from bayesnet.array.broadcast import broadcast_to
+from bayesnet.math.exp import exp
+from bayesnet.math.log import log
+from bayesnet.math.sqrt import sqrt
+from bayesnet.math.square import square
+from bayesnet.random.random import RandomVariable
+from bayesnet.tensor.constant import Constant
+from bayesnet.tensor.tensor import Tensor
 
 
 class Gaussian(RandomVariable):
@@ -9,20 +16,36 @@ class Gaussian(RandomVariable):
     = exp{-0.5 * (x - mu)^2 / sigma^2} / sqrt(2pi * sigma^2)
     """
 
-    def __init__(self, mu, var, name=None):
+    def __init__(self, mu, std, prior=None, name=None):
         """
         construct Gaussian distribution
 
         Parameters
         ----------
-        mu : int, float, RandomVariable
+        mu : tensor_like
             mean parameter
-        var : int, float, RandomVariable
-            variance parameter
+        std : tensor_like
+            std parameter
+        prior : RandomVariable
+            prior distribution
+        name : str
+            name of this RandomVariable
         """
-        super().__init__(name=name)
+        super().__init__(prior, name)
+        mu, std = self._check_input(mu, std)
         self.mu = mu
-        self.var = var
+        self.std = std
+
+    def _check_input(self, mu, std):
+        mu = self._convert2tensor(mu)
+        std = self._convert2tensor(std)
+        if mu.shape != std.shape:
+            shape = np.broadcast(mu.value, std.value).shape
+            if mu.shape != shape:
+                mu = broadcast_to(mu, shape)
+            if std.shape != shape:
+                std = broadcast_to(std, shape)
+        return mu, std
 
     @property
     def mu(self):
@@ -30,142 +53,49 @@ class Gaussian(RandomVariable):
 
     @mu.setter
     def mu(self, mu):
-        try:
-            mu = float(mu)
-        except (TypeError, ValueError):
-            pass
-
-        if isinstance(mu, float):
-            self.parameter["mu"] = mu
-        elif isinstance(mu, RandomVariable):
-            self.parameter["mu"] = mu
-        else:
-            raise TypeError(f"{type(mu)} is not acceptable for mu")
-
-    @property
-    def var(self):
-        return self.parameter["var"]
-
-    @var.setter
-    def var(self, var):
-        try:
-            var = float(var)
-        except TypeError:
-            pass
-
-        if isinstance(var, float):
-            if var <= 0:
-                raise ValueError("variance must be a positive value")
-            self.parameter["var"] = var
-        elif isinstance(var, RandomVariable):
-            self.parameter["var"] = var
-        else:
-            raise TypeError(f"{type(var)} is not acceptable for var")
-
-    @property
-    def mean(self):
-        if all(isinstance(p, float) for p in self.parameter.values()):
-            return self.mu
-        else:
-            raise NotImplementedError
+        self.parameter["mu"] = mu
 
     @property
     def std(self):
-        if all(isinstance(p, float) for p in self.parameter.values()):
-            return self.var ** 0.5
-        else:
-            raise NotImplementedError
+        return self.parameter["std"]
 
-    @property
-    def variance(self):
-        if all(isinstance(p, float) for p in self.parameter.values()):
-            return self.var
-        else:
-            raise NotImplementedError
+    @std.setter
+    def std(self, std):
+        try:
+            ispositive = all(std.value > 0)
+        except TypeError:
+            ispositive = (std.value > 0)
+
+        if not ispositive:
+            raise ValueError("value of std must all be positive")
+        self.parameter["std"] = std
 
     def _pdf(self, x):
-        if isinstance(self.mu, RandomVariable):
-            mu = self.mu.data
-        else:
-            mu = self.mu
-
-        if isinstance(self.var, RandomVariable):
-            var = self.var.data
-        else:
-            var = self.var
-
         return (
-            np.exp(-0.5 * (x - mu) ** 2 / var)
-            / np.sqrt(2 * np.pi * var)
+            exp(-0.5 * square((x - self.mu) / self.std))
+            / sqrt(2 * np.pi) / self.std
         )
 
     def _log_pdf(self, x):
-        if isinstance(self.mu, RandomVariable):
-            mu = self.mu.data
-        else:
-            mu = self.mu
-
-        if isinstance(self.var, RandomVariable):
-            var = self.var.data
-        else:
-            var = self.var
-
         return (
-            -0.5 * (x - mu) ** 2 / var
-            - 0.5 * np.log(2 * np.pi * var)
+            -0.5 * square((x - self.mu) / self.std)
+            - log(self.std)
+            - 0.5 * log(2 * np.pi)
         )
 
-    def _draw(self, sample_size=1):
-        if isinstance(self.mu, RandomVariable):
-            loc = self.mu.draw(sample_size)
-        else:
-            loc = self.mu
+    def _forward(self):
+        self.eps = np.random.normal(size=self.mu.shape)
+        output = self.mu.value + self.std.value * self.eps
+        if isinstance(self.mu, Constant) and isinstance(self.var, Constant):
+            return Constant(output)
+        return Tensor(output, self)
 
-        if isinstance(self.var, RandomVariable):
-            scale = self.var.draw(sample_size) ** 0.5
-        else:
-            scale = self.var ** 0.5
+    def _backward(self, delta):
+        dmu = delta
+        dstd = delta * self.eps
+        self.mu.backward(dmu)
+        self.dstd.backward(dstd)
 
-        return np.random.normal(loc, scale, sample_size)
 
-    def __neg__(self):
-        return Gaussian(-self.mu, self.var)
-
-    def __add__(self, x):
-        try:
-            x = float(x)
-        except (TypeError, ValueError):
-            pass
-
-        if isinstance(x, float):
-            return Gaussian(self.mu + x, self.var)
-        elif isinstance(x, Gaussian):
-            return Gaussian(self.mu + x.mu, self.var + x.var)
-        else:
-            raise NotImplementedError
-
-    def __radd__(self, x):
-        return self.__add__(x)
-
-    def __sub__(self, x):
-        return self.__add__(-x)
-
-    def __rsub__(self, x):
-        return -self.__sub__(x)
-
-    def __mul__(self, x):
-        try:
-            x = float(x)
-        except (TypeError, ValueError):
-            pass
-
-        if isinstance(x, float):
-            return Gaussian(self.mu * x, self.var * x ** 2)
-        else:
-            raise NotImplementedError
-
-    def __rmul__(self, x):
-        return self.__mul__(x)
-
-    def __truediv__(self, x):
-        return self.__mul__(1 / x)
+def gaussian(mu, sigma):
+    return Gaussian(mu, sigma).forward()
