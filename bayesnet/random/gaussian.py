@@ -16,7 +16,7 @@ class Gaussian(RandomVariable):
     = exp{-0.5 * (x - mu)^2 / sigma^2} / sqrt(2pi * sigma^2)
     """
 
-    def __init__(self, mu, std, prior=None, name=None):
+    def __init__(self, mu, std, data=None, prior=None):
         """
         construct Gaussian distribution
 
@@ -26,12 +26,12 @@ class Gaussian(RandomVariable):
             mean parameter
         std : tensor_like
             std parameter
+        data : tensor_like
+            observed data
         prior : RandomVariable
             prior distribution
-        name : str
-            name of this RandomVariable
         """
-        super().__init__(prior, name)
+        super().__init__(data, prior)
         mu, std = self._check_input(mu, std)
         self.mu = mu
         self.std = std
@@ -70,6 +70,10 @@ class Gaussian(RandomVariable):
             raise ValueError("value of std must all be positive")
         self.parameter["std"] = std
 
+    @property
+    def var(self):
+        return square(self.std)
+
     def _pdf(self, x):
         return (
             exp(-0.5 * square((x - self.mu) / self.std))
@@ -94,8 +98,16 @@ class Gaussian(RandomVariable):
         dmu = delta
         dstd = delta * self.eps
         self.mu.backward(dmu)
-        self.dstd.backward(dstd)
+        self.std.backward(dstd)
 
+    def _KLqp(self, rv):
+        if isinstance(rv, Gaussian):
+            kl = (
+                log(rv.std) - log(self.std)
+                + 0.5 * (self.var + square(self.mu - rv.mu)) / rv.var
+                - 0.5
+            )
+        else:
+            raise NotImplementedError
 
-def gaussian(mu, sigma):
-    return Gaussian(mu, sigma).forward()
+        return kl
