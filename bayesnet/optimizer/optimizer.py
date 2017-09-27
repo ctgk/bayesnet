@@ -1,3 +1,6 @@
+from bayesnet.network import Network
+
+
 class Optimizer(object):
     """
     Optimizer to train neural network
@@ -9,7 +12,7 @@ class Optimizer(object):
 
         Parameters
         ----------
-        parameter : list, dict
+        parameter : list, dict, Network
             list of parameter to be optimized
         learning_rate : float
             update rate of parameter to be optimized
@@ -19,6 +22,8 @@ class Optimizer(object):
         n_iter : int
             number of iterations performed
         """
+        if isinstance(parameter, Network):
+            parameter = parameter.parameter
         if isinstance(parameter, dict):
             parameter = list(parameter.values())
         self.parameter = parameter
