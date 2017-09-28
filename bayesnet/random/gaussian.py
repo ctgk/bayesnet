@@ -100,11 +100,11 @@ class Gaussian(RandomVariable):
         self.mu.backward(dmu)
         self.std.backward(dstd)
 
-    def _KLqp(self, rv):
-        if isinstance(rv, Gaussian):
+    def _KLqp(self, p):
+        if isinstance(p, Gaussian):
             kl = (
-                log(rv.std) - log(self.std)
-                + 0.5 * (self.var + square(self.mu - rv.mu)) / rv.var
+                log(p.std) - log(self.std)
+                + 0.5 * (self.var + square(self.mu - p.mu)) / p.var
                 - 0.5
             )
         else:
