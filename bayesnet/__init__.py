@@ -4,6 +4,7 @@ from bayesnet.tensor.tensor import Tensor
 from bayesnet.array.flatten import flatten
 from bayesnet.array.reshape import reshape
 from bayesnet.array.split import split
+from bayesnet import linalg
 from bayesnet.math.exp import exp
 from bayesnet.math.log import log
 from bayesnet.math.mean_squared_error import mean_squared_error
@@ -24,6 +25,7 @@ __all__ = [
     "Tensor",
     "exp",
     "flatten",
+    "linalg",
     "log",
     "mean_squared_error",
     "mean",
