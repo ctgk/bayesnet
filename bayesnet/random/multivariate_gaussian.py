@@ -60,7 +60,7 @@ class MultivariateGaussian(RandomVariable):
     @cov.setter
     def cov(self, cov):
         try:
-            self.L = cholesky(cov.value)
+            self.L = cholesky(cov)
         except np.linalg.LinAlgError:
             raise ValueError("cov must be positive-difinite matrix")
         self.parameter["cov"] = cov
