@@ -17,6 +17,7 @@ from bayesnet.math.sum_squared_error import sum_squared_error
 from bayesnet.math.sum import sum
 from bayesnet import optimizer
 from bayesnet.network import Network
+from bayesnet import sampler
 
 
 __all__ = [
@@ -33,6 +34,7 @@ __all__ = [
     "optimizer",
     "power",
     "reshape",
+    "sampler",
     "split",
     "sqrt",
     "square",
