@@ -1,4 +1,5 @@
 from bayesnet.function import Function
+from bayesnet.tensor.constant import Constant
 
 
 class RandomVariable(Function):
@@ -26,8 +27,10 @@ class RandomVariable(Function):
         """
         if data is not None and prior is not None:
             raise ValueError("Cannot assign both data and prior on a random variable")
+        if data is not None:
+            data = self._convert2tensor(data)
         self.data = data
-        self.observed = True if data is not None else False
+        self.observed = isinstance(data, Constant)
         self.prior = prior
         self.parameter = dict()
 
@@ -59,8 +62,7 @@ class RandomVariable(Function):
         sample : tensor
             sample generated from this random variable
         """
-        self.data = self.forward()
-        return self.data
+        return self.forward()
 
     def pdf(self, x=None):
         """

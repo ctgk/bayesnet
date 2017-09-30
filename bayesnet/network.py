@@ -68,7 +68,7 @@ class Network(object):
         """
         evidence = 0
         for rv in self.random_variable.values():
-            if rv.observed:
+            if rv.prior is None:
                 evidence += rv.log_pdf().sum()
             else:
                 evidence += -rv.KLqp().sum()

@@ -25,13 +25,13 @@ def main():
 
     model = RidgeRegressor(degree + 1, 1)
     optimizer = bn.optimizer.Adam(model, 0.01)
-    for i in range(int(1e5)):
+    for i in range(int(1e4)):
         model.cleargrad()
         model(X_train, y_train)
         loss = -model.elbo()
         loss.backward()
         optimizer.update()
-        if i % 1e4 == 0:
+        if i % 1e3 == 0:
             print(loss.value)
 
     x = np.linspace(0, 1, 100)[:, None]
