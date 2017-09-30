@@ -31,4 +31,6 @@ def transpose(x, axes=None):
 
 
 def transpose_method(x, *args):
+    if args == ():
+        args = None
     return Transpose(args).forward(x)
