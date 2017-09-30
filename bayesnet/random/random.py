@@ -59,7 +59,8 @@ class RandomVariable(Function):
         sample : tensor
             sample generated from this random variable
         """
-        return self.forward()
+        self.data = self.forward()
+        return self.data
 
     def pdf(self, x=None):
         """
@@ -77,7 +78,7 @@ class RandomVariable(Function):
             value of probability density function for each input
         """
         if hasattr(self, "_pdf"):
-            if self.observed:
+            if x is None:
                 return self._pdf(self.data)
             return self._pdf(x)
         else:
@@ -98,7 +99,7 @@ class RandomVariable(Function):
             logarithm of probability density function
         """
         if hasattr(self, "_log_pdf"):
-            if self.observed:
+            if x is None:
                 return self._log_pdf(self.data)
             return self._log_pdf(x)
         else:
