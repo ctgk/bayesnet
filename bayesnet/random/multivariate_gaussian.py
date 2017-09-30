@@ -74,7 +74,7 @@ class MultivariateGaussian(RandomVariable):
 
     def _backward(self, delta):
         dmu = delta
-        dL = delta @ self.eps[:, None]
+        dL = delta * self.eps[:, None]
         self.mu.backward(dmu)
         self.L.backward(dL)
 
