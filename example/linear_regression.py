@@ -26,7 +26,7 @@ def main():
     for i in range(1000):
         model.cleargrad()
         model(x_train, y_train)
-        loss = model.loss()
+        loss = -model.elbo()
         loss.backward()
         optimizer.update()
         if i % 100 == 0:

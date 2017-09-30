@@ -28,7 +28,7 @@ def main():
     for i in range(int(1e5)):
         model.cleargrad()
         model(X_train, y_train)
-        loss = model.loss()
+        loss = -model.elbo()
         loss.backward()
         optimizer.update()
         if i % 1e4 == 0:

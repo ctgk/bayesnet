@@ -43,11 +43,19 @@ class Network(object):
         for p in self.parameter.values():
             p.cleargrad()
 
-    def loss(self):
-        loss = 0
+    def elbo(self):
+        """
+        compute evidence lower bound of this model
+
+        Returns
+        -------
+        evidence : tensor_like
+            evidence lower bound
+        """
+        evidence = 0
         for rv in self.random_variable.values():
             if rv.observed:
-                loss += -rv.log_pdf().sum()
+                evidence += rv.log_pdf().sum()
             else:
-                loss += rv.KLqp().sum()
-        return loss
+                evidence += -rv.KLqp().sum()
+        return evidence

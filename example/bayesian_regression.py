@@ -32,7 +32,7 @@ def main():
         loss = 0
         for _ in range(10):
             model(X_train, y_train)
-            loss += model.loss() / 10
+            loss += -model.elbo() / 10
         loss.backward()
         optimizer.update()
         if i % int(1e3) == 0:
