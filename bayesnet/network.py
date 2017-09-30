@@ -42,6 +42,20 @@ class Network(object):
         for p in self.parameter.values():
             p.cleargrad()
 
+    def log_posterior(self):
+        """
+        compute logarithm of posterior distribution function
+
+        Returns
+        -------
+        logp : tensor_like
+            logarithm of posterior distribution function
+        """
+        logp = 0
+        for rv in self.random_variable.values():
+            logp += rv.log_pdf().sum()
+        return logp
+
     def elbo(self):
         """
         compute evidence lower bound of this model
