@@ -11,10 +11,12 @@ class BayesianRegressor(bn.Network):
             mu=bn.Parameter(np.zeros((n_input, n_output))),
             logs=bn.Parameter(np.zeros((n_input, n_output)))
         )
-        self.w_prior = bn.random.Gaussian(0, 10)
 
     def __call__(self, x, y=None):
-        self.w = bn.random.Gaussian(self.mu, bn.exp(self.logs), prior=self.w_prior)
+        self.w = bn.random.Gaussian(
+            self.mu, bn.exp(self.logs),
+            prior=bn.random.Gaussian(0, 10)
+        )
         self.y = bn.random.Gaussian(x @ self.w.draw(), 0.25, data=y)
         return self.y.mu
 

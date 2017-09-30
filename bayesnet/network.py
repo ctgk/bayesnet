@@ -35,8 +35,7 @@ class Network(object):
 
     def __setattr__(self, key, value):
         if isinstance(value, RandomVariable):
-            if value.data is not None or value.prior is not None:
-                self.random_variable[key] = value
+            self.random_variable[key] = value
         object.__setattr__(self, key, value)
 
     def cleargrad(self):
@@ -46,6 +45,7 @@ class Network(object):
     def elbo(self):
         """
         compute evidence lower bound of this model
+        ln p(output) >= elbo
 
         Returns
         -------
