@@ -4,6 +4,7 @@ from bayesnet.tensor.tensor import Tensor
 from bayesnet.array.flatten import flatten
 from bayesnet.array.reshape import reshape
 from bayesnet.array.split import split
+from bayesnet.array.transpose import transpose
 from bayesnet import linalg
 from bayesnet.math.exp import exp
 from bayesnet.math.log import log
@@ -36,5 +37,6 @@ __all__ = [
     "sqrt",
     "square",
     "sum_squared_error",
-    "sum"
+    "sum",
+    "transpose"
 ]
