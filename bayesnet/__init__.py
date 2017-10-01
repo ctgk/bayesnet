@@ -16,6 +16,8 @@ from bayesnet.math.sqrt import sqrt
 from bayesnet.math.square import square
 from bayesnet.math.sum_squared_error import sum_squared_error
 from bayesnet.math.sum import sum
+from bayesnet.nonlinear.sigmoid import sigmoid
+from bayesnet.nonlinear.tanh import tanh
 from bayesnet import optimizer
 from bayesnet.network import Network
 from bayesnet import sampler
@@ -37,10 +39,12 @@ __all__ = [
     "prod",
     "reshape",
     "sampler",
+    "sigmoid",
     "split",
     "sqrt",
     "square",
     "sum_squared_error",
     "sum",
+    "tanh",
     "transpose"
 ]
