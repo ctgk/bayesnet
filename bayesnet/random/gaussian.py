@@ -62,8 +62,8 @@ class Gaussian(RandomVariable):
     @std.setter
     def std(self, std):
         try:
-            ispositive = all(std.value > 0)
-        except TypeError:
+            ispositive = (std.value > 0).all()
+        except AttributeError:
             ispositive = (std.value > 0)
 
         if not ispositive:
