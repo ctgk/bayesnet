@@ -8,6 +8,7 @@ from bayesnet.math.mean import mean
 from bayesnet.math.multiply import multiply
 from bayesnet.math.negative import negative
 from bayesnet.math.power import power, rpower
+from bayesnet.math.product import prod
 from bayesnet.math.sqrt import sqrt
 from bayesnet.math.square import square
 from bayesnet.math.subtract import subtract, rsubtract
@@ -28,6 +29,7 @@ Tensor.__rmul__ = multiply
 Tensor.__neg__ = negative
 Tensor.__pow__ = power
 Tensor.__rpow__ = rpower
+Tensor.prod = prod
 Tensor.__sub__ = subtract
 Tensor.__rsub__ = rsubtract
 Tensor.sum = sum
@@ -43,6 +45,7 @@ __all__ = [
     "mean",
     "multiply",
     "power",
+    "prod",
     "sqrt",
     "square",
     "subtract",

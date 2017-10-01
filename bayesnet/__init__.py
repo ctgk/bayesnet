@@ -11,6 +11,7 @@ from bayesnet.math.log import log
 from bayesnet.math.mean_squared_error import mean_squared_error
 from bayesnet.math.mean import mean
 from bayesnet.math.power import power
+from bayesnet.math.product import prod
 from bayesnet.math.sqrt import sqrt
 from bayesnet.math.square import square
 from bayesnet.math.sum_squared_error import sum_squared_error
@@ -33,6 +34,7 @@ __all__ = [
     "mean",
     "optimizer",
     "power",
+    "prod",
     "reshape",
     "sampler",
     "split",
