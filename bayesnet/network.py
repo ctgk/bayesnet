@@ -1,0 +1,75 @@
+from bayesnet.random.random import RandomVariable
+from bayesnet.tensor.parameter import Parameter
+
+
+class Network(object):
+    """
+    a base class for network building
+
+    Parameters
+    ----------
+    kwargs : tensor_like
+        parameters to be optimized
+
+    Attributes
+    ----------
+    parameter : dict
+        dictionary of parameters to be optimized
+    random_variable : dict
+        dictionary of random varibles
+    """
+
+    def __init__(self, **kwargs):
+        self.random_variable = {}
+        self.parameter = {}
+        for key, value in kwargs.items():
+            if isinstance(value, Parameter):
+                self.parameter[key] = value
+            else:
+                try:
+                    value = Parameter(value)
+                except TypeError:
+                    raise TypeError(f"invalid type argument: {type(value)}")
+                self.parameter[key] = value
+            object.__setattr__(self, key, value)
+
+    def __setattr__(self, key, value):
+        if isinstance(value, RandomVariable):
+            self.random_variable[key] = value
+        object.__setattr__(self, key, value)
+
+    def cleargrad(self):
+        for p in self.parameter.values():
+            p.cleargrad()
+
+    def log_posterior(self):
+        """
+        compute logarithm of posterior distribution function
+
+        Returns
+        -------
+        logp : tensor_like
+            logarithm of posterior distribution function
+        """
+        logp = 0
+        for rv in self.random_variable.values():
+            logp += rv.log_pdf().sum()
+        return logp
+
+    def elbo(self):
+        """
+        compute evidence lower bound of this model
+        ln p(output) >= elbo
+
+        Returns
+        -------
+        evidence : tensor_like
+            evidence lower bound
+        """
+        evidence = 0
+        for rv in self.random_variable.values():
+            if rv.prior is None:
+                evidence += rv.log_pdf().sum()
+            else:
+                evidence += -rv.KLqp().sum()
+        return evidence
