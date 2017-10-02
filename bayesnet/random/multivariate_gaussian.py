@@ -118,19 +118,3 @@ class MultivariateGaussian(RandomVariable):
             logp = logp.sum()
 
         return logp
-
-    def _KLqp(self, p):
-        if isinstance(p, MultivariateGaussian):
-            d = p.mu - self.mu
-            d = broadcast_to(d, (1, self.mu.size))
-            d = d.transpose()
-            kl = 0.5 * (
-                logdet(p.cov) - logdet(self.cov)
-                + trace(solve(p.cov, self.cov))
-                + (solve(self.cov, d) * d).sum()
-                - self.mu.size
-            )
-        else:
-            raise NotImplementedError
-
-        return kl

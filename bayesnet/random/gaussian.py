@@ -97,14 +97,6 @@ class Gaussian(RandomVariable):
     def _log_pdf(self, x):
         return GaussianLogPDF().forward(x, self.mu, self.var)
 
-    def _KLqp(self, p):
-        if isinstance(p, Gaussian):
-            kl = GaussianKL().forward(self, p)
-        else:
-            raise NotImplementedError
-
-        return kl
-
 
 class GaussianLogPDF(Function):
 
@@ -130,29 +122,3 @@ class GaussianLogPDF(Function):
         self.x.backward(dx)
         self.mu.backward(dmu)
         self.var.backward(dvar)
-
-
-class GaussianKL(Function):
-
-    def _forward(self, q, p):
-        self.q = q
-        self.p = p
-        kl = (
-            np.log(p.std.value) - np.log(q.std.value)
-            + 0.5 * (q.var.value + (q.mu.value - p.mu.value) ** 2) / p.var.value
-            - 0.5
-        )
-        return Tensor(kl, function=self)
-
-    def _backward(self, delta):
-        dpmu = 0.5 * delta * (self.p.mu.value - self.q.mu.value) / self.p.var.value
-        dqmu = -dpmu
-        dpvar = 0.5 * delta * (
-            1 / self.p.var.value
-            - (self.q.var.value + (self.p.mu.value - self.q.mu.value) ** 2) / self.p.var.value ** 2
-        )
-        dqvar = 0.5 * delta * (1 / self.p.var.value - 1 / self.q.var.value)
-        self.p.mu.backward(dpmu)
-        self.p.var.backward(dpvar)
-        self.q.mu.backward(dqmu)
-        self.q.var.backward(dqvar)

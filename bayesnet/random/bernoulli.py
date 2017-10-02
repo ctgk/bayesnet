@@ -77,15 +77,6 @@ class Bernoulli(RandomVariable):
         except KeyError:
             return x * log(self.mu) + (1 - x) * log(1 - self.mu)
 
-    def _KLqp(self, p):
-        if isinstance(p, Bernoulli):
-            return (
-                self.mu * (log(self.mu) - log(p.mu))
-                + (1 - self.mu) * (log(1 - self.mu) - log(1 - p.mu))
-            )
-        else:
-            raise NotImplementedError
-
 
 class SigmoidCrossEntropy(Function):
     """

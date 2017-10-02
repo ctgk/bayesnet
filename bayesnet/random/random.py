@@ -62,7 +62,10 @@ class RandomVariable(Function):
         sample : tensor
             sample generated from this random variable
         """
-        return self.forward()
+        if self.observed:
+            raise ValueError("draw method cannot be used for observed random variable")
+        self.data = self.forward()
+        return self.data
 
     def pdf(self, x=None):
         """
@@ -122,9 +125,6 @@ class RandomVariable(Function):
         kl : Tensor
             KL divergence from this distribution to the given argument
         """
-        if hasattr(self, "_KLqp"):
-            if p is None:
-                return self._KLqp(self.prior)
-            return self._KLqp(p)
-        else:
-            raise NotImplementedError
+        if p is None:
+            return self.log_pdf() - self.prior.log_pdf(self.data)
+        return self.log_pdf() - p.log_pdf(self.data)
