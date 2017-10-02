@@ -14,7 +14,7 @@ class Adam(Optimizer):
     learning_rate *= sqrt(1 - beta2^n) / (1 - beta1^n)
     m1 = beta1 * m1 + (1 - beta1) * gradient
     m2 = beta2 * m2 + (1 - beta2) * gradient^2
-    param -= learning_rate * m1 / (sqrt(m2) + epsilon)
+    param += learning_rate * m1 / (sqrt(m2) + epsilon)
     """
 
     def __init__(self, parameter, learning_rate=0.001, beta1=0.9, beta2=0.999, epsilon=1e-8):
@@ -62,4 +62,4 @@ class Adam(Optimizer):
         for p, m1, m2 in zip(self.parameter, self.moment1, self.moment2):
             m1 += (1 - self.beta1) * (p.grad - m1)
             m2 += (1 - self.beta2) * (p.grad ** 2 - m2)
-            p.value -= lr * m1 / (np.sqrt(m2) + self.epsilon)
+            p.value += lr * m1 / (np.sqrt(m2) + self.epsilon)

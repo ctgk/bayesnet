@@ -21,8 +21,8 @@ class TestMultivariateGaussian(unittest.TestCase):
         for _ in range(1000):
             optimizer.cleargrad()
             x = bn.random.MultivariateGaussian(mu, cov + cov.transpose(), data=x_train)
-            loss = -x.log_pdf().sum()
-            loss.backward()
+            log_likelihood = x.log_pdf().sum()
+            log_likelihood.backward()
             optimizer.update()
         self.assertTrue(np.allclose(mu.value, x_train.mean(axis=0)))
         self.assertTrue(np.allclose(np.cov(x_train, rowvar=False, bias=True), x.cov.value))

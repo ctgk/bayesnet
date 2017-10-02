@@ -1,10 +1,10 @@
 from bayesnet.optimizer.optimizer import Optimizer
 
 
-class GradientDescent(Optimizer):
+class GradientAscent(Optimizer):
     """
-    gradient descent optimizer
-    parameter -= learning_rate * gradient
+    gradient ascent optimizer
+    parameter += learning_rate * gradient
     """
 
     def update(self):
@@ -13,4 +13,4 @@ class GradientDescent(Optimizer):
         """
         self.increment_iteration()
         for p in self.parameter:
-            p.value -= self.learning_rate * p.grad
+            p.value += self.learning_rate * p.grad
