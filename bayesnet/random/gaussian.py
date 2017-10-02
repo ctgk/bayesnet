@@ -1,5 +1,6 @@
 import numpy as np
 from bayesnet.array.broadcast import broadcast_to
+from bayesnet.function import Function
 from bayesnet.math.exp import exp
 from bayesnet.math.log import log
 from bayesnet.math.sqrt import sqrt
@@ -74,19 +75,6 @@ class Gaussian(RandomVariable):
     def var(self):
         return square(self.std)
 
-    def _pdf(self, x):
-        return (
-            exp(-0.5 * square((x - self.mu) / self.std))
-            / sqrt(2 * np.pi) / self.std
-        )
-
-    def _log_pdf(self, x):
-        return (
-            -0.5 * square((x - self.mu) / self.std)
-            - log(self.std)
-            - 0.5 * log(2 * np.pi)
-        )
-
     def _forward(self):
         self.eps = np.random.normal(size=self.mu.shape)
         output = self.mu.value + self.std.value * self.eps
@@ -100,14 +88,71 @@ class Gaussian(RandomVariable):
         self.mu.backward(dmu)
         self.std.backward(dstd)
 
+    def _pdf(self, x):
+        return (
+            exp(-0.5 * square((x - self.mu) / self.std))
+            / sqrt(2 * np.pi) / self.std
+        )
+
+    def _log_pdf(self, x):
+        return GaussianLogPDF().forward(x, self.mu, self.var)
+
     def _KLqp(self, p):
         if isinstance(p, Gaussian):
-            kl = (
-                log(p.std) - log(self.std)
-                + 0.5 * (self.var + square(self.mu - p.mu)) / p.var
-                - 0.5
-            )
+            kl = GaussianKL().forward(self, p)
         else:
             raise NotImplementedError
 
         return kl
+
+
+class GaussianLogPDF(Function):
+
+    def _forward(self, x, mu, var):
+        x = self._convert2tensor(x)
+        self.x = x
+        self.mu = mu
+        self.var = var
+        output = (
+            -0.5 * np.square(x.value - mu.value) / var.value
+            - 0.5 * np.log(var.value)
+            - 0.5 * np.log(2 * np.pi)
+        )
+        return Tensor(output, function=self)
+
+    def _backward(self, delta):
+        dx = -0.5 * delta * (self.x.value - self.mu.value) / self.var.value
+        dmu = -0.5 * delta * (self.mu.value - self.x.value) / self.var.value
+        dvar = 0.5 * delta * (
+            ((self.x.value - self.mu.value) / self.var.value) ** 2
+            - 1 / self.var.value
+        )
+        self.x.backward(dx)
+        self.mu.backward(dmu)
+        self.var.backward(dvar)
+
+
+class GaussianKL(Function):
+
+    def _forward(self, q, p):
+        self.q = q
+        self.p = p
+        kl = (
+            np.log(p.std.value) - np.log(q.std.value)
+            + 0.5 * (q.var.value + (q.mu.value - p.mu.value) ** 2) / p.var.value
+            - 0.5
+        )
+        return Tensor(kl, function=self)
+
+    def _backward(self, delta):
+        dpmu = 0.5 * delta * (self.p.mu.value - self.q.mu.value) / self.p.var.value
+        dqmu = -dpmu
+        dpvar = 0.5 * delta * (
+            1 / self.p.var.value
+            - (self.q.var.value + (self.p.mu.value - self.q.mu.value) ** 2) / self.p.var.value ** 2
+        )
+        dqvar = 0.5 * delta * (1 / self.p.var.value - 1 / self.q.var.value)
+        self.p.mu.backward(dpmu)
+        self.p.var.backward(dpvar)
+        self.q.mu.backward(dqmu)
+        self.q.var.backward(dqvar)
