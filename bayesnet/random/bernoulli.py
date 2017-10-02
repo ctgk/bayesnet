@@ -1,86 +1,134 @@
 import numpy as np
-from bayes.function.math.log import log
-from bayes.random.random import RandomVariable
-from bayes.tensor.tensor import Tensor
+from bayesnet.function import Function
+from bayesnet.math.log import log
+from bayesnet.nonlinear.sigmoid import sigmoid
+from bayesnet.random.random import RandomVariable
+from bayesnet.tensor.tensor import Tensor
 
 
 class Bernoulli(RandomVariable):
     """
     Bernoulli distribution
-    p(x|mu(prob)) = mu^x (1 - mu)^(1 - x)
+    p(x|mu) = mu^x (1 - mu)^(1 - x)
+
+    Parameters
+    ----------
+    mu : tensor_like
+        probability of value 1
+    logit : tensor_like
+        log-odd of value 1
+    data : tensor_like
+        observed data
+    prior : RandomVariable
+        prior distribution
     """
 
-    def __init__(self, prob):
-        """
-        construct Bernoulli distribution
-
-        Parameters
-        ----------
-        param : dict
-            dictionary of parameter
-        prob : tensor_like
-            prob of value 1 for each element
-        """
-        self.parameter = dict()
-        self.prob = prob
+    def __init__(self, mu=None, logit=None, data=None, prior=None):
+        super().__init__(data, prior)
+        if mu is not None and logit is None:
+            mu = self._convert2tensor(mu)
+            self.mu = mu
+        elif mu is None and logit is not None:
+            logit = self._convert2tensor(logit)
+            self.logit = logit
+        elif mu is None and logit is None:
+            raise ValueError("Either mu or logit must not be None")
+        else:
+            raise ValueError("Cannot assign both mu and logit")
 
     @property
-    def prob(self):
-        return self.parameter["prob"]
-
-    @prob.setter
-    def prob(self, prob):
+    def mu(self):
         try:
-            prob = Tensor(prob)
-        except TypeError:
-            pass
+            return self.parameter["mu"]
+        except KeyError:
+            return sigmoid(self.logit)
 
-        if isinstance(prob, Tensor):
-            self.parameter["prob"] = prob
-        else:
-            raise TypeError(f"{type(prob)} is not acceptable for prob")
+    @mu.setter
+    def mu(self, mu):
+        try:
+            inrange = (0 <= mu.value <= 1)
+        except ValueError:
+            inrange = ((mu.value >= 0).all() and (mu.value <= 1).all())
 
-    def __repr__(self):
-        return (
-            "Bernoulli(\n"
-            f"    prob={self.prob}\n)"
-        )
-
-    @property
-    def ndim(self):
-        return self.prob.ndim
+        if not inrange:
+            raise ValueError("value of mu must all be positive")
+        self.parameter["mu"] = mu
 
     @property
-    def size(self):
-        return self.prob.size
+    def logit(self):
+        try:
+            return self.parameter["logit"]
+        except KeyError:
+            raise AttributeError("no attribute named logit")
 
-    @property
-    def shape(self):
-        return self.prob.shape
+    @logit.setter
+    def logit(self, logit):
+        self.parameter["logit"] = logit
 
-    @property
-    def mean(self):
-        if isinstance(self.prob, Tensor):
-            return self.prob.value
+    def _forward(self):
+        return (np.random.uniform(size=self.mu.shape) < self.mu.value).astype(np.int)
+
+    def _pdf(self, x):
+        return self.mu ** x * (1 - self.mu) ** (1 - x)
+
+    def _log_pdf(self, x):
+        try:
+            return -SigmoidCrossEntropy().forward(self.logit, x)
+        except KeyError:
+            return x * log(self.mu) + (1 - x) * log(1 - self.mu)
+
+    def _KLqp(self, p):
+        if isinstance(p, Bernoulli):
+            return (
+                self.mu * (log(self.mu) - log(p.mu))
+                + (1 - self.mu) * (log(1 - self.mu) - log(1 - p.mu))
+            )
         else:
             raise NotImplementedError
 
-    @property
-    def var(self):
-        if isinstance(self.prob, Tensor):
-            return self.mean * (1 - self.mean)
-        else:
-            raise NotImplementedError
 
-    def _nll(self, x):
-        return (- x * log(self.prob) - (1 - x) * log(1 - self.prob)).sum()
+class SigmoidCrossEntropy(Function):
+    """
+    sum of cross entropies for binary data
+    logistic sigmoid
+    y_i = 1 / (1 + exp(-x_i))
+    cross_entropy_i = -t_i * log(y_i) - (1 - t_i) * log(1 - y_i)
+    Parameters
+    ----------
+    x : ndarary
+        input logit
+    y : ndarray
+        corresponding target binaries
+    """
 
-    def _pdf(self, X):
-        return np.prod(
-            self.mean ** X * (1 - self.mean) ** (1 - X)
+    def _check_input(self, x, t):
+        x = self._convert2tensor(x)
+        t = self._convert2tensor(t)
+        if x.shape != t.shape:
+            raise ValueError(
+                "shapes {} and {} not aligned"
+                .format(x.shape, t.shape)
+            )
+        return x, t
+
+
+    def _forward(self, x, t):
+        x, t = self._check_input(x, t)
+        self.x = x
+        self.t = t
+        # y = self.forward(x)
+        # np.clip(y, 1e-10, 1 - 1e-10, out=y)
+        # return np.sum(-t * np.log(y) - (1 - t) * np.log(1 - y))
+        loss = (
+            np.maximum(x.value, 0)
+            - t.value * x.value
+            + np.log1p(np.exp(-np.abs(x.value)))
         )
+        return Tensor(loss, function=self)
 
-    def _draw(self, sample_size=1):
-        return (
-            self.mean > np.random.uniform(size=(sample_size,) + self.shape)
-        ).astype(np.int)
+    def _backward(self, delta):
+        y = np.tanh(self.x.value * 0.5) * 0.5 + 0.5
+        dx = delta * (y - self.t.value)
+        dt = - delta * self.x.value
+        self.x.backward(dx)
+        self.t.backward(dt)
