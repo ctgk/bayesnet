@@ -21,7 +21,7 @@ class Add(Function):
                 y = broadcast_to(y, shape)
         return x, y
 
-    def _forward(self, x, y):
+    def forward(self, x, y):
         x, y = self._check_input(x, y)
         self.x = x
         self.y = y
@@ -29,7 +29,7 @@ class Add(Function):
             return Constant(x.value + y.value)
         return Tensor(x.value + y.value, function=self)
 
-    def _backward(self, delta):
+    def backward(self, delta):
         dx = delta
         dy = delta
         self.x.backward(dx)

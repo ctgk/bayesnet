@@ -20,7 +20,7 @@ class MatMul(Function):
             )
         return x, y
 
-    def _forward(self, x, y):
+    def forward(self, x, y):
         x, y = self._check_input(x, y)
         self.x = x
         self.y = y
@@ -28,7 +28,7 @@ class MatMul(Function):
             return Constant(x.value @ y.value)
         return Tensor(x.value @ y.value, function=self)
 
-    def _backward(self, delta):
+    def backward(self, delta):
         dx = delta @ self.y.value.T
         dy = self.x.value.T @ delta
         self.x.backward(dx)

@@ -9,14 +9,14 @@ class Negative(Function):
     y = -x
     """
 
-    def _forward(self, x):
+    def forward(self, x):
         x = self._convert2tensor(x)
         self.x = x
         if isinstance(self.x, Constant):
             return Constant(-x.value)
         return Tensor(-x.value, function=self)
 
-    def _backward(self, delta):
+    def backward(self, delta):
         dx = -delta
         self.x.backward(dx)
 

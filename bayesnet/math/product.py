@@ -14,7 +14,7 @@ class Product(Function):
         self.axis = axis
         self.keepdims = keepdims
 
-    def _forward(self, x):
+    def forward(self, x):
         x = self._convert2tensor(x)
         self.x = x
         self.output = np.prod(self.x.value, axis=self.axis, keepdims=True)
@@ -28,7 +28,7 @@ class Product(Function):
             return Constant(output)
         return Tensor(output, function=self)
 
-    def _backward(self, delta):
+    def backward(self, delta):
         if not self.keepdims and self.axis is not None:
             for ax in self.axis:
                 delta = np.expand_dims(delta, ax)

@@ -10,7 +10,7 @@ class Log(Function):
     y = log(x)
     """
 
-    def _forward(self, x):
+    def forward(self, x):
         x = self._convert2tensor(x)
         self.x = x
         output = np.log(self.x.value)
@@ -18,7 +18,7 @@ class Log(Function):
             return Constant(output)
         return Tensor(output, function=self)
 
-    def _backward(self, delta):
+    def backward(self, delta):
         dx = delta / self.x.value
         self.x.backward(dx)
 

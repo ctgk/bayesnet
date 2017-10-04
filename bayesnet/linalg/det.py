@@ -6,7 +6,7 @@ from bayesnet.function import Function
 
 class Determinant(Function):
 
-    def _forward(self, x):
+    def forward(self, x):
         x = self._convert2tensor(x)
         self.x = x
         self._equal_ndim(x, 2)
@@ -15,7 +15,7 @@ class Determinant(Function):
             return Constant(self.output)
         return Tensor(self.output, function=self)
 
-    def _backward(self, delta):
+    def backward(self, delta):
         dx = delta * self.output * np.linalg.inv(self.x.value.T)
         self.x.backward(dx)
 

@@ -99,14 +99,14 @@ class Gaussian(RandomVariable):
             raise ValueError("value of var must all be positive")
         self.parameter["var"] = var
 
-    def _forward(self):
+    def forward(self):
         self.eps = np.random.normal(size=self.mu.shape)
         output = self.mu.value + self.std.value * self.eps
         if isinstance(self.mu, Constant) and isinstance(self.var, Constant):
             return Constant(output)
         return Tensor(output, self)
 
-    def _backward(self, delta):
+    def backward(self, delta):
         dmu = delta
         dstd = delta * self.eps
         self.mu.backward(dmu)
@@ -138,7 +138,7 @@ class GaussianLogPDF(Function):
                 var = broadcast_to(var, shape)
         return x, mu, var
 
-    def _forward(self, x, mu, var):
+    def forward(self, x, mu, var):
         x, mu, var = self._check_input(x, mu, var)
         self.x = x
         self.mu = mu
@@ -150,7 +150,7 @@ class GaussianLogPDF(Function):
         )
         return Tensor(output, function=self)
 
-    def _backward(self, delta):
+    def backward(self, delta):
         dx = -0.5 * delta * (self.x.value - self.mu.value) / self.var.value
         dmu = -0.5 * delta * (self.mu.value - self.x.value) / self.var.value
         dvar = 0.5 * delta * (

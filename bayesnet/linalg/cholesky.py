@@ -6,7 +6,7 @@ from bayesnet.function import Function
 
 class Cholesky(Function):
 
-    def _forward(self, x):
+    def forward(self, x):
         x = self._convert2tensor(x)
         self.x = x
         self.output = np.linalg.cholesky(x.value)
@@ -14,7 +14,7 @@ class Cholesky(Function):
             return Constant(self.output)
         return Tensor(self.output, function=self)
 
-    def _backward(self, delta):
+    def backward(self, delta):
         delta_lower = np.tril(delta)
         P = phi(self.output.T @ delta_lower)
         S = np.linalg.solve(

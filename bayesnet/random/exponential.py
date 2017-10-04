@@ -42,7 +42,7 @@ class Exponential(RandomVariable):
             raise ValueError("value of rate must be positive")
         self.parameter["rate"] = rate
 
-    def _forward(self):
+    def forward(self):
         eps = np.random.uniform(size=self.rate.shape)
         np.clip(eps, 1e-8, 1 - 1e-8, out=eps)
         self.eps = -np.log(eps)
@@ -51,7 +51,7 @@ class Exponential(RandomVariable):
             return Constant(output)
         return Tensor(output, self)
 
-    def _backward(self, delta):
+    def backward(self, delta):
         drate = -delta * self.eps / self.rate.value ** 2
         self.rate.backward(drate)
 

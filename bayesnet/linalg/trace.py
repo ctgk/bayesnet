@@ -6,7 +6,7 @@ from bayesnet.function import Function
 
 class Trace(Function):
 
-    def _forward(self, x):
+    def forward(self, x):
         x = self._convert2tensor(x)
         self._equal_ndim(x, 2)
         self.x = x
@@ -15,7 +15,7 @@ class Trace(Function):
             return Constant(output)
         return Tensor(output, function=self)
 
-    def _backward(self, delta):
+    def backward(self, delta):
         dx = np.eye(self.x.shape[0], self.x.shape[1]) * delta
         self.x.backward(dx)
 

@@ -21,7 +21,7 @@ class Power(Function):
                 y = broadcast_to(y, shape)
         return x, y
 
-    def _forward(self, x, y):
+    def forward(self, x, y):
         x, y = self._check_input(x, y)
         self.x = x
         self.y = y
@@ -30,7 +30,7 @@ class Power(Function):
             return Constant(self.output)
         return Tensor(self.output, function=self)
 
-    def _backward(self, delta):
+    def backward(self, delta):
         dx = self.y.value * np.power(self.x.value, self.y.value - 1) * delta
         if self.x.size == 1:
             if self.x.value > 0:

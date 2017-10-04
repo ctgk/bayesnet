@@ -31,26 +31,3 @@ class Function(object):
                 " larger or equal to {}, not {}"
                 .format(ndim, x.ndim)
             )
-
-    def forward(self, *args, **kwargs):
-        """
-        forward propagation
-        """
-        if hasattr(self, "_forward"):
-            return self._forward(*args, **kwargs)
-        else:
-            raise NotImplementedError
-
-    def backward(self, delta, *args, **kwargs):
-        """
-        backpropagation of derivative
-
-        Parameters
-        ----------
-        delta : array_like
-            derivative of the output
-        """
-        if hasattr(self, "_backward"):
-            return self._backward(delta, *args, **kwargs)
-        else:
-            raise NotImplementedError

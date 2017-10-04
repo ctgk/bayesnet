@@ -8,7 +8,7 @@ class Reshape(Function):
     reshape array
     """
 
-    def _forward(self, x, shape):
+    def forward(self, x, shape):
         x = self._convert2tensor(x)
         self._atleast_ndim(x, 1)
         self.x = x
@@ -16,7 +16,7 @@ class Reshape(Function):
             return Constant(x.value.reshape(*shape))
         return Tensor(x.value.reshape(*shape), function=self)
 
-    def _backward(self, delta):
+    def backward(self, delta):
         dx = delta.reshape(*self.x.shape)
         self.x.backward(dx)
 
