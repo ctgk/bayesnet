@@ -17,7 +17,7 @@ class Gaussian(RandomVariable):
     = exp{-0.5 * (x - mu)^2 / sigma^2} / sqrt(2pi * sigma^2)
     """
 
-    def __init__(self, mu, std, data=None, prior=None):
+    def __init__(self, mu, std=None, var=None, data=None, prior=None):
         """
         construct Gaussian distribution
 
@@ -27,26 +27,33 @@ class Gaussian(RandomVariable):
             mean parameter
         std : tensor_like
             std parameter
+        var : tensor_like
+            variance parameter
         data : tensor_like
             observed data
         prior : RandomVariable
             prior distribution
         """
         super().__init__(data, prior)
-        mu, std = self._check_input(mu, std)
-        self.mu = mu
-        self.std = std
+        if std is not None and var is None:
+            self.mu, self.std = self._check_input(mu, std)
+        elif std is None and var is not None:
+            self.mu, self.var = self._check_input(mu, var)
+        elif std is None and var is None:
+            raise ValueError("Either std or var must be assigned")
+        else:
+            raise ValueError("Cannot assign both std and var")
 
-    def _check_input(self, mu, std):
-        mu = self._convert2tensor(mu)
-        std = self._convert2tensor(std)
-        if mu.shape != std.shape:
-            shape = np.broadcast(mu.value, std.value).shape
-            if mu.shape != shape:
-                mu = broadcast_to(mu, shape)
-            if std.shape != shape:
-                std = broadcast_to(std, shape)
-        return mu, std
+    def _check_input(self, x, y):
+        x = self._convert2tensor(x)
+        y = self._convert2tensor(y)
+        if x.shape != y.shape:
+            shape = np.broadcast(x.value, y.value).shape
+            if x.shape != shape:
+                x = broadcast_to(x, shape)
+            if y.shape != shape:
+                y = broadcast_to(y, shape)
+        return x, y
 
     @property
     def mu(self):
@@ -58,7 +65,10 @@ class Gaussian(RandomVariable):
 
     @property
     def std(self):
-        return self.parameter["std"]
+        try:
+            return self.parameter["std"]
+        except KeyError:
+            return sqrt(self.parameter["var"])
 
     @std.setter
     def std(self, std):
@@ -73,16 +83,30 @@ class Gaussian(RandomVariable):
 
     @property
     def var(self):
-        return square(self.std)
+        try:
+            return self.parameter["var"]
+        except KeyError:
+            return square(self.std)
 
-    def _forward(self):
+    @var.setter
+    def var(self, var):
+        try:
+            ispositive = (var.value > 0).all()
+        except AttributeError:
+            ispositive = (var.value > 0)
+
+        if not ispositive:
+            raise ValueError("value of var must all be positive")
+        self.parameter["var"] = var
+
+    def forward(self):
         self.eps = np.random.normal(size=self.mu.shape)
         output = self.mu.value + self.std.value * self.eps
         if isinstance(self.mu, Constant) and isinstance(self.var, Constant):
             return Constant(output)
         return Tensor(output, self)
 
-    def _backward(self, delta):
+    def backward(self, delta):
         dmu = delta
         dstd = delta * self.eps
         self.mu.backward(dmu)
@@ -97,19 +121,25 @@ class Gaussian(RandomVariable):
     def _log_pdf(self, x):
         return GaussianLogPDF().forward(x, self.mu, self.var)
 
-    def _KLqp(self, p):
-        if isinstance(p, Gaussian):
-            kl = GaussianKL().forward(self, p)
-        else:
-            raise NotImplementedError
-
-        return kl
-
 
 class GaussianLogPDF(Function):
 
-    def _forward(self, x, mu, var):
+    def _check_input(self, x, mu, var):
         x = self._convert2tensor(x)
+        mu = self._convert2tensor(mu)
+        var = self._convert2tensor(var)
+        if not (x.shape == mu.shape == var.shape):
+            shape = np.broadcast(x.value, mu.value, var.value).shape
+            if x.shape != shape:
+                x = broadcast_to(x, shape)
+            if mu.shape != shape:
+                mu = broadcast_to(mu, shape)
+            if var.shape != shape:
+                var = broadcast_to(var, shape)
+        return x, mu, var
+
+    def forward(self, x, mu, var):
+        x, mu, var = self._check_input(x, mu, var)
         self.x = x
         self.mu = mu
         self.var = var
@@ -120,7 +150,7 @@ class GaussianLogPDF(Function):
         )
         return Tensor(output, function=self)
 
-    def _backward(self, delta):
+    def backward(self, delta):
         dx = -0.5 * delta * (self.x.value - self.mu.value) / self.var.value
         dmu = -0.5 * delta * (self.mu.value - self.x.value) / self.var.value
         dvar = 0.5 * delta * (
@@ -130,29 +160,3 @@ class GaussianLogPDF(Function):
         self.x.backward(dx)
         self.mu.backward(dmu)
         self.var.backward(dvar)
-
-
-class GaussianKL(Function):
-
-    def _forward(self, q, p):
-        self.q = q
-        self.p = p
-        kl = (
-            np.log(p.std.value) - np.log(q.std.value)
-            + 0.5 * (q.var.value + (q.mu.value - p.mu.value) ** 2) / p.var.value
-            - 0.5
-        )
-        return Tensor(kl, function=self)
-
-    def _backward(self, delta):
-        dpmu = 0.5 * delta * (self.p.mu.value - self.q.mu.value) / self.p.var.value
-        dqmu = -dpmu
-        dpvar = 0.5 * delta * (
-            1 / self.p.var.value
-            - (self.q.var.value + (self.p.mu.value - self.q.mu.value) ** 2) / self.p.var.value ** 2
-        )
-        dqvar = 0.5 * delta * (1 / self.p.var.value - 1 / self.q.var.value)
-        self.p.mu.backward(dpmu)
-        self.p.var.backward(dpvar)
-        self.q.mu.backward(dqmu)
-        self.q.var.backward(dqvar)

@@ -6,7 +6,7 @@ from bayesnet.function import Function
 
 class Solve(Function):
 
-    def _forward(self, a, b):
+    def forward(self, a, b):
         a = self._convert2tensor(a)
         b = self._convert2tensor(b)
         self._equal_ndim(a, 2)
@@ -18,7 +18,7 @@ class Solve(Function):
             return Constant(self.output)
         return Tensor(self.output, function=self)
 
-    def _backward(self, delta):
+    def backward(self, delta):
         db = np.linalg.solve(self.a.value.T, delta)
         da = -db @ self.output.T
         self.a.backward(da)

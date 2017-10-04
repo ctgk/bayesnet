@@ -65,7 +65,7 @@ class Bernoulli(RandomVariable):
     def logit(self, logit):
         self.parameter["logit"] = logit
 
-    def _forward(self):
+    def forward(self):
         return (np.random.uniform(size=self.mu.shape) < self.mu.value).astype(np.int)
 
     def _pdf(self, x):
@@ -76,15 +76,6 @@ class Bernoulli(RandomVariable):
             return -SigmoidCrossEntropy().forward(self.logit, x)
         except KeyError:
             return x * log(self.mu) + (1 - x) * log(1 - self.mu)
-
-    def _KLqp(self, p):
-        if isinstance(p, Bernoulli):
-            return (
-                self.mu * (log(self.mu) - log(p.mu))
-                + (1 - self.mu) * (log(1 - self.mu) - log(1 - p.mu))
-            )
-        else:
-            raise NotImplementedError
 
 
 class SigmoidCrossEntropy(Function):
@@ -112,7 +103,7 @@ class SigmoidCrossEntropy(Function):
         return x, t
 
 
-    def _forward(self, x, t):
+    def forward(self, x, t):
         x, t = self._check_input(x, t)
         self.x = x
         self.t = t
@@ -126,7 +117,7 @@ class SigmoidCrossEntropy(Function):
         )
         return Tensor(loss, function=self)
 
-    def _backward(self, delta):
+    def backward(self, delta):
         y = np.tanh(self.x.value * 0.5) * 0.5 + 0.5
         dx = delta * (y - self.t.value)
         dt = - delta * self.x.value

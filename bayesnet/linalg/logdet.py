@@ -6,7 +6,7 @@ from bayesnet.function import Function
 
 class LogDeterminant(Function):
 
-    def _forward(self, x):
+    def forward(self, x):
         x = self._convert2tensor(x)
         self.x = x
         self._equal_ndim(x, 2)
@@ -17,7 +17,7 @@ class LogDeterminant(Function):
             return Constant(self.output)
         return Tensor(self.output, function=self)
 
-    def _backward(self, delta):
+    def backward(self, delta):
         dx = delta * np.linalg.inv(self.x.value.T)
         self.x.backward(dx)
 

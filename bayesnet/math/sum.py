@@ -16,7 +16,7 @@ class Sum(Function):
         self.axis = axis
         self.keepdims = keepdims
 
-    def _forward(self, x):
+    def forward(self, x):
         x = self._convert2tensor(x)
         self.x = x
         output = x.value.sum(axis=self.axis, keepdims=self.keepdims)
@@ -24,8 +24,8 @@ class Sum(Function):
             return Constant(output)
         return Tensor(output, function=self)
 
-    def _backward(self, delta):
-        if isinstance(delta, np.ndarray) and (not self.keepdims):
+    def backward(self, delta):
+        if isinstance(delta, np.ndarray) and (not self.keepdims) and (self.axis is not None):
             axis_positive = []
             for axis in self.axis:
                 if axis < 0:

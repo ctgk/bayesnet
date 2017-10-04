@@ -10,7 +10,7 @@ class Sqrt(Function):
     y = sqrt(x)
     """
 
-    def _forward(self, x):
+    def forward(self, x):
         x = self._convert2tensor(x)
         self.x = x
         self.output = np.sqrt(x.value)
@@ -18,7 +18,7 @@ class Sqrt(Function):
             return Constant(self.output)
         return Tensor(self.output, function=self)
 
-    def _backward(self, delta):
+    def backward(self, delta):
         dx = 0.5 * delta / self.output
         self.x.backward(dx)
 

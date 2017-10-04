@@ -6,7 +6,7 @@ from bayesnet.function import Function
 
 class Exp(Function):
 
-    def _forward(self, x):
+    def forward(self, x):
         x = self._convert2tensor(x)
         self.x = x
         self.output = np.exp(x.value)
@@ -14,7 +14,7 @@ class Exp(Function):
             return Constant(self.output)
         return Tensor(self.output, function=self)
 
-    def _backward(self, delta):
+    def backward(self, delta):
         dx = self.output * delta
         self.x.backward(dx)
 

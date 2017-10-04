@@ -42,9 +42,15 @@ class Network(object):
         for p in self.parameter.values():
             p.cleargrad()
 
-    def log_posterior(self):
+    def log_posterior(self, coef=1.):
         """
         compute logarithm of posterior distribution function
+
+        Parameters
+        ----------
+        coef : float
+            coefficient to balance likelihood and prior
+            usually for mini-batch training, mini-batch size / whole data size
 
         Returns
         -------
@@ -53,13 +59,22 @@ class Network(object):
         """
         logp = 0
         for rv in self.random_variable.values():
-            logp += rv.log_pdf().sum()
+            if rv.observed:
+                logp += rv.log_pdf().sum()
+            else:
+                logp += coef * rv.log_pdf().sum()
         return logp
 
-    def elbo(self):
+    def elbo(self, coef=1.):
         """
         compute evidence lower bound of this model
         ln p(output) >= elbo
+
+        Parameters
+        ----------
+        coef : float
+            coefficient to balance likelihood and prior
+            usually for mini-batch training, mini-batch size / whole data size
 
         Returns
         -------
@@ -68,8 +83,8 @@ class Network(object):
         """
         evidence = 0
         for rv in self.random_variable.values():
-            if rv.prior is None:
+            if rv.observed:
                 evidence += rv.log_pdf().sum()
             else:
-                evidence += -rv.KLqp().sum()
+                evidence += -coef * rv.KLqp().sum()
         return evidence

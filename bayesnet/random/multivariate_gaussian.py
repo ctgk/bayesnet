@@ -65,14 +65,14 @@ class MultivariateGaussian(RandomVariable):
             raise ValueError("cov must be positive-difinite matrix")
         self.parameter["cov"] = cov
 
-    def _forward(self):
+    def forward(self):
         self.eps = np.random.normal(size=self.mu.size)
         output = self.mu.value + self.L.value @ self.eps
         if isinstance(self.mu, Constant) and isinstance(self.cov, Constant):
             return Constant(output)
         return Tensor(output, self)
 
-    def _backward(self, delta):
+    def backward(self, delta):
         dmu = delta
         dL = delta * self.eps[:, None]
         self.mu.backward(dmu)
@@ -118,19 +118,3 @@ class MultivariateGaussian(RandomVariable):
             logp = logp.sum()
 
         return logp
-
-    def _KLqp(self, p):
-        if isinstance(p, MultivariateGaussian):
-            d = p.mu - self.mu
-            d = broadcast_to(d, (1, self.mu.size))
-            d = d.transpose()
-            kl = 0.5 * (
-                logdet(p.cov) - logdet(self.cov)
-                + trace(solve(p.cov, self.cov))
-                + (solve(self.cov, d) * d).sum()
-                - self.mu.size
-            )
-        else:
-            raise NotImplementedError
-
-        return kl

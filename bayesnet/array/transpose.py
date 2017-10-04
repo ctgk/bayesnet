@@ -9,7 +9,7 @@ class Transpose(Function):
     def __init__(self, axes=None):
         self.axes = axes
 
-    def _forward(self, x):
+    def forward(self, x):
         x = self._convert2tensor(x)
         if self.axes is not None:
             self._equal_ndim(x, len(self.axes))
@@ -18,7 +18,7 @@ class Transpose(Function):
             return Constant(np.transpose(x.value, self.axes))
         return Tensor(np.transpose(x.value, self.axes), function=self)
 
-    def _backward(self, delta):
+    def backward(self, delta):
         if self.axes is None:
             dx = np.transpose(delta)
         else:

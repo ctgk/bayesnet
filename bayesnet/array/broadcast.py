@@ -9,7 +9,7 @@ class BroadcastTo(Function):
     Broadcast a tensor to an new shape
     """
 
-    def _forward(self, x, shape):
+    def forward(self, x, shape):
         x = self._convert2tensor(x)
         self.x = x
         output = np.broadcast_to(x.value, shape)
@@ -17,7 +17,7 @@ class BroadcastTo(Function):
             return Constant(output)
         return Tensor(output, function=self)
 
-    def _backward(self, delta):
+    def backward(self, delta):
         dx = delta
         if delta.ndim != self.x.ndim:
             dx = dx.sum(axis=tuple(range(dx.ndim - self.x.ndim)))

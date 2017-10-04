@@ -9,13 +9,13 @@ class Nth(Function):
     def __init__(self, n):
         self.n = n
 
-    def _forward(self, x):
+    def forward(self, x):
         self.x = x
         if isinstance(self.x, Constant):
             return Constant(x.value)
         return Tensor(x.value, function=self)
 
-    def _backward(self, delta):
+    def backward(self, delta):
         self.x.backward(delta, n=self.n)
 
 
@@ -25,7 +25,7 @@ class Split(Function):
         self.indices_or_sections = indices_or_sections
         self.axis = axis
 
-    def _forward(self, x):
+    def forward(self, x):
         x = self._convert2tensor(x)
         self._atleast_ndim(x, 1)
         self.x = x
@@ -36,7 +36,7 @@ class Split(Function):
         self.delta = [None for _ in output]
         return tuple([Tensor(out, function=self) for out in output])
 
-    def _backward(self, delta, n):
+    def backward(self, delta, n):
         self.delta[n] = delta
         if all([d is not None for d in self.delta]):
             dx = np.concatenate(self.delta, axis=self.axis)
