@@ -3,7 +3,6 @@ from bayesnet.math.divide import divide, rdivide
 from bayesnet.math.exp import exp
 from bayesnet.math.log import log
 from bayesnet.math.matmul import matmul, rmatmul
-from bayesnet.math.mean_squared_error import mean_squared_error
 from bayesnet.math.mean import mean
 from bayesnet.math.multiply import multiply
 from bayesnet.math.negative import negative
@@ -12,7 +11,6 @@ from bayesnet.math.product import prod
 from bayesnet.math.sqrt import sqrt
 from bayesnet.math.square import square
 from bayesnet.math.subtract import subtract, rsubtract
-from bayesnet.math.sum_squared_error import sum_squared_error
 from bayesnet.math.sum import sum
 
 
@@ -41,7 +39,6 @@ __all__ = [
     "exp",
     "log",
     "matmul",
-    "mean_squared_error",
     "mean",
     "multiply",
     "power",
@@ -49,6 +46,5 @@ __all__ = [
     "sqrt",
     "square",
     "subtract",
-    "sum_squared_error",
     "sum"
 ]

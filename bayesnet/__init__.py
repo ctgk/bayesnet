@@ -8,13 +8,11 @@ from bayesnet.array.transpose import transpose
 from bayesnet import linalg
 from bayesnet.math.exp import exp
 from bayesnet.math.log import log
-from bayesnet.math.mean_squared_error import mean_squared_error
 from bayesnet.math.mean import mean
 from bayesnet.math.power import power
 from bayesnet.math.product import prod
 from bayesnet.math.sqrt import sqrt
 from bayesnet.math.square import square
-from bayesnet.math.sum_squared_error import sum_squared_error
 from bayesnet.math.sum import sum
 from bayesnet.nonlinear.sigmoid import sigmoid
 from bayesnet.nonlinear.softplus import softplus
@@ -33,7 +31,6 @@ __all__ = [
     "flatten",
     "linalg",
     "log",
-    "mean_squared_error",
     "mean",
     "optimizer",
     "power",
@@ -45,7 +42,6 @@ __all__ = [
     "split",
     "sqrt",
     "square",
-    "sum_squared_error",
     "sum",
     "tanh",
     "transpose"
