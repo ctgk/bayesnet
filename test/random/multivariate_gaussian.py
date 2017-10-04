@@ -17,7 +17,7 @@ class TestMultivariateGaussian(unittest.TestCase):
         ])
         mu = bn.Parameter(np.ones(2))
         cov = bn.Parameter(np.eye(2) * 2)
-        optimizer = bn.optimizer.GradientDescent([mu, cov], 0.1)
+        optimizer = bn.optimizer.GradientAscent([mu, cov], 0.1)
         for _ in range(1000):
             optimizer.cleargrad()
             x = bn.random.MultivariateGaussian(mu, cov + cov.transpose(), data=x_train)
@@ -26,11 +26,6 @@ class TestMultivariateGaussian(unittest.TestCase):
             optimizer.update()
         self.assertTrue(np.allclose(mu.value, x_train.mean(axis=0)))
         self.assertTrue(np.allclose(np.cov(x_train, rowvar=False, bias=True), x.cov.value))
-
-        g = bn.random.MultivariateGaussian(
-            np.ones(2), np.eye(2) * 2
-        )
-        self.assertEqual(g.KLqp(g).value, 0)
 
 
 if __name__ == '__main__':
