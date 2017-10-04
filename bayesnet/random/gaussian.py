@@ -17,7 +17,7 @@ class Gaussian(RandomVariable):
     = exp{-0.5 * (x - mu)^2 / sigma^2} / sqrt(2pi * sigma^2)
     """
 
-    def __init__(self, mu, std, data=None, prior=None):
+    def __init__(self, mu, std=None, var=None, data=None, prior=None):
         """
         construct Gaussian distribution
 
@@ -27,26 +27,33 @@ class Gaussian(RandomVariable):
             mean parameter
         std : tensor_like
             std parameter
+        var : tensor_like
+            variance parameter
         data : tensor_like
             observed data
         prior : RandomVariable
             prior distribution
         """
         super().__init__(data, prior)
-        mu, std = self._check_input(mu, std)
-        self.mu = mu
-        self.std = std
+        if std is not None and var is None:
+            self.mu, self.std = self._check_input(mu, std)
+        elif std is None and var is not None:
+            self.mu, self.var = self._check_input(mu, var)
+        elif std is None and var is None:
+            raise ValueError("Either std or var must be assigned")
+        else:
+            raise ValueError("Cannot assign both std and var")
 
-    def _check_input(self, mu, std):
-        mu = self._convert2tensor(mu)
-        std = self._convert2tensor(std)
-        if mu.shape != std.shape:
-            shape = np.broadcast(mu.value, std.value).shape
-            if mu.shape != shape:
-                mu = broadcast_to(mu, shape)
-            if std.shape != shape:
-                std = broadcast_to(std, shape)
-        return mu, std
+    def _check_input(self, x, y):
+        x = self._convert2tensor(x)
+        y = self._convert2tensor(y)
+        if x.shape != y.shape:
+            shape = np.broadcast(x.value, y.value).shape
+            if x.shape != shape:
+                x = broadcast_to(x, shape)
+            if y.shape != shape:
+                y = broadcast_to(y, shape)
+        return x, y
 
     @property
     def mu(self):
@@ -58,7 +65,10 @@ class Gaussian(RandomVariable):
 
     @property
     def std(self):
-        return self.parameter["std"]
+        try:
+            return self.parameter["std"]
+        except KeyError:
+            return sqrt(self.parameter["var"])
 
     @std.setter
     def std(self, std):
@@ -73,7 +83,21 @@ class Gaussian(RandomVariable):
 
     @property
     def var(self):
-        return square(self.std)
+        try:
+            return self.parameter["var"]
+        except KeyError:
+            return square(self.std)
+
+    @var.setter
+    def var(self, var):
+        try:
+            ispositive = (var.value > 0).all()
+        except AttributeError:
+            ispositive = (var.value > 0)
+
+        if not ispositive:
+            raise ValueError("value of var must all be positive")
+        self.parameter["var"] = var
 
     def _forward(self):
         self.eps = np.random.normal(size=self.mu.shape)
