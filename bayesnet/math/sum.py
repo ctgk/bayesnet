@@ -25,7 +25,7 @@ class Sum(Function):
         return Tensor(output, function=self)
 
     def backward(self, delta):
-        if isinstance(delta, np.ndarray) and (not self.keepdims):
+        if isinstance(delta, np.ndarray) and (not self.keepdims) and (self.axis is not None):
             axis_positive = []
             for axis in self.axis:
                 if axis < 0:
