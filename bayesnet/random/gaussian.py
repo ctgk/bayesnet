@@ -100,8 +100,22 @@ class Gaussian(RandomVariable):
 
 class GaussianLogPDF(Function):
 
-    def _forward(self, x, mu, var):
+    def _check_input(self, x, mu, var):
         x = self._convert2tensor(x)
+        mu = self._convert2tensor(mu)
+        var = self._convert2tensor(var)
+        if not (x.shape == mu.shape == var.shape):
+            shape = np.broadcast(x.value, mu.value, var.value).shape
+            if x.shape != shape:
+                x = broadcast_to(x, shape)
+            if mu.shape != shape:
+                mu = broadcast_to(mu, shape)
+            if var.shape != shape:
+                var = broadcast_to(var, shape)
+        return x, mu, var
+
+    def _forward(self, x, mu, var):
+        x, mu, var = self._check_input(x, mu, var)
         self.x = x
         self.mu = mu
         self.var = var
