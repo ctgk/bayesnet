@@ -42,20 +42,20 @@ class Network(object):
         for p in self.parameter.values():
             p.cleargrad()
 
-    def log_posterior(self, coef=1.):
+    def log_pdf(self, coef=1.):
         """
-        compute logarithm of posterior distribution function
+        compute logarithm of probabilty density function
 
         Parameters
         ----------
         coef : float
             coefficient to balance likelihood and prior
-            usually for mini-batch training, mini-batch size / whole data size
+            assuming mini-batch size / whole data size for mini-batch training
 
         Returns
         -------
         logp : tensor_like
-            logarithm of posterior distribution function
+            logarithm of probability density function
         """
         logp = 0
         for rv in self.random_variable.values():
@@ -74,7 +74,7 @@ class Network(object):
         ----------
         coef : float
             coefficient to balance likelihood and prior
-            usually for mini-batch training, mini-batch size / whole data size
+            assuming mini-batch size / whole data size for mini-batch training
 
         Returns
         -------
