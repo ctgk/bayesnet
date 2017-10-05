@@ -15,6 +15,7 @@ from bayesnet.math.sqrt import sqrt
 from bayesnet.math.square import square
 from bayesnet.math.sum import sum
 from bayesnet.nonlinear.sigmoid import sigmoid
+from bayesnet.nonlinear.softmax import softmax
 from bayesnet.nonlinear.softplus import softplus
 from bayesnet.nonlinear.tanh import tanh
 from bayesnet import optimizer
@@ -38,6 +39,7 @@ __all__ = [
     "reshape",
     "sampler",
     "sigmoid",
+    "softmax",
     "softplus",
     "split",
     "sqrt",
