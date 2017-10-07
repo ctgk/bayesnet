@@ -45,14 +45,14 @@ class Exponential(RandomVariable):
     def forward(self):
         eps = np.random.uniform(size=self.rate.shape)
         np.clip(eps, 1e-8, 1 - 1e-8, out=eps)
-        self.eps = -np.log(eps)
-        output = self.eps / self.rate.value
+        eps = -np.log(eps)
+        self.output = eps / self.rate.value
         if isinstance(self.rate, Constant):
-            return Constant(output)
-        return Tensor(output, self)
+            return Constant(self.output)
+        return Tensor(self.output, self)
 
     def backward(self, delta):
-        drate = -delta * self.eps / self.rate.value ** 2
+        drate = -delta * self.output / self.rate.value
         self.rate.backward(drate)
 
     def _pdf(self, x):
