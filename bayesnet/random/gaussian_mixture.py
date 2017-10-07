@@ -32,6 +32,7 @@ class GaussianMixture(RandomVariable):
 
     def __init__(self, coef, mu, std, axis=-1, data=None, prior=None):
         super().__init__(data, prior)
+        assert axis == -1
         self.axis = axis
         self.coef, self.mu, self.std = self._check_input(coef, mu, std)
 
@@ -94,6 +95,8 @@ class GaussianMixture(RandomVariable):
         return square(self.parameter["std"])
 
     def forward(self):
+        if self.coef.ndim != 1:
+            raise NotImplementedError
         indices = np.array(
             [np.random.choice(self.n_component, p=c) for c in self.coef.value]
         )
