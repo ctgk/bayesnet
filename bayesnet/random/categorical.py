@@ -20,6 +20,10 @@ class Categorical(RandomVariable):
         log-odd of each index
     axis : int
         axis along which represents each outcome
+    data : tensor_like
+        realization
+    prior : RandomVariable
+        prior distribution
 
     Attributes
     ----------
