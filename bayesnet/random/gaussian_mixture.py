@@ -1,4 +1,5 @@
 import numpy as np
+from bayesnet.array.broadcast import broadcast_to
 from bayesnet.math.exp import exp
 from bayesnet.math.log import log
 from bayesnet.math.sqrt import sqrt
@@ -42,7 +43,13 @@ class GaussianMixture(RandomVariable):
         std = self._convert2tensor(std)
 
         if not coef.shape == mu.shape == std.shape:
-            raise ValueError("shape of coef, mu, and std must be the same")
+            shape = np.broadcast(coef.value, mu.value, std.value).shape
+            if coef.shape != shape:
+                coef = broadcast_to(coef, shape)
+            if mu.shape != shape:
+                mu = broadcast_to(mu, shape)
+            if std.shape != shape:
+                std = broadcast_to(std, shape)
         self.n_component = coef.shape[self.axis]
 
         return coef, mu, std
