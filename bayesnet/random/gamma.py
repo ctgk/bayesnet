@@ -1,5 +1,9 @@
 import numpy as np
+import scipy.special as sp
 from bayesnet.array.broadcast import broadcast_to
+from bayesnet.math.exp import exp
+from bayesnet.math.gamma import gamma
+from bayesnet.math.log import log
 from bayesnet.random.random import RandomVariable
 from bayesnet.tensor.constant import Constant
 from bayesnet.tensor.tensor import Tensor
@@ -9,7 +13,7 @@ class Gamma(RandomVariable):
     """
     Gamma distribution
     p(x|a(shape), b(rate))
-    = a^b * x^(a - 1) * e^(-bx) / Gamma(a)
+    = b^a * x^(a - 1) * e^(-bx) / Gamma(a)
 
     Parameters
     ----------
@@ -37,7 +41,7 @@ class Gamma(RandomVariable):
             if shape.shape != shape_:
                 shape = broadcast_to(shape, shape_)
             if rate.shape != shape_:
-                rate = broadcast_to(rate, shape)
+                rate = broadcast_to(rate, shape_)
         return shape, rate
 
     @property
@@ -71,10 +75,36 @@ class Gamma(RandomVariable):
         self.parameter["rate"] = rate
 
     def forward(self):
-        output = np.random.gamma(self.shape.value, 1 / self.rate.value)
+        self.output = np.random.gamma(self.shape.value, 1 / self.rate.value)
         if isinstance(self.shape, Constant) and isinstance(self.rate, Constant):
-            return Constant(output)
-        return Tensor(output, function=self)
+            return Constant(self.output)
+        return Tensor(self.output, function=self)
 
     def backward(self, delta):
-        raise NotImplementedError
+        a = self.shape.value
+        psia = sp.digamma(a)
+        psi1a = sp.polygamma(1, a)
+        sqrtpsi1a = np.sqrt(psi1a)
+        psi2a = sp.polygamma(2, a)
+        b = self.rate.value
+        eps = (np.log(self.output) - psia + np.log(b)) / sqrtpsi1a
+        dshape = self.output * (0.5 * eps * psi2a / sqrtpsi1a + psi1a) * delta
+        drate = -delta * self.output / b
+        self.shape.backward(dshape)
+        self.rate.backward(drate)
+
+    def _pdf(self, x):
+        return (
+            self.rate ** self.shape
+            * x ** (self.shape - 1)
+            * exp(-self.rate * x)
+            / gamma(self.shape)
+        )
+
+    def _log_pdf(self, x):
+        return (
+            self.shape * log(self.rate)
+            + (self.shape - 1) * log(x)
+            - self.rate * x
+            - log(gamma(self.shape))
+        )
