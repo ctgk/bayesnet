@@ -4,6 +4,7 @@ from bayesnet.math.log import log
 from bayesnet.math.product import prod
 from bayesnet.math.sum import sum
 from bayesnet.random.random import RandomVariable
+from bayesnet.tensor.tensor import Tensor
 
 
 class Dirichlet(RandomVariable):
@@ -46,7 +47,7 @@ class Dirichlet(RandomVariable):
 
     def forward(self):
         if self.alpha.ndim == 1:
-            return np.random.dirichlet(self.alpha.value)
+            return Tensor(np.random.dirichlet(self.alpha.value), function=self)
         else:
             raise NotImplementedError
 
