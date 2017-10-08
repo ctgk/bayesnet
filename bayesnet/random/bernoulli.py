@@ -1,4 +1,5 @@
 import numpy as np
+from bayesnet.array.broadcast import broadcast_to
 from bayesnet.function import Function
 from bayesnet.math.log import log
 from bayesnet.nonlinear.sigmoid import sigmoid
@@ -96,10 +97,11 @@ class SigmoidCrossEntropy(Function):
         x = self._convert2tensor(x)
         t = self._convert2tensor(t)
         if x.shape != t.shape:
-            raise ValueError(
-                "shapes {} and {} not aligned"
-                .format(x.shape, t.shape)
-            )
+            shape = np.broadcast(x.value, t.value).shape
+            if x.shape != shape:
+                x = broadcast_to(x, shape)
+            if t.shape != shape:
+                t = broadcast_to(t, shape)
         return x, t
 
 

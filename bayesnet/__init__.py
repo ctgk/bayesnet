@@ -7,6 +7,7 @@ from bayesnet.array.split import split
 from bayesnet.array.transpose import transpose
 from bayesnet import linalg
 from bayesnet.math.exp import exp
+from bayesnet.math.gamma import gamma
 from bayesnet.math.log import log
 from bayesnet.math.mean import mean
 from bayesnet.math.power import power
@@ -30,6 +31,7 @@ __all__ = [
     "Tensor",
     "exp",
     "flatten",
+    "gamma",
     "linalg",
     "log",
     "mean",

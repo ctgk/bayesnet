@@ -17,7 +17,7 @@ class Gaussian(RandomVariable):
     = exp{-0.5 * (x - mu)^2 / sigma^2} / sqrt(2pi * sigma^2)
     """
 
-    def __init__(self, mu, std=None, var=None, data=None, prior=None):
+    def __init__(self, mu, std=None, var=None, tau=None, data=None, prior=None):
         """
         construct Gaussian distribution
 
@@ -29,20 +29,24 @@ class Gaussian(RandomVariable):
             std parameter
         var : tensor_like
             variance parameter
+        tau : tensor_like
+            precision parameter
         data : tensor_like
             observed data
         prior : RandomVariable
             prior distribution
         """
         super().__init__(data, prior)
-        if std is not None and var is None:
+        if std is not None and var is None and tau is None:
             self.mu, self.std = self._check_input(mu, std)
-        elif std is None and var is not None:
+        elif std is None and var is not None and tau is None:
             self.mu, self.var = self._check_input(mu, var)
-        elif std is None and var is None:
-            raise ValueError("Either std or var must be assigned")
+        elif std is None and var is None and tau is not None:
+            self.mu, self.tau = self._check_input(mu, tau)
+        elif std is None and var is None and tau is None:
+            raise ValueError("Either std, var, or tau must be assigned")
         else:
-            raise ValueError("Cannot assign both std and var")
+            raise ValueError("Cannot assign more than two of these: std, var, tau")
 
     def _check_input(self, x, y):
         x = self._convert2tensor(x)
@@ -65,10 +69,7 @@ class Gaussian(RandomVariable):
 
     @property
     def std(self):
-        try:
-            return self.parameter["std"]
-        except KeyError:
-            return sqrt(self.parameter["var"])
+        return self.parameter["std"]
 
     @std.setter
     def std(self, std):
@@ -84,8 +85,8 @@ class Gaussian(RandomVariable):
     @property
     def var(self):
         try:
-            return self.parameter["var"]
-        except KeyError:
+            return self._var
+        except AttributeError:
             return square(self.std)
 
     @var.setter
@@ -97,7 +98,27 @@ class Gaussian(RandomVariable):
 
         if not ispositive:
             raise ValueError("value of var must all be positive")
-        self.parameter["var"] = var
+        self._var = var
+        self.parameter["std"] = sqrt(var)
+
+    @property
+    def tau(self):
+        try:
+            return self._tau
+        except AttributeError:
+            return 1 / square(self.std)
+
+    @tau.setter
+    def tau(self, tau):
+        try:
+            ispositive = (tau.value > 0).all()
+        except AttributeError:
+            ispositive = (tau.value > 0)
+
+        if not ispositive:
+            raise ValueError("value of tau must be positive")
+        self._tau = tau
+        self.parameter["std"] = 1 / sqrt(tau)
 
     def forward(self):
         self.eps = np.random.normal(size=self.mu.shape)
@@ -119,44 +140,44 @@ class Gaussian(RandomVariable):
         )
 
     def _log_pdf(self, x):
-        return GaussianLogPDF().forward(x, self.mu, self.var)
+        return GaussianLogPDF().forward(x, self.mu, self.tau)
 
 
 class GaussianLogPDF(Function):
 
-    def _check_input(self, x, mu, var):
+    def _check_input(self, x, mu, tau):
         x = self._convert2tensor(x)
         mu = self._convert2tensor(mu)
-        var = self._convert2tensor(var)
-        if not (x.shape == mu.shape == var.shape):
-            shape = np.broadcast(x.value, mu.value, var.value).shape
+        tau = self._convert2tensor(tau)
+        if not x.shape == mu.shape == tau.shape:
+            shape = np.broadcast(x.value, mu.value, tau.value).shape
             if x.shape != shape:
                 x = broadcast_to(x, shape)
             if mu.shape != shape:
                 mu = broadcast_to(mu, shape)
-            if var.shape != shape:
-                var = broadcast_to(var, shape)
-        return x, mu, var
+            if tau.shape != shape:
+                tau = broadcast_to(tau, shape)
+        return x, mu, tau
 
-    def forward(self, x, mu, var):
-        x, mu, var = self._check_input(x, mu, var)
+    def forward(self, x, mu, tau):
+        x, mu, tau = self._check_input(x, mu, tau)
         self.x = x
         self.mu = mu
-        self.var = var
+        self.tau = tau
         output = (
-            -0.5 * np.square(x.value - mu.value) / var.value
-            - 0.5 * np.log(var.value)
+            -0.5 * np.square(x.value - mu.value) * tau.value
+            + 0.5 * np.log(tau.value)
             - 0.5 * np.log(2 * np.pi)
         )
         return Tensor(output, function=self)
 
     def backward(self, delta):
-        dx = -0.5 * delta * (self.x.value - self.mu.value) / self.var.value
-        dmu = -0.5 * delta * (self.mu.value - self.x.value) / self.var.value
-        dvar = 0.5 * delta * (
-            ((self.x.value - self.mu.value) / self.var.value) ** 2
-            - 1 / self.var.value
+        dx = -0.5 * delta * (self.x.value - self.mu.value) * self.tau.value
+        dmu = -0.5 * delta * (self.mu.value - self.x.value) * self.tau.value
+        dtau = 0.5 * delta * (
+            1 / self.tau.value
+            - (self.x.value - self.mu.value) ** 2
         )
         self.x.backward(dx)
         self.mu.backward(dmu)
-        self.var.backward(dvar)
+        self.tau.backward(dtau)
