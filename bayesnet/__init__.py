@@ -7,6 +7,7 @@ from bayesnet.array.split import split
 from bayesnet.array.transpose import transpose
 from bayesnet import linalg
 from bayesnet.math.exp import exp
+from bayesnet.math.gamma import gamma
 from bayesnet.math.log import log
 from bayesnet.math.mean import mean
 from bayesnet.math.power import power
@@ -15,6 +16,7 @@ from bayesnet.math.sqrt import sqrt
 from bayesnet.math.square import square
 from bayesnet.math.sum import sum
 from bayesnet.nonlinear.sigmoid import sigmoid
+from bayesnet.nonlinear.softmax import softmax
 from bayesnet.nonlinear.softplus import softplus
 from bayesnet.nonlinear.tanh import tanh
 from bayesnet import optimizer
@@ -29,6 +31,7 @@ __all__ = [
     "Tensor",
     "exp",
     "flatten",
+    "gamma",
     "linalg",
     "log",
     "mean",
@@ -38,6 +41,7 @@ __all__ = [
     "reshape",
     "sampler",
     "sigmoid",
+    "softmax",
     "softplus",
     "split",
     "sqrt",
