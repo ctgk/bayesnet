@@ -3,11 +3,16 @@ Bayesian method library for Python
 
 ## Requirements
 
-### To use package
+### To use this package
 - python 3.6
 - numpy
 - scipy
 
-### To run notebook
+### To run examples in the notebooks
 - jupyter
 - scikit-learn
+
+## Installation Procedures
+1. `git clone https://github.com/ctgk/BayesianNetwork.git`
+2. move to the cloned directory
+3. `python setup.py install`
