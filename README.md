@@ -13,6 +13,6 @@ Bayesian method library for Python
 - scikit-learn
 
 ## Installation Procedures
-1. `git clone https://github.com/ctgk/BayesianNetwork.git`
-2. move to the cloned directory
-3. `python setup.py install`
+1. `$ git clone https://github.com/ctgk/BayesianNetwork.git`
+2. `$ cd BayesianNetwork`
+3. `$ python setup.py install`
