@@ -6,6 +6,7 @@ from bayesnet.random.exponential import Exponential
 from bayesnet.random.gamma import Gamma
 from bayesnet.random.gaussian import Gaussian
 from bayesnet.random.gaussian_mixture import GaussianMixture
+from bayesnet.random.laplace import Laplace
 from bayesnet.random.multivariate_gaussian import MultivariateGaussian
 
 
@@ -18,5 +19,6 @@ __all__ = [
     "Gamma",
     "Gaussian",
     "GaussianMixture",
+    "Laplace",
     "MultivariateGaussian"
 ]
