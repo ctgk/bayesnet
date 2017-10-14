@@ -60,6 +60,8 @@ class Adam(Optimizer):
             * (1 - self.beta2 ** self.n_iter) ** 0.5
             / (1 - self.beta1 ** self.n_iter))
         for p, m1, m2 in zip(self.parameter, self.moment1, self.moment2):
+            if p.grad is None:
+                continue
             m1 += (1 - self.beta1) * (p.grad - m1)
             m2 += (1 - self.beta2) * (p.grad ** 2 - m2)
             p.value += lr * m1 / (np.sqrt(m2) + self.epsilon)

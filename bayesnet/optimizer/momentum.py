@@ -22,6 +22,8 @@ class Momentum(Optimizer):
     def update(self):
         self.increment_iteration()
         for p, inertia in zip(self.parameter, self.inertia):
+            if p.grad is None:
+                continue
             inertia *= self.momentum
             inertia -= self.learning_rate * p.grad
             p.value += inertia

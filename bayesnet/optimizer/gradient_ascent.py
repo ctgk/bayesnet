@@ -13,4 +13,6 @@ class GradientAscent(Optimizer):
         """
         self.increment_iteration()
         for p in self.parameter:
+            if p.grad is None:
+                continue
             p.value += self.learning_rate * p.grad

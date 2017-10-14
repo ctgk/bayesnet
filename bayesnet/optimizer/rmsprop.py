@@ -26,6 +26,8 @@ class RMSProp(Optimizer):
         """
         self.increment_iteration()
         for p, msg in zip(self.parameter, self.mean_squared_grad):
+            if p.grad is None:
+                continue
             grad = p.grad
             msg *= self.rho
             msg += (1 - self.rho) * grad ** 2
