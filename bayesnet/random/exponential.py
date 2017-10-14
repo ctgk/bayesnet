@@ -43,9 +43,7 @@ class Exponential(RandomVariable):
         self.parameter["rate"] = rate
 
     def forward(self):
-        eps = np.random.uniform(size=self.rate.shape)
-        np.clip(eps, 1e-8, 1 - 1e-8, out=eps)
-        eps = -np.log(eps)
+        eps = np.random.standard_exponential(size=self.rate.shape)
         self.output = eps / self.rate.value
         if isinstance(self.rate, Constant):
             return Constant(self.output)
