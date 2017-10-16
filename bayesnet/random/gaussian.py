@@ -28,12 +28,12 @@ class Gaussian(RandomVariable):
         precision parameter
     data : tensor_like
         observed data
-    prior : RandomVariable
-        prior distribution
+    p : RandomVariable
+        original distribution of a model
     """
 
-    def __init__(self, mu, std=None, var=None, tau=None, data=None, prior=None):
-        super().__init__(data, prior)
+    def __init__(self, mu, std=None, var=None, tau=None, data=None, p=None):
+        super().__init__(data, p)
         if std is not None and var is None and tau is None:
             self.mu, self.std = self._check_input(mu, std)
         elif std is None and var is not None and tau is None:

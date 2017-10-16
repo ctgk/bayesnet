@@ -21,12 +21,12 @@ class Cauchy(RandomVariable):
         scale parameter
     data : tensor_like
         realization
-    prior : RandomVariable
-        prior distribution
+    p : RandomVariable
+        original distribution of a model
     """
 
-    def __init__(self, loc, scale, data=None, prior=None):
-        super().__init__(data, prior)
+    def __init__(self, loc, scale, data=None, p=None):
+        super().__init__(data, p)
         self.loc, self.scale = self._check_input(loc, scale)
 
     def _check_input(self, loc, scale):

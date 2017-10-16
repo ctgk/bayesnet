@@ -7,7 +7,7 @@ class RandomVariable(Function):
     base class for random variables
     """
 
-    def __init__(self, data=None, prior=None):
+    def __init__(self, data=None, p=None):
         """
         construct a random variable
 
@@ -15,8 +15,8 @@ class RandomVariable(Function):
         ----------
         data : tensor_like
             observed data
-        prior : RandomVariable
-            prior distribution
+        p : RandomVariable
+            original distribution of a model
 
         Returns
         -------
@@ -25,24 +25,24 @@ class RandomVariable(Function):
         observed : bool
             flag of observed or not
         """
-        if data is not None and prior is not None:
-            raise ValueError("Cannot assign both data and prior on a random variable")
+        if data is not None and p is not None:
+            raise ValueError("Cannot assign both data and p at a time")
         if data is not None:
             data = self._convert2tensor(data)
         self.data = data
         self.observed = isinstance(data, Constant)
-        self.prior = prior
+        self.p = p
         self.parameter = dict()
 
     @property
-    def prior(self):
-        return self._prior
+    def p(self):
+        return self._p
 
-    @prior.setter
-    def prior(self, prior):
-        if prior is not None and not isinstance(prior, RandomVariable):
-            raise TypeError("prior must be RandomVariable")
-        self._prior = prior
+    @p.setter
+    def p(self, p):
+        if p is not None and not isinstance(p, RandomVariable):
+            raise TypeError("p must be RandomVariable")
+        self._p = p
 
     def __repr__(self):
         string = f"{self.__class__.__name__}(\n"
@@ -70,7 +70,6 @@ class RandomVariable(Function):
     def pdf(self, x=None):
         """
         compute probability density function
-        p(x|parameter)
 
         Parameters
         ----------
@@ -82,12 +81,13 @@ class RandomVariable(Function):
         p : Tensor
             value of probability density function for each input
         """
-        if hasattr(self, "_pdf"):
-            if x is None:
-                return self._pdf(self.data)
-            return self._pdf(x)
-        else:
+        if not hasattr(self, "_pdf"):
             raise NotImplementedError
+        if x is None:
+            if self.data is None:
+                raise ValueError("There is no given or sampled data")
+            return self._pdf(self.data)
+        return self._pdf(x)
 
     def log_pdf(self, x=None):
         """
@@ -103,28 +103,26 @@ class RandomVariable(Function):
         output : Tensor
             logarithm of probability density function
         """
-        if hasattr(self, "_log_pdf"):
-            if x is None:
-                return self._log_pdf(self.data)
-            return self._log_pdf(x)
-        else:
+        if not hasattr(self, "_log_pdf"):
             raise NotImplementedError
+        if x is None:
+            if self.data is None:
+                raise ValueError("No given or sampled data")
+            return self._log_pdf(self.data)
+        return self._log_pdf(x)
 
-    def KLqp(self, p=None):
+    def KLqp(self):
         r"""
         compute Kullback Leibler Divergence
         KL(q(self)||p) = \int q(x) ln(q(x) / p(x)) dx
 
-        Parameters
-        ----------
-        p : RandomVariable
-            second argument of KL divergence
-
         Returns
         -------
         kl : Tensor
-            KL divergence from this distribution to the given argument
+            KL divergence
         """
-        if p is None:
-            return self.log_pdf() - self.prior.log_pdf(self.data)
-        return self.log_pdf() - p.log_pdf(self.data)
+        if self.p is None:
+            raise ValueError("There is no assigned distribution p")
+        if self.data is None:
+            raise ValueError("There is no sampled data")
+        return self.log_pdf() - self.p.log_pdf(self.data)

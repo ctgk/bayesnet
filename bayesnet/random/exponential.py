@@ -18,12 +18,12 @@ class Exponential(RandomVariable):
         rate parameter
     data : tensor_like
         realization of this distribution
-    prior : RandomVariable
-        prior distribution
+    p : RandomVariable
+        original distribution of a model
     """
 
-    def __init__(self, rate, data=None, prior=None):
-        super().__init__(data, prior)
+    def __init__(self, rate, data=None, p=None):
+        super().__init__(data, p)
         rate = self._convert2tensor(rate)
         self.rate = rate
 
