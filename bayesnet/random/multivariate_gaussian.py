@@ -28,12 +28,12 @@ class MultivariateGaussian(RandomVariable):
         variance-covariance matrix
     data : (..., d) tensor_like
         observed data
-    prior : RandomVariable
-        prior distribution
+    p : RandomVariable
+        original distribution of a model
     """
 
-    def __init__(self, mu, cov, data=None, prior=None):
-        super().__init__(data, prior)
+    def __init__(self, mu, cov, data=None, p=None):
+        super().__init__(data, p)
         self.mu, self.cov = self._check_input(mu, cov)
 
     def _check_input(self, mu, cov):

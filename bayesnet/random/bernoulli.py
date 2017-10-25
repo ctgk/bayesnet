@@ -20,12 +20,12 @@ class Bernoulli(RandomVariable):
         log-odd of value 1
     data : tensor_like
         observed data
-    prior : RandomVariable
-        prior distribution
+    p : RandomVariable
+        original distribution of a model
     """
 
-    def __init__(self, mu=None, logit=None, data=None, prior=None):
-        super().__init__(data, prior)
+    def __init__(self, mu=None, logit=None, data=None, p=None):
+        super().__init__(data, p)
         if mu is not None and logit is None:
             mu = self._convert2tensor(mu)
             self.mu = mu

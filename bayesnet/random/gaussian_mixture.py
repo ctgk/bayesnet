@@ -27,12 +27,12 @@ class GaussianMixture(RandomVariable):
         axis along which represents each component
     data : tensor_like
         realization
-    prior : RandomVariable
-        prior distribution
+    p : RandomVariable
+        original distribution of a model
     """
 
-    def __init__(self, coef, mu, std, axis=-1, data=None, prior=None):
-        super().__init__(data, prior)
+    def __init__(self, coef, mu, std, axis=-1, data=None, p=None):
+        super().__init__(data, p)
         assert axis == -1
         self.axis = axis
         self.coef, self.mu, self.std = self._check_input(coef, mu, std)

@@ -23,12 +23,12 @@ class Gamma(RandomVariable):
         rate parameter
     data : tensor_like
         realization
-    prior : RandomVariable
-        prior distribution
+    p : RandomVariable
+        original distribution of a model
     """
 
-    def __init__(self, shape, rate, data=None, prior=None):
-        super().__init__(data, prior)
+    def __init__(self, shape, rate, data=None, p=None):
+        super().__init__(data, p)
         shape, rate = self._check_input(shape, rate)
         self.shape = shape
         self.rate = rate

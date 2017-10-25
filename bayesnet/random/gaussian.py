@@ -15,28 +15,25 @@ class Gaussian(RandomVariable):
     The Gaussian distribution
     p(x|mu(mean), sigma(std))
     = exp{-0.5 * (x - mu)^2 / sigma^2} / sqrt(2pi * sigma^2)
+
+    Parameters
+    ----------
+    mu : tensor_like
+        mean parameter
+    std : tensor_like
+        std parameter
+    var : tensor_like
+        variance parameter
+    tau : tensor_like
+        precision parameter
+    data : tensor_like
+        observed data
+    p : RandomVariable
+        original distribution of a model
     """
 
-    def __init__(self, mu, std=None, var=None, tau=None, data=None, prior=None):
-        """
-        construct Gaussian distribution
-
-        Parameters
-        ----------
-        mu : tensor_like
-            mean parameter
-        std : tensor_like
-            std parameter
-        var : tensor_like
-            variance parameter
-        tau : tensor_like
-            precision parameter
-        data : tensor_like
-            observed data
-        prior : RandomVariable
-            prior distribution
-        """
-        super().__init__(data, prior)
+    def __init__(self, mu, std=None, var=None, tau=None, data=None, p=None):
+        super().__init__(data, p)
         if std is not None and var is None and tau is None:
             self.mu, self.std = self._check_input(mu, std)
         elif std is None and var is not None and tau is None:

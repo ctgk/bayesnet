@@ -20,6 +20,8 @@ class AdaDelta(Optimizer):
     def update(self):
         self.increment_iteration()
         for p, msd, msu in zip(self.parameter, self.mean_squared_deriv, self.mean_squared_update):
+            if p.grad is None:
+                continue
             grad = p.grad
             msd *= self.rho
             msd += (1 - self.rho) * grad ** 2
