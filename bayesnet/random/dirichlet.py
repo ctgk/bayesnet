@@ -19,8 +19,8 @@ class Dirichlet(RandomVariable):
         axis along which represents each outcome
     data : tensor_like
         realization
-    prior : RandomVariable
-        prior distribution
+    p : RandomVariable
+        original distribution of a model
 
     Attributes
     ----------
@@ -28,8 +28,8 @@ class Dirichlet(RandomVariable):
         number of categories
     """
 
-    def __init__(self, alpha, axis=-1, data=None, prior=None):
-        super().__init__(data, prior)
+    def __init__(self, alpha, axis=-1, data=None, p=None):
+        super().__init__(data, p)
         assert axis == -1
         self.axis = axis
         self.alpha = self._convert2tensor(alpha)

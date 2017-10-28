@@ -38,9 +38,13 @@ class Network(object):
             self.random_variable[key] = value
         object.__setattr__(self, key, value)
 
-    def cleargrad(self):
+    def clear(self):
+        """
+        clear gradient and constructed bayesian network
+        """
         for p in self.parameter.values():
             p.cleargrad()
+        self.random_variable = {}
 
     def log_pdf(self, coef=1.):
         """

@@ -22,8 +22,8 @@ class Categorical(RandomVariable):
         axis along which represents each outcome
     data : tensor_like
         realization
-    prior : RandomVariable
-        prior distribution
+    p : RandomVariable
+        original distribution of a model
 
     Attributes
     ----------
@@ -31,8 +31,8 @@ class Categorical(RandomVariable):
         number of categories
     """
 
-    def __init__(self, mu=None, logit=None, axis=-1, data=None, prior=None):
-        super().__init__(data, prior)
+    def __init__(self, mu=None, logit=None, axis=-1, data=None, p=None):
+        super().__init__(data, p)
         assert axis == -1
         self.axis = axis
         if mu is not None and logit is None:
@@ -92,7 +92,7 @@ class Categorical(RandomVariable):
     def _log_pdf(self, x):
         try:
             return -SoftmaxCrossEntropy(axis=self.axis).forward(self.logit, x)
-        except (KeyError, AttributeError):
+        except AttributeError:
             return (x * log(self.mu)).sum(axis=self.axis)
 
 
