@@ -75,7 +75,7 @@ class Bernoulli(RandomVariable):
     def _log_pdf(self, x):
         try:
             return -SigmoidCrossEntropy().forward(self.logit, x)
-        except KeyError:
+        except AttributeError:
             return x * log(self.mu) + (1 - x) * log(1 - self.mu)
 
 

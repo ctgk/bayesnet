@@ -92,7 +92,7 @@ class Categorical(RandomVariable):
     def _log_pdf(self, x):
         try:
             return -SoftmaxCrossEntropy(axis=self.axis).forward(self.logit, x)
-        except (KeyError, AttributeError):
+        except AttributeError:
             return (x * log(self.mu)).sum(axis=self.axis)
 
 
