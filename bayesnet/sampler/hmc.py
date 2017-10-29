@@ -3,10 +3,42 @@ import numpy as np
 from bayesnet.network import Network
 
 
-def hmc(model, call_args, sample_size=100, step_size=0.1, n_step=10):
+def hmc(model, call_args, parameter=None, sample_size=100, step_size=1e-3, n_step=10):
+    """
+    Hamiltonian Monte Carlo sampling aka Hybrid Monte Carlo sampling
+
+    Parameters
+    ----------
+    model : Network
+        bayesian network
+    call_args : tuple or dict
+        observations of the model
+    parameter : dict
+        dict of parameter to be sampled
+    sample_size : int
+        number of samples to be generated
+    step_size : float
+        update size of parameters
+    n_step : int
+        number of updation of parameters
+
+    Returns
+    -------
+    sample : dict of list of np.ndarray
+        samples from the model given observations
+    """
 
     if not isinstance(model, Network):
         raise TypeError("model must be Network object")
+
+    if not isinstance(sample_size, int):
+        raise TypeError(f"sample_size must be int, not {type(sample_size)}")
+
+    if not isinstance(step_size, (int, float)):
+        raise TypeError(f"step_size must be float, not {type(step_size)}")
+
+    if not isinstance(n_step, int):
+        raise TypeError(f"n_step must be int, not {type(n_step)}")
 
     def run_model():
         model.clear()
@@ -20,7 +52,15 @@ def hmc(model, call_args, sample_size=100, step_size=0.1, n_step=10):
     sample = dict()
     previous = dict()
     velocity = dict()
-    variable = model.parameter
+    if parameter is not None:
+        if not isinstance(parameter, dict):
+            raise TypeError("parameter must be dict")
+        for key, p in parameter.items():
+            if p is not model.parameter[key]:
+                raise ValueError("parameter must be defined in the model")
+        variable = parameter
+    else:
+        variable = model.parameter
 
     for key in variable:
         sample[key] = []
