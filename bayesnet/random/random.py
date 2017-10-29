@@ -18,8 +18,8 @@ class RandomVariable(Function):
         p : RandomVariable
             original distribution of a model
 
-        Returns
-        -------
+        Attributes
+        ----------
         parameter : dict
             dictionary of parameters
         observed : bool
