@@ -5,6 +5,8 @@ from bayesnet.array.flatten import flatten
 from bayesnet.array.reshape import reshape
 from bayesnet.array.split import split
 from bayesnet.array.transpose import transpose
+from bayesnet.image.convolve2d import convolve2d
+from bayesnet.image.max_pooling2d import max_pooling2d
 from bayesnet import linalg
 from bayesnet.math.abs import abs
 from bayesnet.math.exp import exp
@@ -16,6 +18,7 @@ from bayesnet.math.product import prod
 from bayesnet.math.sqrt import sqrt
 from bayesnet.math.square import square
 from bayesnet.math.sum import sum
+from bayesnet.nonlinear.relu import relu
 from bayesnet.nonlinear.sigmoid import sigmoid
 from bayesnet.nonlinear.softmax import softmax
 from bayesnet.nonlinear.softplus import softplus
@@ -31,15 +34,18 @@ __all__ = [
     "Parameter",
     "Tensor",
     "abs",
+    "convolve2d",
     "exp",
     "flatten",
     "gamma",
     "linalg",
     "log",
+    "max_pooling2d",
     "mean",
     "optimizer",
     "power",
     "prod",
+    "relu",
     "reshape",
     "sampler",
     "sigmoid",
