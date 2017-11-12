@@ -51,10 +51,10 @@ def patch2img(x, stride, shape):
         output image shape
     Returns
     -------
-    img : (n_batch, len_out, ylen_out, in_channels) ndarray
+    img : (n_batch, xlen_out, ylen_out, in_channels) ndarray
         image
     """
-    img = np.zeros(shape, dtype=np.float32)
+    img = np.zeros(shape, dtype=x.dtype)
     kx, ky = x.shape[3: 5]
     for i, j in itertools.product(range(kx), range(ky)):
         slices = [slice(b, b + s * len_, s) for b, s, len_ in zip([i, j], stride, x.shape[1: 3])]
