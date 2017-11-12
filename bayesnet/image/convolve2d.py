@@ -95,6 +95,6 @@ def convolve2d(x, y, stride=1, pad=0):
     -------
     output : (n_batch, xlen', ylen', out_channel) Tensor
         input convolved with kernel
-        len' = (len + p - k) // s + 1
+        len' = (len + 2p - k) // s + 1
     """
     return Convolve2d(stride, pad).forward(x, y)
