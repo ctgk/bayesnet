@@ -6,6 +6,7 @@ from bayesnet.array.reshape import reshape
 from bayesnet.array.split import split
 from bayesnet.array.transpose import transpose
 from bayesnet.image.convolve2d import convolve2d
+from bayesnet.image.deconvolve2d import deconvolve2d
 from bayesnet.image.max_pooling2d import max_pooling2d
 from bayesnet import linalg
 from bayesnet.math.abs import abs
@@ -35,6 +36,7 @@ __all__ = [
     "Tensor",
     "abs",
     "convolve2d",
+    "deconvolve2d",
     "exp",
     "flatten",
     "gamma",
