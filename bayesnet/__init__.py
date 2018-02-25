@@ -4,6 +4,7 @@ from bayesnet.tensor.tensor import Tensor
 from bayesnet.array.flatten import flatten
 from bayesnet.array.reshape import reshape
 from bayesnet.array.split import split
+from bayesnet.array.swapaxes import swapaxes
 from bayesnet.array.transpose import transpose
 from bayesnet.image.convolve2d import convolve2d
 from bayesnet.image.deconvolve2d import deconvolve2d
@@ -57,6 +58,7 @@ __all__ = [
     "sqrt",
     "square",
     "sum",
+    "swapaxes",
     "tanh",
     "transpose"
 ]
