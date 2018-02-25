@@ -16,10 +16,10 @@ class Cholesky(Function):
 
     def backward(self, delta):
         delta_lower = np.tril(delta)
-        P = phi(self.output.T @ delta_lower)
+        P = phi(np.einsum("...ij,...ik->...jk", self.output, delta_lower))
         S = np.linalg.solve(
-            self.output.T,
-            P @ np.linalg.inv(self.output)
+            np.swapaxes(self.output, -1, -2),
+            np.einsum("...ij,...jk->...ik", P, np.linalg.inv(self.output))
         )
         dx = S + S.T + np.diag(np.diag(S))
         self.x.backward(dx)
@@ -36,12 +36,12 @@ def cholesky(x):
 
     Parameters
     ----------
-    x : (d, d) tensor_like
+    x : (..., d, d) tensor_like
         positive-definite matrix
 
     Returns
     -------
-    L : (d, d)
+    L : (..., d, d)
         cholesky decomposition
     """
     return Cholesky().forward(x)
