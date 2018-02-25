@@ -20,9 +20,9 @@ class Solve(Function):
         if a.shape[:-2] != b.shape[:-2]:
             shape = np.broadcast(a.value[..., 0, 0], b.value[..., 0, 0]).shape
             if a.shape[:-2] != shape:
-                a = broadcast_to(a, shape + a.shape[:-2])
+                a = broadcast_to(a, shape + a.shape[-2:])
             if b.shape[:-2] != shape:
-                b = broadcast_to(b, shape + b.shape[:-2])
+                b = broadcast_to(b, shape + b.shape[-2:])
         return a, b
 
     def forward(self, a, b):
