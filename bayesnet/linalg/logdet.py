@@ -11,14 +11,14 @@ class LogDeterminant(Function):
         self.x = x
         self._atleast_ndim(x, 2)
         sign, self.output = np.linalg.slogdet(x.value)
-        if sign != 1:
+        if np.any(sign < 1):
             raise ValueError("The input matrix has to be positive-definite")
         if isinstance(self.x, Constant):
             return Constant(self.output)
         return Tensor(self.output, function=self)
 
     def backward(self, delta):
-        dx = delta * np.linalg.inv(np.swapaxes(self.x.value, -1, -2))
+        dx = (delta.T * np.linalg.inv(np.swapaxes(self.x.value, -1, -2)).T).T
         self.x.backward(dx)
 
 
