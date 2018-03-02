@@ -21,7 +21,7 @@ class Cholesky(Function):
             np.swapaxes(self.output, -1, -2),
             np.einsum("...ij,...jk->...ik", P, np.linalg.inv(self.output))
         )
-        dx = S + S.T + np.diag(np.diag(S))
+        dx = S + np.swapaxes(S, -1, -2) + np.tril(np.triu(S))
         self.x.backward(dx)
 
 
