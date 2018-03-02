@@ -81,7 +81,7 @@ class MultivariateGaussian(RandomVariable):
 
     def backward(self, delta):
         dmu = delta
-        dL = delta * self.eps[:, None]
+        dL = np.einsum("...i,...j->...ij", delta, self.eps)
         self.mu.backward(dmu)
         self.L.backward(dL)
 
