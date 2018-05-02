@@ -1,9 +1,13 @@
 import random
 import numpy as np
+from bayesnet.network import Network
 from bayesnet.random.random import RandomVariable
 
 
 def metropolis(model, call_args, sample_size=100, downsample=1, **kwargs):
+
+    if not isinstance(model, Network):
+        raise TypeError("model must be Network object")
 
     def run_model():
         if isinstance(call_args, tuple):
@@ -26,14 +30,14 @@ def metropolis(model, call_args, sample_size=100, downsample=1, **kwargs):
             raise TypeError(f"{key} argument must be RandomVariable")
 
     run_model()
-    log_posterior = model.log_posterior().value
+    log_posterior = model.log_pdf().value
 
     for _ in range(sample_size // 10):
         for key, v in variable.items():
             previous[key] = v.value
             v.value = v.value + proposal[key].draw().value
         run_model()
-        log_posterior_new = model.log_posterior().value
+        log_posterior_new = model.log_pdf().value
 
         accept_proba = np.exp(log_posterior_new - log_posterior)
         if random.random() < accept_proba:
@@ -46,7 +50,8 @@ def metropolis(model, call_args, sample_size=100, downsample=1, **kwargs):
         for key, v in variable.items():
             previous[key] = v.value
             v.value = v.value + proposal[key].draw().value
-        log_posterior_new = model.log_posterior().value
+        run_model()
+        log_posterior_new = model.log_pdf().value
 
         accept_proba = np.exp(log_posterior_new - log_posterior)
         if random.random() < accept_proba:

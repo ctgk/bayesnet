@@ -6,10 +6,9 @@ class Parameter(Tensor):
     parameter to be optimized
     """
 
-    def __init__(self, value, prior=None):
+    def __init__(self, value):
         super().__init__(value, function=None)
         self.grad = None
-        self.prior = prior
 
     def _backward(self, delta, **kwargs):
         if self.grad is None:
@@ -19,6 +18,3 @@ class Parameter(Tensor):
 
     def cleargrad(self):
         self.grad = None
-        if self.prior is not None:
-            loss = -self.prior.log_pdf(self).sum()
-            loss.backward()

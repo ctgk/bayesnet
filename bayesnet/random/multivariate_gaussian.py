@@ -4,9 +4,7 @@ from bayesnet.linalg.cholesky import cholesky
 from bayesnet.linalg.det import det
 from bayesnet.linalg.logdet import logdet
 from bayesnet.linalg.solve import solve
-from bayesnet.linalg.trace import trace
 from bayesnet.math.exp import exp
-from bayesnet.math.log import log
 from bayesnet.math.sqrt import sqrt
 from bayesnet.random.random import RandomVariable
 from bayesnet.tensor.constant import Constant
@@ -22,9 +20,9 @@ class MultivariateGaussian(RandomVariable):
 
     Parameters
     ----------
-    mu : (d,) tensor_like
+    mu : (..., d) tensor_like
         mean parameter
-    cov : (d, d) tensor_like
+    cov : (..., d, d) tensor_like
         variance-covariance matrix
     data : (..., d) tensor_like
         observed data
@@ -39,10 +37,19 @@ class MultivariateGaussian(RandomVariable):
     def _check_input(self, mu, cov):
         mu = self._convert2tensor(mu)
         cov = self._convert2tensor(cov)
-        self._equal_ndim(mu, 1)
-        self._equal_ndim(cov, 2)
-        if cov.shape != (mu.size, mu.size):
-            raise ValueError("Mismatching dimensionality of mu and cov")
+        self._atleast_ndim(mu, 1)
+        self._atleast_ndim(cov, 2)
+        if cov.shape[-2:] != (mu.shape[-1], mu.shape[-1]):
+            raise ValueError(
+                "Mismatching dimensionality of mu and cov: {} and {}"
+                .format(mu.shape[-1], cov.shape[-2:])
+            )
+        if mu.shape[:-1] != cov.shape[:-2]:
+            shape = np.broadcast(mu.value[..., 0], cov.value[..., 0, 0]).shape
+            if mu.shape[:-1] != shape:
+                mu = broadcast_to(mu, shape + (mu.shape[-1],))
+            if cov.shape[:-2] != shape:
+                cov = broadcast_to(cov, shape + cov.shape[-2:])
         return mu, cov
 
     @property
@@ -66,55 +73,32 @@ class MultivariateGaussian(RandomVariable):
         self.parameter["cov"] = cov
 
     def forward(self):
-        self.eps = np.random.normal(size=self.mu.size)
-        output = self.mu.value + self.L.value @ self.eps
+        self.eps = np.random.normal(size=self.mu.shape)
+        output = self.mu.value + np.einsum("...ij,...j->...i", self.L.value, self.eps)
         if isinstance(self.mu, Constant) and isinstance(self.cov, Constant):
             return Constant(output)
         return Tensor(output, self)
 
     def backward(self, delta):
         dmu = delta
-        dL = delta * self.eps[:, None]
+        dL = np.einsum("...i,...j->...ij", delta, self.eps)
         self.mu.backward(dmu)
         self.L.backward(dL)
 
     def _pdf(self, x):
-        assert x.shape[-1] == self.mu.size
-        if x.ndim == 1:
-            squeeze = True
-            x = broadcast_to(x, (1, self.mu.size))
-        else:
-            squeeze = False
-        assert x.ndim == 2
         d = x - self.mu
-        d = d.transpose()
-        p = (
-            exp(-0.5 * (solve(self.cov, d) * d).sum(axis=0))
-            / (2 * np.pi) ** (self.mu.size * 0.5)
+        d = d.reshape(*d.shape, 1)
+        return (
+            exp(-0.5 * (solve(self.cov, d) * d).sum(axis=(-2, -1)))
+            / (2 * np.pi) ** (self.mu.shape[-1] * 0.5)
             / sqrt(det(self.cov))
         )
-        if squeeze:
-            p = p.sum()
-
-        return p
 
     def _log_pdf(self, x):
-        assert x.shape[-1] == self.mu.size
-        if x.ndim == 1:
-            squeeze = True
-            x = broadcast_to(x, (1, self.mu.size))
-        else:
-            squeeze = False
-        assert x.ndim == 2
         d = x - self.mu
-        d = d.transpose()
-
-        logp = (
-            -0.5 * (solve(self.cov, d) * d).sum(axis=0)
-            - (self.mu.size * 0.5) * log(2 * np.pi)
+        d = d.reshape(*d.shape, 1)
+        return (
+            -0.5 * (solve(self.cov, d) * d).sum(axis=(-2, -1))
+            - (self.mu.shape[-1] * 0.5) * np.log(2 * np.pi)
             - 0.5 * logdet(self.cov)
         )
-        if squeeze:
-            logp = logp.sum()
-
-        return logp
