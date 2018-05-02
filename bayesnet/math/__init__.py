@@ -5,6 +5,7 @@ from bayesnet.math.log import log
 from bayesnet.math.matmul import matmul, rmatmul
 from bayesnet.math.mean import mean
 from bayesnet.math.multiply import multiply
+from bayesnet.math.nansum import nansum
 from bayesnet.math.negative import negative
 from bayesnet.math.power import power, rpower
 from bayesnet.math.product import prod
@@ -41,6 +42,7 @@ __all__ = [
     "matmul",
     "mean",
     "multiply",
+    "nansum",
     "power",
     "prod",
     "sqrt",
