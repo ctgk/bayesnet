@@ -7,33 +7,34 @@ import bayesnet as bn
 class BayesianNetwork(bn.Network):
 
     def __init__(self, n_input, n_hidden, n_output):
-        super().__init__(
-            w1_mu=np.zeros((n_input, n_hidden)),
-            w1_s=np.zeros((n_input, n_hidden)),
-            b1_mu=np.zeros(n_hidden),
-            b1_s=np.zeros(n_hidden),
-            w2_mu=np.zeros((n_hidden, n_output)),
-            w2_s=np.zeros((n_hidden, n_output)),
-            b2_mu=np.zeros(n_output),
-            b2_s=np.zeros(n_output)
-        )
+        super().__init__()
+        with self.set_parameter(), self.set_prior_dist():
+            self.w1_mu = np.zeros((n_input, n_hidden))
+            self.w1_s = np.zeros((n_input, n_hidden))
+            self.b1_mu = np.zeros(n_hidden)
+            self.b1_s = np.zeros(n_hidden)
+            self.w2_mu = np.zeros((n_hidden, n_output))
+            self.w2_s = np.zeros((n_hidden, n_output))
+            self.b2_mu = np.zeros(n_output)
+            self.b2_s = np.zeros(n_output)
+            self.prior = bn.random.Gaussian(mu=0, std=1)
 
     def __call__(self, x, y=None):
         self.qw1 = bn.random.Gaussian(
             self.w1_mu, bn.softplus(self.w1_s),
-            p=bn.random.Gaussian(0, 1)
+            p=self.prior
         )
         self.qb1 = bn.random.Gaussian(
             self.b1_mu, bn.softplus(self.b1_s),
-            p=bn.random.Gaussian(0, 1)
+            p=self.prior
         )
         self.qw2 = bn.random.Gaussian(
             self.w2_mu, bn.softplus(self.w2_s),
-            p=bn.random.Gaussian(0, 1)
+            p=self.prior
         )
         self.qb2 = bn.random.Gaussian(
             self.b2_mu, bn.softplus(self.b2_s),
-            p=bn.random.Gaussian(0, 1)
+            p=self.prior
         )
         h = bn.tanh(x @ self.qw1.draw() + self.qb1.draw())
         mu = h @ self.qw2.draw() + self.qb2.draw()

@@ -8,49 +8,59 @@ import bayesnet as bn
 class BayesianNetwork(bn.Network):
 
     def __init__(self, n_input, n_hidden, n_output=1):
-        super().__init__(
-            w1_mu=np.zeros((n_input, n_hidden)),
-            w1_s=np.zeros((n_input, n_hidden)),
-            b1_mu=np.zeros(n_hidden),
-            b1_s=np.zeros(n_hidden),
-            w2_mu=np.zeros((n_hidden, n_hidden)),
-            w2_s=np.zeros((n_hidden, n_hidden)),
-            b2_mu=np.zeros(n_hidden),
-            b2_s=np.zeros(n_hidden),
-            w3_mu=np.zeros((n_hidden, n_output)),
-            w3_s=np.zeros((n_hidden, n_output)),
-            b3_mu=np.zeros(n_output),
-            b3_s=np.zeros(n_output)
-        )
+        super().__init__()
+        with self.set_parameter(), self.set_prior_dist():
+            self.w1_mu = np.zeros((n_input, n_hidden))
+            self.w1_s = np.zeros((n_input, n_hidden))
+            self.b1_mu = np.zeros(n_hidden)
+            self.b1_s = np.zeros(n_hidden)
+            self.w2_mu = np.zeros((n_hidden, n_hidden))
+            self.w2_s = np.zeros((n_hidden, n_hidden))
+            self.b2_mu = np.zeros(n_hidden)
+            self.b2_s = np.zeros(n_hidden)
+            self.w3_mu = np.zeros((n_hidden, n_output))
+            self.w3_s = np.zeros((n_hidden, n_output))
+            self.b3_mu = np.zeros(n_output)
+            self.b3_s = np.zeros(n_output)
+            self.p = bn.random.Gaussian(mu=0, std=1)
 
     def __call__(self, x, y=None):
         self.qw1 = bn.random.Gaussian(
-            self.w1_mu, bn.softplus(self.w1_s),
-            p=bn.random.Gaussian(0, 1)
+            mu=self.w1_mu,
+            std=bn.softplus(self.w1_s),
+            p=self.p
         )
         self.qb1 = bn.random.Gaussian(
-            self.b1_mu, bn.softplus(self.b1_s),
-            p=bn.random.Gaussian(0, 1)
+            mu=self.b1_mu,
+            std=bn.softplus(self.b1_s),
+            p=self.p
         )
         self.qw2 = bn.random.Gaussian(
-            self.w2_mu, bn.softplus(self.w2_s),
-            p=bn.random.Gaussian(0, 1)
+            mu=self.w2_mu,
+            std=bn.softplus(self.w2_s),
+            p=self.p
         )
         self.qb2 = bn.random.Gaussian(
-            self.b2_mu, bn.softplus(self.b2_s),
-            p=bn.random.Gaussian(0, 1)
+            mu=self.b2_mu,
+            std=bn.softplus(self.b2_s),
+            p=self.p
         )
         self.qw3 = bn.random.Gaussian(
-            self.w3_mu, bn.softplus(self.w3_s),
-            p=bn.random.Gaussian(0, 1)
+            mu=self.w3_mu,
+            std=bn.softplus(self.w3_s),
+            p=self.p
         )
         self.qb3 = bn.random.Gaussian(
-            self.b3_mu, bn.softplus(self.b3_s),
-            p=bn.random.Gaussian(0, 1)
+            mu=self.b3_mu,
+            std=bn.softplus(self.b3_s),
+            p=self.p
         )
         h = bn.tanh(x @ self.qw1.draw() + self.qb1.draw())
         h = bn.tanh(h @ self.qw2.draw() + self.qb2.draw())
-        self.py = bn.random.Bernoulli(logit=h @ self.qw3.draw() + self.qb3.draw(), data=y)
+        self.py = bn.random.Bernoulli(
+            logit=h @ self.qw3.draw() + self.qb3.draw(),
+            data=y
+        )
         return self.py.mu.value
 
 

@@ -8,16 +8,17 @@ class VariationalGaussianMixture(bn.Network):
 
     def __init__(self, n_component):
         self.n_component = n_component
-        super().__init__(
-            c=np.ones(n_component),
-            m=np.linspace(-10, 10, n_component),
-            s=np.ones(n_component),
-            shape=np.ones(n_component),
-            rate=np.ones(n_component)
-        )
+        super().__init__()
+        with self.set_parameter(), self.set_prior_dist():
+            self.c = np.ones(n_component)
+            self.m = np.linspace(-10, 10, n_component)
+            self.s = np.ones(n_component)
+            self.shape = np.ones(n_component)
+            self.rate = np.ones(n_component)
+            self.prior = bn.random.Gamma(1., 1.)
 
     def gaussian(self, x, z):
-        self.qtau = bn.random.Gamma(self.shape, self.rate, p=bn.random.Gamma(1., 1.))
+        self.qtau = bn.random.Gamma(self.shape, self.rate, p=self.prior)
         tau = self.qtau.draw()
         pmu = bn.random.Gaussian(0., tau=tau)
         self.qmu = bn.random.Gaussian(self.m, bn.softplus(self.s), p=pmu)

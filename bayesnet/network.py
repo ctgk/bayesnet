@@ -1,3 +1,4 @@
+from contextlib import contextmanager
 from bayesnet.random.random import RandomVariable
 from bayesnet.tensor.parameter import Parameter
 
@@ -19,23 +20,48 @@ class Network(object):
         dictionary of random varibles
     """
 
-    def __init__(self, **kwargs):
+    def __init__(self):
+        self._setting_parameter = False
+        self._setting_prior_dist = False
         self.random_variable = {}
         self.parameter = {}
-        for key, value in kwargs.items():
-            if isinstance(value, Parameter):
-                self.parameter[key] = value
-            else:
-                try:
-                    value = Parameter(value)
-                except TypeError:
-                    raise TypeError(f"invalid type argument: {type(value)}")
-                self.parameter[key] = value
-            object.__setattr__(self, key, value)
+
+    @property
+    def setting_parameter(self):
+        return getattr(self, "_setting_parameter", False)
+
+    @property
+    def setting_prior_dist(self):
+        return getattr(self, "_setting_prior_dist", False)
+
+    @contextmanager
+    def set_parameter(self):
+        prev_scope = self._setting_parameter
+        object.__setattr__(self, "_setting_parameter", True)
+        try:
+            yield
+        finally:
+            object.__setattr__(self, "_setting_parameter", prev_scope)
+
+    @contextmanager
+    def set_prior_dist(self):
+        prev_scope = self._setting_prior_dist
+        object.__setattr__(self, "_setting_prior_dist", True)
+        try:
+            yield
+        finally:
+            object.__setattr__(self, "_setting_prior_dist", prev_scope)
 
     def __setattr__(self, key, value):
         if isinstance(value, RandomVariable):
-            self.random_variable[key] = value
+            if not self.setting_prior_dist:
+                self.random_variable[key] = value
+        elif self.setting_parameter:
+            try:
+                value = Parameter(value)
+            except TypeError:
+                raise TypeError(f"invalid type argument in self.set_parameter() scope: {type(value)}")
+            self.parameter[key] = value
         object.__setattr__(self, key, value)
 
     def clear(self):

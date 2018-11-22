@@ -4,48 +4,84 @@ import numpy as np
 import bayesnet as bn
 
 
-class ARDNetwork(bn.Network):
+class ARDNet(bn.Network):
 
     def __init__(self, n_input, n_hidden, n_output):
-        super().__init__(
-            w1_mu=np.zeros((n_input, n_hidden)),
-            w1_s=np.zeros((n_input, n_hidden)),
-            shape_w1=np.ones((n_input, n_hidden)),
-            rate_w1=np.ones((n_input, n_hidden)),
-            b1_mu=np.zeros(n_hidden),
-            b1_s=np.zeros(n_hidden),
-            shape_b1=np.ones(n_hidden),
-            rate_b1=np.ones(n_hidden),
-            w2_mu=np.zeros((n_hidden, n_output)),
-            w2_s=np.zeros((n_hidden, n_output)),
-            shape_w2=np.ones((n_hidden, n_output)),
-            rate_w2=np.ones((n_hidden, n_output)),
-            b2_mu=np.zeros(n_output),
-            b2_s=np.zeros(n_output),
-            shape_b2=np.ones(n_output),
-            rate_b2=np.ones(n_output)
-        )
+        super().__init__()
+        with self.set_parameter(), self.set_prior_dist():
+            self.ptau = bn.random.Gamma(1, 1e-2)
+            self.qtauw1_shape = np.ones((n_input, n_hidden))
+            self.qtauw1_rate = np.ones((n_input, n_hidden))
+
+            self.qw1_mu = np.zeros((n_input, n_hidden))
+            self.qw1_s = np.zeros((n_input, n_hidden))
+
+            self.qtaub1_shape = np.ones(n_hidden)
+            self.qtaub1_rate = np.ones(n_hidden)
+
+            self.qb1_mu = np.ones(n_hidden)
+            self.qb1_s = np.ones(n_hidden)
+
+            self.qtauw2_shape = np.ones((n_hidden, n_output))
+            self.qtauw2_rate = np.ones((n_hidden, n_output))
+
+            self.qw2_mu = np.zeros((n_hidden, n_output))
+            self.qw2_s = np.zeros((n_hidden, n_output))
+
+            self.qtaub2_shape = np.ones(n_output)
+            self.qtaub2_rate = np.ones(n_output)
+
+            self.qb2_mu = np.ones(n_output)
+            self.qb2_s = np.ones(n_output)
 
     def __call__(self, x, y=None):
-        ptau_w1 = bn.random.Gamma(1., 1e-2)
-        self.qtau_w1 = bn.random.Gamma(bn.softplus(self.shape_w1), bn.softplus(self.rate_w1), p=ptau_w1)
-        pw1 = bn.random.Gaussian(0, tau=self.qtau_w1.draw())
-        self.qw1 = bn.random.Gaussian(self.w1_mu, bn.softplus(self.w1_s), p=pw1)
+        self.qtauw1 = bn.random.Gamma(
+            shape=bn.softplus(self.qtauw1_shape),
+            rate=bn.softplus(self.qtauw1_rate),
+            p=self.ptau
+        )
+        pw1 = bn.random.Gaussian(mu=0, tau=self.qtauw1.draw())
+        self.qw1 = bn.random.Gaussian(
+            mu=self.qw1_mu,
+            std=bn.softplus(self.qw1_s),
+            p=pw1
+        )
 
-        ptau_b1 = bn.random.Gamma(1., 1e-2)
-        self.qtau_b1 = bn.random.Gamma(bn.softplus(self.shape_b1), bn.softplus(self.rate_b1), p=ptau_b1)
-        pb1 = bn.random.Gaussian(0, tau=self.qtau_b1.draw())
-        self.qb1 = bn.random.Gaussian(self.b1_mu, bn.softplus(self.b1_s), p=pb1)
+        self.qtaub1 = bn.random.Gamma(
+            shape=bn.softplus(self.qtaub1_shape),
+            rate=bn.softplus(self.qtaub1_rate),
+            p=self.ptau
+        )
+        pb1 = bn.random.Gaussian(mu=0, tau=self.qtaub1.draw())
+        self.qb1 = bn.random.Gaussian(
+            mu=self.qb1_mu,
+            std=bn.softplus(self.qb1_s),
+            p=pb1
+        )
 
-        ptau_w2 = bn.random.Gamma(1., 1e-2)
-        self.qtau_w2 = bn.random.Gamma(bn.softplus(self.shape_w2), bn.softplus(self.rate_w2), p=ptau_w2)
-        pw2 = bn.random.Gaussian(0, tau=self.qtau_w2.draw())
-        self.qw2 = bn.random.Gaussian(self.w2_mu, bn.softplus(self.w2_s), p=pw2)
+        self.qtauw2 = bn.random.Gamma(
+            shape=bn.softplus(self.qtauw2_shape),
+            rate=bn.softplus(self.qtauw2_rate),
+            p=self.ptau
+        )
+        pw2 = bn.random.Gaussian(mu=0, tau=self.qtauw2.draw())
+        self.qw2 = bn.random.Gaussian(
+            mu=self.qw2_mu,
+            std=bn.softplus(self.qw2_s),
+            p=pw2
+        )
 
-        ptau_b2 = bn.random.Gamma(1., 1e-2)
-        self.qtau_b2 = bn.random.Gamma(bn.softplus(self.shape_b2), bn.softplus(self.rate_b2), p=ptau_b2)
-        pb2 = bn.random.Gaussian(0, tau=self.qtau_b2.draw())
-        self.qb2 = bn.random.Gaussian(self.b2_mu, bn.softplus(self.b2_s), p=pb2)
+        self.qtaub2 = bn.random.Gamma(
+            shape=bn.softplus(self.qtaub2_shape),
+            rate=bn.softplus(self.qtaub2_rate),
+            p=self.ptau
+        )
+        pb2 = bn.random.Gaussian(mu=0, tau=self.qtaub2.draw())
+        self.qb2 = bn.random.Gaussian(
+            mu=self.qb2_mu,
+            std=bn.softplus(self.qb2_s),
+            p=pb2
+        )
 
         h = bn.tanh(x @ self.qw1.draw() + self.qb1.draw())
         mu = h @ self.qw2.draw() + self.qb2.draw()
@@ -55,10 +91,12 @@ class ARDNetwork(bn.Network):
 
 
 def main(visualize):
+    np.random.seed(1234)
+
     x_train = np.linspace(-3, 3, 10)[:, None]
     y_train = np.cos(x_train) + np.random.normal(0, 0.1, size=x_train.shape)
 
-    model = ARDNetwork(1, 20, 1)
+    model = ARDNet(1, 20, 1)
     optimizer = bn.optimizer.Adam(model, 0.1)
     optimizer.set_decay(0.9, 100)
 
@@ -84,10 +122,10 @@ def main(visualize):
         plt.show()
 
         parameter = []
-        parameter.extend(list(model.w1_mu.value.ravel()))
-        parameter.extend(list(model.b1_mu.value.ravel()))
-        parameter.extend(list(model.w2_mu.value.ravel()))
-        parameter.extend(list(model.b2_mu.value.ravel()))
+        parameter.extend(list(model.qw1_mu.value.ravel()))
+        parameter.extend(list(model.qb1_mu.value.ravel()))
+        parameter.extend(list(model.qw2_mu.value.ravel()))
+        parameter.extend(list(model.qb2_mu.value.ravel()))
         plt.plot(parameter)
         plt.show()
 

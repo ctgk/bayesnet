@@ -25,11 +25,23 @@ class AnalyticalBayesianRegressor(object):
 class BayesianRegressor(bn.Network):
 
     def __init__(self, w=np.zeros(2)):
-        super().__init__(w=w)
+        super().__init__()
+        self.mu = np.zeros(len(w))
+        self.cov = np.eye(len(w))
+        with self.set_parameter():
+            self.w = w
 
     def __call__(self, x, y=None):
-        self.pw = bn.random.MultivariateGaussian(np.zeros(2), np.eye(2), data=self.w)
-        self.py = bn.random.MultivariateGaussian((x * self.w).sum(axis=-1), 0.01 * np.eye(len(x)), data=y)
+        self.pw = bn.random.MultivariateGaussian(
+            mu=self.mu,
+            cov=self.cov,
+            data=self.w
+        )
+        self.py = bn.random.MultivariateGaussian(
+            mu=(x * self.w).sum(axis=-1),
+            cov=0.01 * np.eye(len(x)),
+            data=y
+        )
         if y is None:
             return self.py.mu.value
 
