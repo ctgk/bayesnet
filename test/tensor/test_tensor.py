@@ -10,9 +10,9 @@ class TestTensor(unittest.TestCase):
         reprs = (
             "Tensor(value=1)",
             "Tensor(value=1.0)",
-            "Tensor(shape=(), dtype=int64)",
-            "Tensor(shape=(2,), dtype=float64)",
-            "Tensor(shape=(5, 4), dtype=float64)"
+            f"Tensor(shape=(), dtype={np.array(0).dtype})",
+            f"Tensor(shape=(2,), dtype={np.ones(2).dtype})",
+            f"Tensor(shape=(5, 4), dtype={np.zeros((5, 4)).dtype})"
         )
         ndims = (0, 0, 0, 1, 2)
         shapes = ((), (), (), (2,), (5, 4))

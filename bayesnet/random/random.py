@@ -122,7 +122,7 @@ class RandomVariable(Function):
             KL divergence
         """
         if self.p is None:
-            raise ValueError("There is no assigned distribution p")
+            raise ValueError("There is no distribution assigned to p")
         if self.data is None:
             raise ValueError("There is no sampled data")
         return self.log_pdf() - self.p.log_pdf(self.data)
