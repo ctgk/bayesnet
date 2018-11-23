@@ -6,18 +6,15 @@ from bayesnet.function import Function
 
 class Determinant(Function):
 
-    def forward(self, x):
-        x = self._convert2tensor(x)
-        self.x = x
+    def _forward(self, x):
         self._is_atleast_ndim(x, 2)
         self.output = np.linalg.det(x.value)
-        if isinstance(self.x, Constant):
-            return Constant(self.output)
-        return Tensor(self.output, parent=self)
+        return self.output
 
     def backward(self, delta):
-        dx = delta * self.output * np.linalg.inv(np.swapaxes(self.x.value, -1, -2))
-        self.x.backward(dx)
+        x = self.args[0]
+        dx = delta * self.output * np.linalg.inv(np.swapaxes(x.value, -1, -2))
+        x.backward(dx)
 
 
 def det(x):

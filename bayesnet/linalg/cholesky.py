@@ -6,13 +6,9 @@ from bayesnet.function import Function
 
 class Cholesky(Function):
 
-    def forward(self, x):
-        x = self._convert2tensor(x)
-        self.x = x
+    def _forward(self, x):
         self.output = np.linalg.cholesky(x.value)
-        if isinstance(self.x, Constant):
-            return Constant(self.output)
-        return Tensor(self.output, parent=self)
+        return self.output
 
     def backward(self, delta):
         delta_lower = np.tril(delta)
@@ -22,7 +18,7 @@ class Cholesky(Function):
             np.einsum("...ij,...jk->...ik", P, np.linalg.inv(self.output))
         )
         dx = S + np.swapaxes(S, -1, -2) + np.tril(np.triu(S))
-        self.x.backward(dx)
+        self.args[0].backward(dx)
 
 
 def phi(x):

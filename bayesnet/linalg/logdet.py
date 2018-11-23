@@ -6,20 +6,18 @@ from bayesnet.function import Function
 
 class LogDeterminant(Function):
 
-    def forward(self, x):
-        x = self._convert2tensor(x)
-        self.x = x
-        self._is_atleast_ndim(x, 2)
-        sign, self.output = np.linalg.slogdet(x.value)
+    @classmethod
+    def _forward(cls, x):
+        cls._is_atleast_ndim(x, 2)
+        sign, output = np.linalg.slogdet(x.value)
         if np.any(sign < 1):
             raise ValueError("The input matrix has to be positive-definite")
-        if isinstance(self.x, Constant):
-            return Constant(self.output)
-        return Tensor(self.output, parent=self)
+        return output
 
     def backward(self, delta):
-        dx = (delta.T * np.linalg.inv(np.swapaxes(self.x.value, -1, -2)).T).T
-        self.x.backward(dx)
+        x = self.args[0]
+        dx = (delta.T * np.linalg.inv(np.swapaxes(x.value, -1, -2)).T).T
+        x.backward(dx)
 
 
 def logdet(x):

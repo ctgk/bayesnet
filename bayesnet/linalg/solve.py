@@ -6,12 +6,13 @@ from bayesnet.function import Function
 
 
 class Solve(Function):
+    enable_auto_broadcast = True
 
-    def _check_input(self, a, b):
-        a = self._convert2tensor(a)
-        b = self._convert2tensor(b)
-        self._is_atleast_ndim(a, 2)
-        self._is_atleast_ndim(b, 2)
+    @classmethod
+    def _autobroadcast(cls, args):
+        a, b = args[0], args[1]
+        cls._is_atleast_ndim(a, 2)
+        cls._is_atleast_ndim(b, 2)
         if a.shape[-2:] != (b.shape[-2], b.shape[-2]):
             raise ValueError(
                 "Mismatching dimensionality of a and b: {} and {}"
@@ -23,21 +24,18 @@ class Solve(Function):
                 a = broadcast_to(a, shape + a.shape[-2:])
             if b.shape[:-2] != shape:
                 b = broadcast_to(b, shape + b.shape[-2:])
-        return a, b
+        return [a, b]
 
-    def forward(self, a, b):
-        a, b = self._check_input(a, b)
-        self.a, self.b = a, b
+    def _forward(self, a, b):
         self.output = np.linalg.solve(a.value, b.value)
-        if isinstance(self.a, Constant) and isinstance(self.b, Constant):
-            return Constant(self.output)
-        return Tensor(self.output, parent=self)
+        return self.output
 
     def backward(self, delta):
-        db = np.linalg.solve(np.swapaxes(self.a.value, -1, -2), delta)
-        da = -np.einsum("...ij,...kj->...ik", db, self.output)
-        self.a.backward(da)
-        self.b.backward(db)
+        a, b = self.args[0], self.args[1]
+        db = np.linalg.solve(np.swapaxes(a.value, -1, -2), delta)
+        da = np.einsum("...ij,...kj->...ik", -db, self.output)
+        a.backward(da)
+        b.backward(db)
 
 
 def solve(a, b):

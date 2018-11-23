@@ -6,18 +6,14 @@ from bayesnet.function import Function
 
 class Trace(Function):
 
-    def forward(self, x):
-        x = self._convert2tensor(x)
+    def _forward(self, x):
         self._is_equal_to_ndim(x, 2)
-        self.x = x
-        output = np.trace(x.value)
-        if isinstance(self.x, Constant):
-            return Constant(output)
-        return Tensor(output, parent=self)
+        return np.trace(x.value)
 
     def backward(self, delta):
-        dx = np.eye(self.x.shape[0], self.x.shape[1]) * delta
-        self.x.backward(dx)
+        x = self.args[0]
+        dx = np.eye(x.shape[0], x.shape[1]) * delta
+        x.backward(dx)
 
 
 def trace(x):
