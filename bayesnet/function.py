@@ -18,10 +18,14 @@ class Function(object):
         if all(isinstance(arg, Constant) for arg in self.args):
             return Constant(output)
         else:
-            return Tensor(output, )
+            return Tensor(output, parent=self)
 
     @staticmethod
     def _autobroadcast(args):
+        raise NotImplementedError
+
+    @staticmethod
+    def _forward(self):
         raise NotImplementedError
 
     @staticmethod
