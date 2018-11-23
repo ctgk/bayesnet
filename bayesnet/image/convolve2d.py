@@ -69,7 +69,7 @@ class Convolve2d(Function):
             self.stride,
             self.shape
         )
-        slices = [slice(p, len_ - p) for p, len_ in zip(self.pad, self.shape)]
+        slices = tuple(slice(p, len_ - p) for p, len_ in zip(self.pad, self.shape))
         dx = dx[slices]
         dy = np.tensordot(self.patch, delta, axes=((0, 1, 2),) * 2)
         self.x.backward(dx)

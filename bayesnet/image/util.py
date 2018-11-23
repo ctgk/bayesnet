@@ -26,9 +26,9 @@ def img2patch(img, size, step=1):
     if isinstance(step, int):
         step = (step,) * (ndim - 2)
 
-    slices = [slice(None, None, s) for s in step]
+    slices = tuple(slice(None, None, s) for s in step)
     window_strides = img.strides[1:]
-    index_strides = img[[slice(None)] + slices].strides[:-1]
+    index_strides = img[(slice(None),) + slices].strides[:-1]
 
     out_shape = tuple(
         np.subtract(img.shape[1: -1], size) // np.array(step) + 1)
@@ -57,6 +57,6 @@ def patch2img(x, stride, shape):
     img = np.zeros(shape, dtype=x.dtype)
     kx, ky = x.shape[3: 5]
     for i, j in itertools.product(range(kx), range(ky)):
-        slices = [slice(b, b + s * len_, s) for b, s, len_ in zip([i, j], stride, x.shape[1: 3])]
-        img[[slice(None)] + slices] += x[..., i, j, :]
+        slices = tuple(slice(b, b + s * len_, s) for b, s, len_ in zip([i, j], stride, x.shape[1: 3]))
+        img[(slice(None),) + slices] += x[..., i, j, :]
     return img
