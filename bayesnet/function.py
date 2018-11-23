@@ -7,6 +7,22 @@ class Function(object):
     """
     Base class for differentiable functions
     """
+    enable_auto_broadcast = False
+
+    def forward(self, *args):
+        args = [self._convert2tensor(arg) for arg in args]
+        if self.enable_auto_broadcast:
+            args = self._autobroadcast(args)
+        self.args = args
+        output = self._forward(*self.args)
+        if all(isinstance(arg, Constant) for arg in self.args):
+            return Constant(output)
+        else:
+            return Tensor(output, )
+
+    @staticmethod
+    def _autobroadcast(args):
+        raise NotImplementedError
 
     @staticmethod
     def _convert2tensor(x):

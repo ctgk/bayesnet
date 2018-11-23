@@ -15,7 +15,7 @@ class ReLU(Function):
         output = x.value.clip(min=0)
         if isinstance(x, Constant):
             return Constant(output)
-        return Tensor(output, function=self)
+        return Tensor(output, parent=self)
 
     def backward(self, delta):
         dx = (self.x.value > 0) * delta

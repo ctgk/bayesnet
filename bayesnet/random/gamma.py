@@ -78,7 +78,7 @@ class Gamma(RandomVariable):
         self.output = np.random.gamma(self.shape.value, 1 / self.rate.value)
         if isinstance(self.shape, Constant) and isinstance(self.rate, Constant):
             return Constant(self.output)
-        return Tensor(self.output, function=self)
+        return Tensor(self.output, parent=self)
 
     def backward(self, delta):
         a = self.shape.value

@@ -16,7 +16,7 @@ class Transpose(Function):
         self.x = x
         if isinstance(self.x, Constant):
             return Constant(np.transpose(x.value, self.axes))
-        return Tensor(np.transpose(x.value, self.axes), function=self)
+        return Tensor(np.transpose(x.value, self.axes), parent=self)
 
     def backward(self, delta):
         if self.axes is None:

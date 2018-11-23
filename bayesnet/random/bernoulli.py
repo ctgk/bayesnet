@@ -117,7 +117,7 @@ class SigmoidCrossEntropy(Function):
             - t.value * x.value
             + np.log1p(np.exp(-np.abs(x.value)))
         )
-        return Tensor(loss, function=self)
+        return Tensor(loss, parent=self)
 
     def backward(self, delta):
         y = np.tanh(self.x.value * 0.5) * 0.5 + 0.5

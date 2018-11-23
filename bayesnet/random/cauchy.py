@@ -68,7 +68,7 @@ class Cauchy(RandomVariable):
         self.output = self.scale.value * self.eps + self.loc.value
         if isinstance(self.loc, Constant):
             return Constant(self.output)
-        return Tensor(self.output, function=self)
+        return Tensor(self.output, parent=self)
 
     def backward(self, delta):
         dloc = delta

@@ -7,7 +7,7 @@ class Parameter(Tensor):
     """
 
     def __init__(self, value):
-        super().__init__(value, function=None)
+        super().__init__(value, parent=None)
         self.grad = None
 
     def _backward(self, delta, **kwargs):

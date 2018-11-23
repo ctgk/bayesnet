@@ -15,7 +15,7 @@ class Swapaxes(Function):
         self.x = x
         if isinstance(self.x, Constant):
             return Constant(np.swapaxes(x.value, self.axis1, self.axis2))
-        return Tensor(np.swapaxes(x.value, self.axis1, self.axis2), function=self)
+        return Tensor(np.swapaxes(x.value, self.axis1, self.axis2), parent=self)
 
     def backward(self, delta):
         dx = np.swapaxes(delta, self.axis2, self.axis1)

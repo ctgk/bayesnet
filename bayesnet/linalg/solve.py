@@ -31,7 +31,7 @@ class Solve(Function):
         self.output = np.linalg.solve(a.value, b.value)
         if isinstance(self.a, Constant) and isinstance(self.b, Constant):
             return Constant(self.output)
-        return Tensor(self.output, function=self)
+        return Tensor(self.output, parent=self)
 
     def backward(self, delta):
         db = np.linalg.solve(np.swapaxes(self.a.value, -1, -2), delta)

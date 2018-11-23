@@ -13,7 +13,7 @@ class Abs(Function):
         if isinstance(x, Constant):
             return Constant(self.output)
         self.sign = np.sign(x.value)
-        return Tensor(self.output, function=self)
+        return Tensor(self.output, parent=self)
 
     def backward(self, delta):
         dx = self.sign * delta

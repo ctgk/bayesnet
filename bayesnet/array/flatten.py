@@ -14,7 +14,7 @@ class Flatten(Function):
         self.x = x
         if isinstance(self.x, Constant):
             return Constant(x.value.flatten())
-        return Tensor(x.value.flatten(), function=self)
+        return Tensor(x.value.flatten(), parent=self)
 
     def backward(self, delta):
         dx = delta.reshape(*self.x.shape)

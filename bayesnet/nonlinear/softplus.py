@@ -12,7 +12,7 @@ class Softplus(Function):
         output = np.maximum(x.value, 0) + np.log1p(np.exp(-np.abs(x.value)))
         if isinstance(x, Constant):
             return Constant(output)
-        return Tensor(output, function=self)
+        return Tensor(output, parent=self)
 
     def backward(self, delta):
         dx = (np.tanh(0.5 * self.x.value) * 0.5 + 0.5) * delta

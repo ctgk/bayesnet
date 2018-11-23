@@ -22,7 +22,7 @@ class Sum(Function):
         output = x.value.sum(axis=self.axis, keepdims=self.keepdims)
         if isinstance(self.x, Constant):
             return Constant(output)
-        return Tensor(output, function=self)
+        return Tensor(output, parent=self)
 
     def backward(self, delta):
         if isinstance(delta, np.ndarray) and (not self.keepdims) and (self.axis is not None):

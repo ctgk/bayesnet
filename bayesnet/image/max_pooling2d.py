@@ -55,7 +55,7 @@ class MaxPooling2d(Function):
         patch = patch.reshape(n_batch, xlen_out, ylen_out, -1, in_channels)
         self.shape = img.shape
         self.index = patch.argmax(axis=3)
-        return Tensor(patch.max(axis=3), function=self)
+        return Tensor(patch.max(axis=3), parent=self)
 
     def backward(self, delta):
         delta_patch = np.zeros(delta.shape + (np.prod(self.pool_size),))

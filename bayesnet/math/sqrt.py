@@ -16,7 +16,7 @@ class Sqrt(Function):
         self.output = np.sqrt(x.value)
         if isinstance(self.x, Constant):
             return Constant(self.output)
-        return Tensor(self.output, function=self)
+        return Tensor(self.output, parent=self)
 
     def backward(self, delta):
         dx = 0.5 * delta / self.output

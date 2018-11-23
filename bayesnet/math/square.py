@@ -15,7 +15,7 @@ class Square(Function):
         self.x = x
         if isinstance(self.x, Constant):
             return Constant(np.square(x.value))
-        return Tensor(np.square(x.value), function=self)
+        return Tensor(np.square(x.value), parent=self)
 
     def backward(self, delta):
         dx = 2 * self.x.value * delta

@@ -87,7 +87,7 @@ class Deconvolve2d(Function):
             self.pad[1]: output.shape[1] - self.pad[1],
             self.pad[2]: output.shape[2] - self.pad[2]
         ]
-        return Tensor(output, function=self)
+        return Tensor(output, parent=self)
 
     def backward(self, delta):
         delta = np.pad(delta, [(p,) for p in self.pad], "constant")

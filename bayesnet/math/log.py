@@ -16,7 +16,7 @@ class Log(Function):
         output = np.log(self.x.value)
         if isinstance(self.x, Constant):
             return Constant(output)
-        return Tensor(output, function=self)
+        return Tensor(output, parent=self)
 
     def backward(self, delta):
         dx = delta / self.x.value

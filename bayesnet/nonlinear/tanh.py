@@ -12,7 +12,7 @@ class Tanh(Function):
         self.output = np.tanh(x.value)
         if isinstance(self.x, Constant):
             return Constant(self.output)
-        return Tensor(self.output, function=self)
+        return Tensor(self.output, parent=self)
 
     def backward(self, delta):
         dx = (1 - np.square(self.output)) * delta

@@ -28,7 +28,7 @@ class Power(Function):
         self.output = np.power(x.value, y.value)
         if isinstance(self.x, Constant) and isinstance(self.y, Constant):
             return Constant(self.output)
-        return Tensor(self.output, function=self)
+        return Tensor(self.output, parent=self)
 
     def backward(self, delta):
         dx = self.y.value * np.power(self.x.value, self.y.value - 1) * delta

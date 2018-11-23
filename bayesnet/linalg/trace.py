@@ -13,7 +13,7 @@ class Trace(Function):
         output = np.trace(x.value)
         if isinstance(self.x, Constant):
             return Constant(output)
-        return Tensor(output, function=self)
+        return Tensor(output, parent=self)
 
     def backward(self, delta):
         dx = np.eye(self.x.shape[0], self.x.shape[1]) * delta

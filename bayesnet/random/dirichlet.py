@@ -47,7 +47,7 @@ class Dirichlet(RandomVariable):
 
     def forward(self):
         if self.alpha.ndim == 1:
-            return Tensor(np.random.dirichlet(self.alpha.value), function=self)
+            return Tensor(np.random.dirichlet(self.alpha.value), parent=self)
         else:
             raise NotImplementedError
 

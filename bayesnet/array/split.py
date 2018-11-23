@@ -13,7 +13,7 @@ class Nth(Function):
         self.x = x
         if isinstance(self.x, Constant):
             return Constant(x.value)
-        return Tensor(x.value, function=self)
+        return Tensor(x.value, parent=self)
 
     def backward(self, delta):
         self.x.backward(delta, n=self.n)
@@ -34,7 +34,7 @@ class Split(Function):
             return tuple([Constant(out) for out in output])
         self.n_output = len(output)
         self.delta = [None for _ in output]
-        return tuple([Tensor(out, function=self) for out in output])
+        return tuple([Tensor(out, parent=self) for out in output])
 
     def backward(self, delta, n):
         self.delta[n] = delta

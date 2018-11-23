@@ -13,7 +13,7 @@ class Determinant(Function):
         self.output = np.linalg.det(x.value)
         if isinstance(self.x, Constant):
             return Constant(self.output)
-        return Tensor(self.output, function=self)
+        return Tensor(self.output, parent=self)
 
     def backward(self, delta):
         dx = delta * self.output * np.linalg.inv(np.swapaxes(self.x.value, -1, -2))

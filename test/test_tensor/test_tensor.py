@@ -20,7 +20,7 @@ class TestTensor(unittest.TestCase):
 
         for v, r, n, sh, si in zip(values, reprs, ndims, shapes, sizes):
             t = Tensor(v)
-            self.assertIs(t.function, None)
+            self.assertIs(t.parent, None)
             self.assertEqual(repr(t), r)
             self.assertEqual(t.ndim, n)
             self.assertEqual(t.shape, sh)

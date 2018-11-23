@@ -27,7 +27,7 @@ class Add(Function):
         self.y = y
         if isinstance(self.x, Constant) and isinstance(self.y, Constant):
             return Constant(x.value + y.value)
-        return Tensor(x.value + y.value, function=self)
+        return Tensor(x.value + y.value, parent=self)
 
     def backward(self, delta):
         dx = delta

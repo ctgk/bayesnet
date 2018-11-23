@@ -70,7 +70,7 @@ class Laplace(RandomVariable):
         self.output = self.loc.value - self.scale.value * self.eps
         if isinstance(self.loc, Constant) and isinstance(self.scale, Constant):
             return Constant(self.output)
-        return Tensor(self.output, function=self)
+        return Tensor(self.output, parent=self)
 
     def backward(self, delta):
         dloc = delta

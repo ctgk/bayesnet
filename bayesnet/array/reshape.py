@@ -17,7 +17,7 @@ class Reshape(Function):
         self.x = x
         if isinstance(self.x, Constant):
             return Constant(x.value.reshape(*self.shape))
-        return Tensor(x.value.reshape(*self.shape), function=self)
+        return Tensor(x.value.reshape(*self.shape), parent=self)
 
     def backward(self, delta):
         dx = delta.reshape(*self.x.shape)

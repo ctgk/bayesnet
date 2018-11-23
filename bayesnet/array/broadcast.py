@@ -18,7 +18,7 @@ class BroadcastTo(Function):
         output = np.broadcast_to(x.value, self.shape)
         if isinstance(self.x, Constant):
             return Constant(output)
-        return Tensor(output, function=self)
+        return Tensor(output, parent=self)
 
     def backward(self, delta):
         dx = delta

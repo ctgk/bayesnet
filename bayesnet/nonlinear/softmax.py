@@ -23,7 +23,7 @@ class Softmax(Function):
         self.output = self._softmax(x.value)
         if isinstance(x, Constant):
             return Constant(self.output)
-        return Tensor(self.output, function=self)
+        return Tensor(self.output, parent=self)
 
     def backward(self, delta):
         dx = self.output * delta

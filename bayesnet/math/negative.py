@@ -14,7 +14,7 @@ class Negative(Function):
         self.x = x
         if isinstance(self.x, Constant):
             return Constant(-x.value)
-        return Tensor(-x.value, function=self)
+        return Tensor(-x.value, parent=self)
 
     def backward(self, delta):
         dx = -delta

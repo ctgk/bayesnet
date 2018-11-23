@@ -166,7 +166,7 @@ class GaussianLogPDF(Function):
             + 0.5 * np.log(tau.value)
             - 0.5 * np.log(2 * np.pi)
         )
-        return Tensor(output, function=self)
+        return Tensor(output, parent=self)
 
     def backward(self, delta):
         dx = -0.5 * delta * (self.x.value - self.mu.value) * self.tau.value

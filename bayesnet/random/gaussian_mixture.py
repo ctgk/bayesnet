@@ -117,7 +117,7 @@ class GaussianMixture(RandomVariable):
                 and isinstance(self.std, Constant)
         ):
             return Constant(output)
-        return Tensor(output, function=self)
+        return Tensor(output, parent=self)
 
     def backward(self):
         raise NotImplementedError

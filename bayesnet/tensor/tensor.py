@@ -7,7 +7,7 @@ class Tensor(object):
     """
     __array_ufunc__ = None
 
-    def __init__(self, value, function=None):
+    def __init__(self, value, parent=None):
         """
         construct Tensor object
 
@@ -15,15 +15,15 @@ class Tensor(object):
         ----------
         value : array_like
             value of this tensor
-        function : Function
-            function output this tensor
+        parent : Function
+            parent function that outputted this tensor
         """
         if not isinstance(value, (int, float, np.number, np.ndarray)):
             raise TypeError(
                 "Unsupported class for Tensor: {}".format(type(value))
             )
         self.value = value
-        self.function = function
+        self.parent = parent
 
     def __format__(self, *args, **kwargs):
         return self.__repr__()
@@ -87,8 +87,8 @@ class Tensor(object):
         self._backward(delta, **kwargs)
 
     def _backward(self, delta, **kwargs):
-        if hasattr(self.function, "backward"):
-            self.function.backward(delta, **kwargs)
+        if hasattr(self.parent, "backward"):
+            self.parent.backward(delta, **kwargs)
 
     def __add__(self, arg):
         raise NotImplementedError

@@ -61,7 +61,7 @@ class Convolve2d(Function):
         img = np.pad(x.value, [(p,) for p in self.pad], "constant")
         self.shape = img.shape
         self.patch = img2patch(img, y.shape[:2], self.stride)
-        return Tensor(np.tensordot(self.patch, y.value, axes=((3, 4, 5), (0, 1, 2))), function=self)
+        return Tensor(np.tensordot(self.patch, y.value, axes=((3, 4, 5), (0, 1, 2))), parent=self)
 
     def backward(self, delta):
         dx = patch2img(
