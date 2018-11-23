@@ -10,16 +10,14 @@ class Square(Function):
     y = x * x
     """
 
-    def forward(self, x):
-        x = self._convert2tensor(x)
-        self.x = x
-        if isinstance(self.x, Constant):
-            return Constant(np.square(x.value))
-        return Tensor(np.square(x.value), parent=self)
+    @staticmethod
+    def _forward(x):
+        return np.square(x.value)
 
     def backward(self, delta):
-        dx = 2 * self.x.value * delta
-        self.x.backward(dx)
+        x = self.args[0]
+        dx = 2 * x.value * delta
+        x.backward(dx)
 
 
 def square(x):

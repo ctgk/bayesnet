@@ -2,48 +2,38 @@ import numpy as np
 from bayesnet.tensor.constant import Constant
 from bayesnet.tensor.tensor import Tensor
 from bayesnet.function import Function
-from bayesnet.array.broadcast import broadcast_to
+from bayesnet.array.broadcast import broadcast
 
 
 class Power(Function):
     """
     First array elements raised to powers from second array
     """
+    enable_auto_broadcast = True
 
-    def _check_input(self, x, y):
-        x = self._convert2tensor(x)
-        y = self._convert2tensor(y)
-        if x.shape != y.shape:
-            shape = np.broadcast(x.value, y.value).shape
-            if x.shape != shape:
-                x = broadcast_to(x, shape)
-            if y.shape != shape:
-                y = broadcast_to(y, shape)
-        return x, y
+    @staticmethod
+    def _autobroadcast(args):
+        return broadcast(args)
 
-    def forward(self, x, y):
-        x, y = self._check_input(x, y)
-        self.x = x
-        self.y = y
+    def _forward(self, x, y):
         self.output = np.power(x.value, y.value)
-        if isinstance(self.x, Constant) and isinstance(self.y, Constant):
-            return Constant(self.output)
-        return Tensor(self.output, parent=self)
+        return self.output
 
     def backward(self, delta):
-        dx = self.y.value * np.power(self.x.value, self.y.value - 1) * delta
-        if self.x.size == 1:
-            if self.x.value > 0:
-                dy = self.output * np.log(self.x.value) * delta
+        x, y = self.args[0], self.args[1]
+        dx = y.value * np.power(x.value, y.value - 1) * delta
+        if x.size == 1:
+            if x.value > 0:
+                dy = self.output * np.log(x.value) * delta
             else:
                 dy = None
         else:
-            if (self.x.value > 0).all():
-                dy = self.output * np.log(self.x.value) * delta
+            if (x.value > 0).all():
+                dy = self.output * np.log(x.value) * delta
             else:
                 dy = None
-        self.x.backward(dx)
-        self.y.backward(dy)
+        x.backward(dx)
+        y.backward(dy)
 
 
 def power(x, y):

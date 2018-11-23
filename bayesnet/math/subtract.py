@@ -2,38 +2,26 @@ import numpy as np
 from bayesnet.tensor.constant import Constant
 from bayesnet.tensor.tensor import Tensor
 from bayesnet.function import Function
-from bayesnet.array.broadcast import broadcast_to
+from bayesnet.array.broadcast import broadcast
 
 
 class Subtract(Function):
     """
     subtract arguments element-wise
     """
+    enable_auto_broadcast = True
 
-    def _check_input(self, x, y):
-        x = self._convert2tensor(x)
-        y = self._convert2tensor(y)
-        if x.shape != y.shape:
-            shape = np.broadcast(x.value, y.value).shape
-            if x.shape != shape:
-                x = broadcast_to(x, shape)
-            if y.shape != shape:
-                y = broadcast_to(y, shape)
-        return x, y
+    @staticmethod
+    def _autobroadcast(args):
+        return broadcast(args)
 
-    def forward(self, x, y):
-        x, y = self._check_input(x, y)
-        self.x = x
-        self.y = y
-        if isinstance(self.x, Constant) and isinstance(self.y, Constant):
-            return Constant(x.value - y.value)
-        return Tensor(x.value - y.value, parent=self)
+    @staticmethod
+    def _forward(x, y):
+        return x.value - y.value
 
     def backward(self, delta):
-        dx = delta
-        dy = -delta
-        self.x.backward(dx)
-        self.y.backward(dy)
+        self.args[0].backward(delta)
+        self.args[1].backward(-delta)
 
 
 def subtract(x, y):

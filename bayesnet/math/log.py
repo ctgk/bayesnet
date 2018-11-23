@@ -10,17 +10,14 @@ class Log(Function):
     y = log(x)
     """
 
-    def forward(self, x):
-        x = self._convert2tensor(x)
-        self.x = x
-        output = np.log(self.x.value)
-        if isinstance(self.x, Constant):
-            return Constant(output)
-        return Tensor(output, parent=self)
+    @staticmethod
+    def _forward(x):
+        return np.log(x.value)
 
     def backward(self, delta):
-        dx = delta / self.x.value
-        self.x.backward(dx)
+        x = self.args[0]
+        dx = delta / x.value
+        x.backward(dx)
 
 
 def log(x):

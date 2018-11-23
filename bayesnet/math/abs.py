@@ -6,18 +6,13 @@ from bayesnet.function import Function
 
 class Abs(Function):
 
-    def forward(self, x):
-        x = self._convert2tensor(x)
-        self.x = x
-        self.output = np.abs(x.value)
-        if isinstance(x, Constant):
-            return Constant(self.output)
+    def _forward(self, x):
         self.sign = np.sign(x.value)
-        return Tensor(self.output, parent=self)
+        return np.abs(x.value)
 
     def backward(self, delta):
         dx = self.sign * delta
-        self.x.backward(dx)
+        self.args[0].backward(dx)
 
 
 def abs(x):

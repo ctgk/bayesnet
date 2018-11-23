@@ -9,10 +9,10 @@ class MatMul(Function):
     """
     Matrix multiplication function
     """
+    enable_auto_broadcast = True
 
-    def _check_input(self, x, y):
-        x = self._convert2tensor(x)
-        y = self._convert2tensor(y)
+    def _autobroadcast(self, args):
+        x, y = args[0], args[1]
         self._is_atleast_ndim(x, 2)
         self._is_atleast_ndim(y, 2)
         if x.shape[-1] != y.shape[-2]:
@@ -26,21 +26,18 @@ class MatMul(Function):
                 x = broadcast_to(x, shape + x.shape[-2:])
             if y.shape[:-2] != shape:
                 y = broadcast_to(y, shape + y.shape[-2:])
-        return x, y
+        return [x, y]
 
-    def forward(self, x, y):
-        x, y = self._check_input(x, y)
-        self.x = x
-        self.y = y
-        if isinstance(self.x, Constant) and isinstance(self.y, Constant):
-            return Constant(x.value @ y.value)
-        return Tensor(x.value @ y.value, parent=self)
+    @staticmethod
+    def _forward(x, y):
+        return x.value @ y.value
 
     def backward(self, delta):
-        dx = delta @ np.swapaxes(self.y.value, -1, -2)
-        dy = np.swapaxes(self.x.value, -1, -2) @ delta
-        self.x.backward(dx)
-        self.y.backward(dy)
+        x, y = self.args[0], self.args[1]
+        dx = delta @ np.swapaxes(y.value, -1, -2)
+        dy = np.swapaxes(x.value, -1, -2) @ delta
+        x.backward(dx)
+        y.backward(dy)
 
 
 def matmul(x, y):

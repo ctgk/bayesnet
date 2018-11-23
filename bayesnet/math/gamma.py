@@ -6,17 +6,14 @@ from bayesnet.tensor.tensor import Tensor
 
 class Gamma(Function):
 
-    def forward(self, x):
-        x = self._convert2tensor(x)
-        self.x = x
+    def _forward(self, x):
         self.output = sp.gamma(x.value)
-        if isinstance(x, Constant):
-            return Constant(self.output)
-        return Tensor(self.output, parent=self)
+        return self.output
 
     def backward(self, delta):
-        dx = delta * self.output * sp.digamma(self.x.value)
-        self.x.backward(dx)
+        x = self.args[0]
+        dx = delta * self.output * sp.digamma(x.value)
+        x.backward(dx)
 
 
 def gamma(x):

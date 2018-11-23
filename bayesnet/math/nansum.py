@@ -16,26 +16,22 @@ class NanSum(Function):
         self.axis = axis
         self.keepdims = keepdims
 
-    def forward(self, x):
-        x = self._convert2tensor(x)
-        self.x = x
-        output = np.nansum(x.value, axis=self.axis, keepdims=self.keepdims)
-        if isinstance(self.x, Constant):
-            return Constant(output)
-        return Tensor(output, parent=self)
+    def _forward(self, x):
+        return np.nansum(x.value, axis=self.axis, keepdims=self.keepdims)
 
     def backward(self, delta):
+        x = self.args[0]
         if isinstance(delta, np.ndarray) and (not self.keepdims) and (self.axis is not None):
             axis_positive = []
             for axis in self.axis:
                 if axis < 0:
-                    axis_positive.append(self.x.ndim + axis)
+                    axis_positive.append(x.ndim + axis)
                 else:
                     axis_positive.append(axis)
             for axis in sorted(axis_positive):
                 delta = np.expand_dims(delta, axis)
-        dx = np.broadcast_to(delta, self.x.shape) * (1 - np.isnan(self.x.value))
-        self.x.backward(dx)
+        dx = np.broadcast_to(delta, x.shape) * (1 - np.isnan(x.value))
+        x.backward(dx)
 
 
 def nansum(x, axis=None, keepdims=False):
