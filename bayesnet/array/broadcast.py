@@ -50,7 +50,7 @@ def broadcast(args):
     list
         list of Tensor whose shapes are aligned
     """
-    shape = np.broadcast(arg.value for arg in args).shape
+    shape = np.broadcast(*(arg.value for arg in args)).shape
     for i, arg in enumerate(args):
         if arg.shape != shape:
             args[i] = broadcast_to(arg, shape)
