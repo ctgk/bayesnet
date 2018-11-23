@@ -34,3 +34,24 @@ def broadcast_to(x, shape):
     Broadcast a tensor to an new shape
     """
     return BroadcastTo().forward(x, shape)
+
+
+def broadcast(args):
+    """
+    broadcast list of tensors to make them have the same shape
+
+    Parameters
+    ----------
+    args : list
+        list of Tensor to be aligned
+
+    Returns
+    -------
+    list
+        list of Tensor whose shapes are aligned
+    """
+    shape = np.broadcast(arg.value for arg in args).shape
+    for i, arg in enumerate(args):
+        if arg.shape != shape:
+            args[i] = broadcast_to(arg, shape)
+    return args
