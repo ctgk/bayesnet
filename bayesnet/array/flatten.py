@@ -8,17 +8,15 @@ class Flatten(Function):
     flatten array
     """
 
-    def forward(self, x):
-        x = self._convert2tensor(x)
-        self._is_atleast_ndim(x, 2)
-        self.x = x
-        if isinstance(self.x, Constant):
-            return Constant(x.value.flatten())
-        return Tensor(x.value.flatten(), parent=self)
+    @classmethod
+    def _forward(cls, x):
+        cls._is_atleast_ndim(x, 2)
+        return x.value.flatten()
 
     def backward(self, delta):
-        dx = delta.reshape(*self.x.shape)
-        self.x.backward(dx)
+        x = self.args[0]
+        dx = delta.reshape(*x.shape)
+        x.backward(dx)
 
 
 def flatten(x):

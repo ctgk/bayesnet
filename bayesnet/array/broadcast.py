@@ -12,24 +12,21 @@ class BroadcastTo(Function):
     def __init__(self, shape):
         self.shape = shape
 
-    def forward(self, x):
-        x = self._convert2tensor(x)
-        self.x = x
+    def _forward(self, x):
         output = np.broadcast_to(x.value, self.shape)
-        if isinstance(self.x, Constant):
-            return Constant(output)
-        return Tensor(output, parent=self)
+        return output
 
     def backward(self, delta):
+        x = self.args[0]
         dx = delta
-        if delta.ndim != self.x.ndim:
-            dx = dx.sum(axis=tuple(range(dx.ndim - self.x.ndim)))
+        if delta.ndim != x.ndim:
+            dx = dx.sum(axis=tuple(range(dx.ndim - x.ndim)))
             if isinstance(dx, np.number):
                 dx = np.array(dx)
-        axis = tuple(i for i, len_ in enumerate(self.x.shape) if len_ == 1)
+        axis = tuple(i for i, len_ in enumerate(x.shape) if len_ == 1)
         if axis:
             dx = dx.sum(axis=axis, keepdims=True)
-        self.x.backward(dx)
+        x.backward(dx)
 
 
 def broadcast_to(x, shape):

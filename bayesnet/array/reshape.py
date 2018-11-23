@@ -11,17 +11,14 @@ class Reshape(Function):
     def __init__(self, shape):
         self.shape = shape
 
-    def forward(self, x):
-        x = self._convert2tensor(x)
+    def _forward(self, x):
         self._is_atleast_ndim(x, 1)
-        self.x = x
-        if isinstance(self.x, Constant):
-            return Constant(x.value.reshape(*self.shape))
-        return Tensor(x.value.reshape(*self.shape), parent=self)
+        return x.value.reshape(*self.shape)
 
     def backward(self, delta):
-        dx = delta.reshape(*self.x.shape)
-        self.x.backward(dx)
+        x = self.args[0]
+        dx = delta.reshape(*x.shape)
+        x.backward(dx)
 
 
 def reshape(x, shape):

@@ -10,16 +10,12 @@ class Swapaxes(Function):
         self.axis1 = axis1
         self.axis2 = axis2
 
-    def forward(self, x):
-        x = self._convert2tensor(x)
-        self.x = x
-        if isinstance(self.x, Constant):
-            return Constant(np.swapaxes(x.value, self.axis1, self.axis2))
-        return Tensor(np.swapaxes(x.value, self.axis1, self.axis2), parent=self)
+    def _forward(self, x):
+        return np.swapaxes(x.value, self.axis1, self.axis2)
 
     def backward(self, delta):
         dx = np.swapaxes(delta, self.axis2, self.axis1)
-        self.x.backward(dx)
+        self.args[0].backward(dx)
 
 
 def swapaxes(x, axis1, axis2):
