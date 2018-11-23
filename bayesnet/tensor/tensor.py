@@ -77,7 +77,7 @@ class Tensor(object):
                 )
         elif isinstance(delta, (int, float, np.number)):
             if self.shape != ():
-                raise ValueError(
+                 raise ValueError(
                     "delta must be np.ndarray"
                 )
         else:
@@ -89,3 +89,51 @@ class Tensor(object):
     def _backward(self, delta, **kwargs):
         if hasattr(self.function, "backward"):
             self.function.backward(delta, **kwargs)
+
+    def __add__(self, arg):
+        raise NotImplementedError
+
+    def __radd__(self, arg):
+        raise NotImplementedError
+
+    def __truediv__(self, arg):
+        raise NotImplementedError
+
+    def __rtruediv__(self, arg):
+        raise NotImplementedError
+
+    def __matmul__(self, arg):
+        raise NotImplementedError
+
+    def __rmatmul__(self, arg):
+        raise NotImplementedError
+
+    def __mul__(self, arg):
+        raise NotImplementedError
+
+    def __rmul__(self, arg):
+        raise NotImplementedError
+
+    def __neg__(self):
+        raise NotImplementedError
+
+    def __pow__(self, arg):
+        raise NotImplementedError
+
+    def __rpow__(self, arg):
+        raise NotImplementedError
+
+    def __sub__(self, arg):
+        raise NotImplementedError
+
+    def __rsub__(self, arg):
+        raise NotImplementedError
+
+    def mean(self):
+        raise NotImplementedError
+
+    def prod(self):
+        raise NotImplementedError
+
+    def sum(self):
+        raise NotImplementedError
