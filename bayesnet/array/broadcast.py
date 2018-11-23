@@ -9,10 +9,13 @@ class BroadcastTo(Function):
     Broadcast a tensor to an new shape
     """
 
-    def forward(self, x, shape):
+    def __init__(self, shape):
+        self.shape = shape
+
+    def forward(self, x):
         x = self._convert2tensor(x)
         self.x = x
-        output = np.broadcast_to(x.value, shape)
+        output = np.broadcast_to(x.value, self.shape)
         if isinstance(self.x, Constant):
             return Constant(output)
         return Tensor(output, function=self)
@@ -33,7 +36,7 @@ def broadcast_to(x, shape):
     """
     Broadcast a tensor to an new shape
     """
-    return BroadcastTo().forward(x, shape)
+    return BroadcastTo(shape).forward(x)
 
 
 def broadcast(args):
@@ -53,5 +56,5 @@ def broadcast(args):
     shape = np.broadcast(*(arg.value for arg in args)).shape
     for i, arg in enumerate(args):
         if arg.shape != shape:
-            args[i] = broadcast_to(arg, shape)
+            args[i] = BroadcastTo(shape).forward(arg)
     return args
