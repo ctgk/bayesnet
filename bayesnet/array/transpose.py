@@ -12,7 +12,7 @@ class Transpose(Function):
     def forward(self, x):
         x = self._convert2tensor(x)
         if self.axes is not None:
-            self._equal_ndim(x, len(self.axes))
+            self._is_equal_to_ndim(x, len(self.axes))
         self.x = x
         if isinstance(self.x, Constant):
             return Constant(np.transpose(x.value, self.axes))

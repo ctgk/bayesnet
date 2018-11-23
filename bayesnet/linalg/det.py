@@ -9,7 +9,7 @@ class Determinant(Function):
     def forward(self, x):
         x = self._convert2tensor(x)
         self.x = x
-        self._atleast_ndim(x, 2)
+        self._is_atleast_ndim(x, 2)
         self.output = np.linalg.det(x.value)
         if isinstance(self.x, Constant):
             return Constant(self.output)

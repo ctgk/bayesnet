@@ -9,7 +9,7 @@ class Inverse(Function):
     def forward(self, x):
         x = self._convert2tensor(x)
         self.x = x
-        self._equal_ndim(x, 2)
+        self._is_equal_to_ndim(x, 2)
         self.output = np.linalg.inv(x.value)
         if isinstance(self.x, Constant):
             return Constant(self.output)

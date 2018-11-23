@@ -9,7 +9,7 @@ class LogDeterminant(Function):
     def forward(self, x):
         x = self._convert2tensor(x)
         self.x = x
-        self._atleast_ndim(x, 2)
+        self._is_atleast_ndim(x, 2)
         sign, self.output = np.linalg.slogdet(x.value)
         if np.any(sign < 1):
             raise ValueError("The input matrix has to be positive-definite")

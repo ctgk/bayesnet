@@ -47,7 +47,7 @@ class MaxPooling2d(Function):
 
     def forward(self, x):
         x = self._convert2tensor(x)
-        self._equal_ndim(x, 4)
+        self._is_equal_to_ndim(x, 4)
         self.x = x
         img = np.pad(x.value, [(p,) for p in self.pad], "constant")
         patch = img2patch(img, self.pool_size, self.stride)

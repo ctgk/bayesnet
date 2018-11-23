@@ -13,8 +13,8 @@ class MatMul(Function):
     def _check_input(self, x, y):
         x = self._convert2tensor(x)
         y = self._convert2tensor(y)
-        self._atleast_ndim(x, 2)
-        self._atleast_ndim(y, 2)
+        self._is_atleast_ndim(x, 2)
+        self._is_atleast_ndim(y, 2)
         if x.shape[-1] != y.shape[-2]:
             raise ValueError(
                 "shapes {} and {} not aligned: {} (dim -1) != {} (dim -2)"

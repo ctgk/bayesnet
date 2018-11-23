@@ -10,7 +10,7 @@ class Reshape(Function):
 
     def forward(self, x, shape):
         x = self._convert2tensor(x)
-        self._atleast_ndim(x, 1)
+        self._is_atleast_ndim(x, 1)
         self.x = x
         if isinstance(self.x, Constant):
             return Constant(x.value.reshape(*shape))

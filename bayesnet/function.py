@@ -8,7 +8,8 @@ class Function(object):
     Base class for differentiable functions
     """
 
-    def _convert2tensor(self, x):
+    @staticmethod
+    def _convert2tensor(x):
         if isinstance(x, (int, float, np.number, np.ndarray)):
             x = Constant(x)
         elif not isinstance(x, Tensor):
@@ -17,14 +18,16 @@ class Function(object):
             )
         return x
 
-    def _equal_ndim(self, x, ndim):
+    @staticmethod
+    def _is_equal_to_ndim(x, ndim):
         if x.ndim != ndim:
             raise ValueError(
                 "dimensionality of the input must be {}, not {}"
                 .format(ndim, x.ndim)
             )
 
-    def _atleast_ndim(self, x, ndim):
+    @staticmethod
+    def _is_atleast_ndim(x, ndim):
         if x.ndim < ndim:
             raise ValueError(
                 "dimensionality of the input must be"

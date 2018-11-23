@@ -10,8 +10,8 @@ class Solve(Function):
     def _check_input(self, a, b):
         a = self._convert2tensor(a)
         b = self._convert2tensor(b)
-        self._atleast_ndim(a, 2)
-        self._atleast_ndim(b, 2)
+        self._is_atleast_ndim(a, 2)
+        self._is_atleast_ndim(b, 2)
         if a.shape[-2:] != (b.shape[-2], b.shape[-2]):
             raise ValueError(
                 "Mismatching dimensionality of a and b: {} and {}"

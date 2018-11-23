@@ -8,7 +8,7 @@ class Trace(Function):
 
     def forward(self, x):
         x = self._convert2tensor(x)
-        self._equal_ndim(x, 2)
+        self._is_equal_to_ndim(x, 2)
         self.x = x
         output = np.trace(x.value)
         if isinstance(self.x, Constant):
