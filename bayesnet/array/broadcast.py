@@ -16,17 +16,19 @@ class BroadcastTo(Function):
         output = np.broadcast_to(x, self.shape)
         return output
 
-    def backward(self, delta):
-        x = self.args[0]
+    @staticmethod
+    def _backward(delta, x):
         dx = delta
-        if delta.ndim != x.ndim:
-            dx = dx.sum(axis=tuple(range(dx.ndim - x.ndim)))
+        xdim = getattr(x, "ndim", 0)
+        xshape = getattr(x, "shape", ())
+        if delta.ndim != xdim:
+            dx = dx.sum(axis=tuple(range(dx.ndim - xdim)))
             if isinstance(dx, np.number):
                 dx = np.array(dx)
-        axis = tuple(i for i, len_ in enumerate(x.shape) if len_ == 1)
+        axis = tuple(i for i, len_ in enumerate(xshape) if len_ == 1)
         if axis:
             dx = dx.sum(axis=axis, keepdims=True)
-        x.backward(dx)
+        return dx
 
 
 def broadcast_to(x, shape):

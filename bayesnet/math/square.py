@@ -14,10 +14,10 @@ class Square(Function):
     def _forward(x):
         return np.square(x)
 
-    def backward(self, delta):
-        x = self.args[0]
-        dx = 2 * x.value * delta
-        x.backward(dx)
+    @staticmethod
+    def _backward(delta, x):
+        dx = 2 * x * delta
+        return dx
 
 
 def square(x):

@@ -10,9 +10,9 @@ class Tanh(Function):
         self.output = np.tanh(x)
         return self.output
 
-    def backward(self, delta):
+    def _backward(self, delta, x):
         dx = (1 - np.square(self.output)) * delta
-        self.args[0].backward(dx)
+        return dx
 
 
 def tanh(x):

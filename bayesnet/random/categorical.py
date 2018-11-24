@@ -114,9 +114,7 @@ class SoftmaxCrossEntropy(Function):
         loss = -t * np.log(self.y)
         return loss
 
-    def backward(self, delta):
-        x, t = self.args[0], self.args[1]
-        dx = delta * (self.y - t.value)
+    def _backward(self, delta, x, t):
+        dx = delta * (self.y - t)
         dt = - delta * np.log(self.y)
-        x.backward(dx)
-        t.backward(dt)
+        return dx, dt

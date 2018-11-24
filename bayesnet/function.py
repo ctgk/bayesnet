@@ -21,9 +21,12 @@ class Function(object):
             return Tensor(output, parent=self)
 
     def backward(self, delta):
-        dargs = self._backward(delta, *self.args)
-        for arg, darg in zip(self.args, dargs):
-            arg.backward(darg)
+        dargs = self._backward(delta, *tuple(arg.value for arg in self.args))
+        if isinstance(dargs, tuple):
+            for arg, darg in zip(self.args, dargs):
+                arg.backward(darg)
+        else:
+            self.args[0].backward(dargs)
 
     @staticmethod
     def _autobroadcast(arg):

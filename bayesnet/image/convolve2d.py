@@ -58,18 +58,16 @@ class Convolve2d(Function):
         self.patch = img2patch(img, y.shape[:2], self.stride)
         return np.tensordot(self.patch, y, axes=((3, 4, 5), (0, 1, 2)))
 
-    def backward(self, delta):
-        x, y = self.args[0], self.args[1]
+    def _backward(self, delta, x, y):
         dx = patch2img(
-            np.tensordot(delta, y.value, (3, 3)),
+            np.tensordot(delta, y, (3, 3)),
             self.stride,
             self.shape
         )
         slices = tuple(slice(p, len_ - p) for p, len_ in zip(self.pad, self.shape))
         dx = dx[slices]
         dy = np.tensordot(self.patch, delta, axes=((0, 1, 2),) * 2)
-        x.backward(dx)
-        y.backward(dy)
+        return dx, dy
 
 
 def convolve2d(x, y, stride=1, pad=0):

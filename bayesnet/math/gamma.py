@@ -10,10 +10,9 @@ class Gamma(Function):
         self.output = sp.gamma(x)
         return self.output
 
-    def backward(self, delta):
-        x = self.args[0]
-        dx = delta * self.output * sp.digamma(x.value)
-        x.backward(dx)
+    def _backward(self, delta, x):
+        dx = delta * self.output * sp.digamma(x)
+        return dx
 
 
 def gamma(x):

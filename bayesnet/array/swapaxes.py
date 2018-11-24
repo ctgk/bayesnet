@@ -13,9 +13,8 @@ class Swapaxes(Function):
     def _forward(self, x):
         return np.swapaxes(x, self.axis1, self.axis2)
 
-    def backward(self, delta):
-        dx = np.swapaxes(delta, self.axis2, self.axis1)
-        self.args[0].backward(dx)
+    def _backward(self, delta, *args):
+        return np.swapaxes(delta, self.axis2, self.axis1)
 
 
 def swapaxes(x, axis1, axis2):

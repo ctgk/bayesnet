@@ -13,10 +13,9 @@ class Flatten(Function):
         cls._assert_ndim_atleast(x, 2)
         return x.flatten()
 
-    def backward(self, delta):
-        x = self.args[0]
-        dx = delta.reshape(*x.shape)
-        x.backward(dx)
+    @staticmethod
+    def _backward(delta, x):
+        return delta.reshape(*x.shape)
 
 
 def flatten(x):

@@ -11,10 +11,9 @@ class Determinant(Function):
         self.output = np.linalg.det(x)
         return self.output
 
-    def backward(self, delta):
-        x = self.args[0]
-        dx = delta * self.output * np.linalg.inv(np.swapaxes(x.value, -1, -2))
-        x.backward(dx)
+    def _backward(self, delta, x):
+        dx = delta * self.output * np.linalg.inv(np.swapaxes(x, -1, -2))
+        return dx
 
 
 def det(x):

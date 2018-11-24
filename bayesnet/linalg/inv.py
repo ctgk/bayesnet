@@ -11,9 +11,9 @@ class Inverse(Function):
         self.output = np.linalg.inv(x)
         return self.output
 
-    def backward(self, delta):
+    def _backward(self, delta, x):
         dx = -self.output.T @ delta @ self.output.T
-        self.args[0].backward(dx)
+        return dx
 
 
 def inv(x):

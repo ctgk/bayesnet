@@ -14,9 +14,9 @@ class Sqrt(Function):
         self.output = np.sqrt(x)
         return self.output
 
-    def backward(self, delta):
+    def _backward(self, delta, x):
         dx = 0.5 * delta / self.output
-        self.args[0].backward(dx)
+        return dx
 
 
 def sqrt(x):

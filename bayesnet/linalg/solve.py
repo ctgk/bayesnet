@@ -30,12 +30,10 @@ class Solve(Function):
         self.output = np.linalg.solve(a, b)
         return self.output
 
-    def backward(self, delta):
-        a, b = self.args[0], self.args[1]
-        db = np.linalg.solve(np.swapaxes(a.value, -1, -2), delta)
+    def _backward(self, delta, a, b):
+        db = np.linalg.solve(np.swapaxes(a, -1, -2), delta)
         da = np.einsum("...ij,...kj->...ik", -db, self.output)
-        a.backward(da)
-        b.backward(db)
+        return da, db
 
 
 def solve(a, b):

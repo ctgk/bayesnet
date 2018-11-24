@@ -152,14 +152,12 @@ class GaussianLogPDF(Function):
         )
         return output
 
-    def backward(self, delta):
-        x, mu, tau = self.args[0:3]
-        dx = -0.5 * delta * (x.value - mu.value) * tau.value
-        dmu = -0.5 * delta * (mu.value - x.value) * tau.value
+    @staticmethod
+    def _backward(delta, x, mu, tau):
+        dx = -0.5 * delta * (x - mu) * tau
+        dmu = -dx
         dtau = 0.5 * delta * (
-            1 / tau.value
-            - (x.value - mu.value) ** 2
+            1 / tau
+            - (x - mu) ** 2
         )
-        x.backward(dx)
-        mu.backward(dmu)
-        tau.backward(dtau)
+        return dx, dmu, dtau

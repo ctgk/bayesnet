@@ -14,10 +14,10 @@ class Log(Function):
     def _forward(x):
         return np.log(x)
 
-    def backward(self, delta):
-        x = self.args[0]
-        dx = delta / x.value
-        x.backward(dx)
+    @staticmethod
+    def _backward(delta, x):
+        dx = delta / x
+        return dx
 
 
 def log(x):

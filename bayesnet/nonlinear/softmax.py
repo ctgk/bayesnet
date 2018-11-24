@@ -18,10 +18,10 @@ class Softmax(Function):
         self.output = y
         return self.output
 
-    def backward(self, delta):
+    def _backward(self, delta, x):
         dx = self.output * delta
         dx -= self.output * dx.sum(self.axis, keepdims=True)
-        self.args[0].backward(dx)
+        return dx
 
 
 def softmax(x, axis=-1):

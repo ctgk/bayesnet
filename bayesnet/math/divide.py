@@ -19,12 +19,11 @@ class Divide(Function):
     def _forward(x, y):
         return x / y
 
-    def backward(self, delta):
-        x, y = self.args[0], self.args[1]
-        dx = delta / y.value
-        dy = -delta * x.value / y.value ** 2
-        x.backward(dx)
-        y.backward(dy)
+    @staticmethod
+    def _backward(delta, x, y):
+        dx = delta / y
+        dy = -delta * x / y ** 2
+        return dx, dy
 
 
 def divide(x, y):

@@ -14,9 +14,9 @@ class Sigmoid(Function):
         self.output = np.tanh(x * 0.5) * 0.5 + 0.5
         return self.output
 
-    def backward(self, delta):
+    def _backward(self, delta, x):
         dx = self.output * (1 - self.output) * delta
-        self.args[0].backward(dx)
+        return dx
 
 
 def sigmoid(x):

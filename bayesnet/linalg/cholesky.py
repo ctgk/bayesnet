@@ -10,7 +10,7 @@ class Cholesky(Function):
         self.output = np.linalg.cholesky(x)
         return self.output
 
-    def backward(self, delta):
+    def _backward(self, delta, x):
         delta_lower = np.tril(delta)
         P = phi(np.einsum("...ij,...ik->...jk", self.output, delta_lower))
         S = np.linalg.solve(
@@ -18,7 +18,7 @@ class Cholesky(Function):
             np.einsum("...ij,...jk->...ik", P, np.linalg.inv(self.output))
         )
         dx = S + np.swapaxes(S, -1, -2) + np.tril(np.triu(S))
-        self.args[0].backward(dx)
+        return dx
 
 
 def phi(x):

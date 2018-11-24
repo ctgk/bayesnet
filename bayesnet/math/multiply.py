@@ -19,12 +19,11 @@ class Multiply(Function):
     def _forward(x, y):
         return x * y
 
-    def backward(self, delta):
-        x, y = self.args[0], self.args[1]
-        dx = y.value * delta
-        dy = x.value * delta
-        x.backward(dx)
-        y.backward(dy)
+    @staticmethod
+    def _backward(delta, x, y):
+        dx = y * delta
+        dy = x * delta
+        return dx, dy
 
 
 def multiply(x, y):

@@ -10,10 +10,10 @@ class Softplus(Function):
     def _forward(x):
         return np.maximum(x, 0) + np.log1p(np.exp(-np.abs(x)))
 
-    def backward(self, delta):
-        x = self.args[0]
-        dx = (np.tanh(0.5 * x.value) * 0.5 + 0.5) * delta
-        x.backward(dx)
+    @staticmethod
+    def _backward(delta, x):
+        dx = (np.tanh(0.5 * x) * 0.5 + 0.5) * delta
+        return dx
 
 
 def softplus(x):

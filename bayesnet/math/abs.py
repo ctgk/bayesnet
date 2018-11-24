@@ -10,9 +10,9 @@ class Abs(Function):
         self.sign = np.sign(x)
         return np.abs(x)
 
-    def backward(self, delta):
+    def _backward(self, delta, x):
         dx = self.sign * delta
-        self.args[0].backward(dx)
+        return dx
 
 
 def abs(x):

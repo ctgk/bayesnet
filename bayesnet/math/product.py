@@ -24,13 +24,12 @@ class Product(Function):
             output = self.output
         return output
 
-    def backward(self, delta):
-        x = self.args[0]
+    def _backward(self, delta, x):
         if not self.keepdims and self.axis is not None:
             for ax in self.axis:
                 delta = np.expand_dims(delta, ax)
-        dx = delta * self.output / x.value
-        x.backward(dx)
+        dx = delta * self.output / x
+        return dx
 
 
 def prod(x, axis=None, keepdims=False):

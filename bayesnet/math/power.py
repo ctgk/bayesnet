@@ -19,21 +19,19 @@ class Power(Function):
         self.output = np.power(x, y)
         return self.output
 
-    def backward(self, delta):
-        x, y = self.args[0], self.args[1]
-        dx = y.value * np.power(x.value, y.value - 1) * delta
-        if x.size == 1:
-            if x.value > 0:
-                dy = self.output * np.log(x.value) * delta
+    def _backward(self, delta, x, y):
+        dx = y * np.power(x, y - 1) * delta
+        if getattr(x, "size", 1) == 1:
+            if x > 0:
+                dy = self.output * np.log(x) * delta
             else:
                 dy = None
         else:
-            if (x.value > 0).all():
-                dy = self.output * np.log(x.value) * delta
+            if (x > 0).all():
+                dy = self.output * np.log(x) * delta
             else:
                 dy = None
-        x.backward(dx)
-        y.backward(dy)
+        return dx, dy
 
 
 def power(x, y):

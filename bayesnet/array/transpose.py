@@ -14,12 +14,11 @@ class Transpose(Function):
             self._assert_ndim_equal_to(x, len(self.axes))
         return np.transpose(x, self.axes)
 
-    def backward(self, delta):
+    def _backward(self, delta, *args):
         if self.axes is None:
-            dx = np.transpose(delta)
+            return np.transpose(delta)
         else:
-            dx = np.transpose(delta, np.argsort(self.axes))
-        self.args[0].backward(dx)
+            return np.transpose(delta, np.argsort(self.axes))
 
 
 def transpose(x, axes=None):

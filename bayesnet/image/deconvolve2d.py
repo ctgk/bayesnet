@@ -84,14 +84,12 @@ class Deconvolve2d(Function):
         ]
         return output
 
-    def backward(self, delta):
-        x, y = self.args[0], self.args[1]
+    def _backward(self, delta, x, y):
         delta = np.pad(delta, [(p,) for p in self.pad], "constant")
         dpatch = img2patch(delta, y.shape[:2], self.stride)
-        dx = np.tensordot(dpatch, y.value, axes=((3, 4, 5), (0, 1, 2)))
-        dy = np.tensordot(dpatch, x.value, axes=((0, 1, 2),) * 2)
-        x.backward(dx)
-        y.backward(dy)
+        dx = np.tensordot(dpatch, y, axes=((3, 4, 5), (0, 1, 2)))
+        dy = np.tensordot(dpatch, x, axes=((0, 1, 2),) * 2)
+        return dx, dy
 
 
 def deconvolve2d(x, y, stride=1, pad=0, shape=None):

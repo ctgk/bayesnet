@@ -19,19 +19,19 @@ class NanSum(Function):
     def _forward(self, x):
         return np.nansum(x, axis=self.axis, keepdims=self.keepdims)
 
-    def backward(self, delta):
-        x = self.args[0]
+    def _backward(self, delta, x):
+        xdim, xshape = getattr(x, "ndim", 0), getattr(x, "shape", ())
         if isinstance(delta, np.ndarray) and (not self.keepdims) and (self.axis is not None):
             axis_positive = []
             for axis in self.axis:
                 if axis < 0:
-                    axis_positive.append(x.ndim + axis)
+                    axis_positive.append(xdim + axis)
                 else:
                     axis_positive.append(axis)
             for axis in sorted(axis_positive):
                 delta = np.expand_dims(delta, axis)
-        dx = np.broadcast_to(delta, x.shape) * (1 - np.isnan(x.value))
-        x.backward(dx)
+        dx = np.broadcast_to(delta, xshape) * (1 - np.isnan(x))
+        return dx
 
 
 def nansum(x, axis=None, keepdims=False):

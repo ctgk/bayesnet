@@ -14,10 +14,10 @@ class LogDeterminant(Function):
             raise ValueError("The input matrix has to be positive-definite")
         return output
 
-    def backward(self, delta):
-        x = self.args[0]
-        dx = (delta.T * np.linalg.inv(np.swapaxes(x.value, -1, -2)).T).T
-        x.backward(dx)
+    @staticmethod
+    def _backward(delta, x):
+        dx = (delta.T * np.linalg.inv(np.swapaxes(x, -1, -2)).T).T
+        return dx
 
 
 def logdet(x):

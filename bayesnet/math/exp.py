@@ -10,9 +10,9 @@ class Exp(Function):
         self.output = np.exp(x)
         return self.output
 
-    def backward(self, delta):
+    def _backward(self, delta, x):
         dx = self.output * delta
-        self.args[0].backward(dx)
+        return dx
 
 
 def exp(x):

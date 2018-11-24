@@ -32,12 +32,11 @@ class MatMul(Function):
     def _forward(x, y):
         return x @ y
 
-    def backward(self, delta):
-        x, y = self.args[0], self.args[1]
-        dx = delta @ np.swapaxes(y.value, -1, -2)
-        dy = np.swapaxes(x.value, -1, -2) @ delta
-        x.backward(dx)
-        y.backward(dy)
+    @staticmethod
+    def _backward(delta, x, y):
+        dx = delta @ np.swapaxes(y, -1, -2)
+        dy = np.swapaxes(x, -1, -2) @ delta
+        return dx, dy
 
 
 def matmul(x, y):

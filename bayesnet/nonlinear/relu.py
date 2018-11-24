@@ -13,10 +13,10 @@ class ReLU(Function):
     def _forward(x):
         return x.value.clip(min=0)
 
-    def backward(self, delta):
-        x = self.args[0]
-        dx = (x.value > 0) * delta
-        x.backward(dx)
+    @staticmethod
+    def _backward(delta, x):
+        dx = (x > 0) * delta
+        return dx
 
 
 def relu(x):

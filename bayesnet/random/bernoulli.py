@@ -100,7 +100,7 @@ class SigmoidCrossEntropy(Function):
 
     @staticmethod
     def _forward(x, t):
-        # y = self.forward(x)
+        # y = sigmoid(x)
         # np.clip(y, 1e-10, 1 - 1e-10, out=y)
         # return np.sum(-t * np.log(y) - (1 - t) * np.log(1 - y))
         loss = (
@@ -110,10 +110,9 @@ class SigmoidCrossEntropy(Function):
         )
         return loss
 
-    def backward(self, delta):
-        x, t = self.args[0], self.args[1]
-        y = np.tanh(x.value * 0.5) * 0.5 + 0.5
-        dx = delta * (y - t.value)
-        dt = -delta * x.value
-        x.backward(dx)
-        t.backward(dt)
+    @staticmethod
+    def _backward(delta, x, t):
+        y = np.tanh(x * 0.5) * 0.5 + 0.5
+        dx = delta * (y - t)
+        dt = -delta * x
+        return dx, dt

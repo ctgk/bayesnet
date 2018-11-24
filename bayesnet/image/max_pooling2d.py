@@ -55,7 +55,7 @@ class MaxPooling2d(Function):
         self.index = patch.argmax(axis=3)
         return patch.max(axis=3)
 
-    def backward(self, delta):
+    def _backward(self, delta, x):
         delta_patch = np.zeros(delta.shape + (np.prod(self.pool_size),))
         index = np.where(delta == delta) + (self.index.ravel(),)
         delta_patch[index] = delta.ravel()
@@ -64,7 +64,7 @@ class MaxPooling2d(Function):
         dx = patch2img(delta_patch, self.stride, self.shape)
         slices = tuple(slice(p, len_ - p) for p, len_ in zip(self.pad, self.shape))
         dx = dx[slices]
-        self.args[0].backward(dx)
+        return dx
 
 
 def max_pooling2d(x, pool_size, stride=1, pad=0):

@@ -13,8 +13,9 @@ class Negative(Function):
     def _forward(x):
         return -x
 
-    def backward(self, delta):
-        self.args[0].backward(-delta)
+    @staticmethod
+    def _backward(delta, x):
+        return -delta
 
 
 def negative(x):

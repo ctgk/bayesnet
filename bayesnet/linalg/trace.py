@@ -10,11 +10,25 @@ class Trace(Function):
         self._assert_ndim_equal_to(x, 2)
         return np.trace(x)
 
-    def backward(self, delta):
-        x = self.args[0]
+    @staticmethod
+    def _backward(delta, x):
         dx = np.eye(x.shape[0], x.shape[1]) * delta
-        x.backward(dx)
+        return dx
 
 
 def trace(x):
+    """
+    return sum of diagonal elements in two dimensional array
+
+    Parameters
+    ----------
+    x : Tensor
+        two dimensional array
+
+    Returns
+    -------
+    Tensor
+        sum of the diagonal elements
+    """
+
     return Trace().forward(x)

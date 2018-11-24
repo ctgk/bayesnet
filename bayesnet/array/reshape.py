@@ -15,10 +15,9 @@ class Reshape(Function):
         self._assert_ndim_atleast(x, 1)
         return x.reshape(*self.shape)
 
-    def backward(self, delta):
-        x = self.args[0]
-        dx = delta.reshape(*x.shape)
-        x.backward(dx)
+    @staticmethod
+    def _backward(delta, x):
+        return delta.reshape(*x.shape)
 
 
 def reshape(x, shape):
