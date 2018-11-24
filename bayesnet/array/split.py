@@ -25,7 +25,7 @@ class Split(Function):
 
     def forward(self, x):
         x = self._convert2tensor(x)
-        self._is_atleast_ndim(x, 1)
+        self._assert_ndim_atleast(x, 1)
         self.x = x
         output = np.split(x.value, self.indices_or_sections, self.axis)
         if isinstance(self.x, Constant):

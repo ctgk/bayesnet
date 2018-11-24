@@ -8,7 +8,7 @@ class LogDeterminant(Function):
 
     @classmethod
     def _forward(cls, x):
-        cls._is_atleast_ndim(x, 2)
+        cls._assert_ndim_atleast(x, 2)
         sign, output = np.linalg.slogdet(x)
         if np.any(sign < 1):
             raise ValueError("The input matrix has to be positive-definite")

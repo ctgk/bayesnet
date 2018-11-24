@@ -70,7 +70,7 @@ class GaussianMixture(RandomVariable):
 
     @coef.setter
     def coef(self, coef):
-        self._is_atleast_ndim(coef, 1)
+        self._assert_ndim_atleast(coef, 1)
         if (coef.value < 0).any():
             raise ValueError("value of mixing coefficient must all be positive")
 
@@ -92,7 +92,7 @@ class GaussianMixture(RandomVariable):
 
     @std.setter
     def std(self, std):
-        self._is_atleast_ndim(std, 1)
+        self._assert_ndim_atleast(std, 1)
         if (std.value < 0).any():
             raise ValueError("value of std must all be positive")
         self.parameter["std"] = std

@@ -20,12 +20,21 @@ class Function(object):
         else:
             return Tensor(output, parent=self)
 
+    def backward(self, delta):
+        dargs = self._backward(delta, *self.args)
+        for arg, darg in zip(self.args, dargs):
+            arg.backward(darg)
+
     @staticmethod
     def _autobroadcast(arg):
         raise NotImplementedError
 
     @staticmethod
     def _forward(*args):
+        raise NotImplementedError
+
+    @staticmethod
+    def _backward(*args):
         raise NotImplementedError
 
     @staticmethod
@@ -39,7 +48,7 @@ class Function(object):
         return x
 
     @staticmethod
-    def _is_equal_to_ndim(x, ndim):
+    def _assert_ndim_equal_to(x, ndim):
         xdim = getattr(x, "ndim", 0)
         if xdim != ndim:
             raise ValueError(
@@ -48,7 +57,7 @@ class Function(object):
             )
 
     @staticmethod
-    def _is_atleast_ndim(x, ndim):
+    def _assert_ndim_atleast(x, ndim):
         xdim = getattr(x, "ndim", 0)
         if xdim < ndim:
             raise ValueError(

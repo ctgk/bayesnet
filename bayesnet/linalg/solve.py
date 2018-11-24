@@ -11,8 +11,8 @@ class Solve(Function):
     @classmethod
     def _autobroadcast(cls, args):
         a, b = args[0], args[1]
-        cls._is_atleast_ndim(a, 2)
-        cls._is_atleast_ndim(b, 2)
+        cls._assert_ndim_atleast(a, 2)
+        cls._assert_ndim_atleast(b, 2)
         if a.shape[-2:] != (b.shape[-2], b.shape[-2]):
             raise ValueError(
                 "Mismatching dimensionality of a and b: {} and {}"

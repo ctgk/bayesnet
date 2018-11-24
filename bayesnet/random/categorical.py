@@ -53,7 +53,7 @@ class Categorical(RandomVariable):
 
     @mu.setter
     def mu(self, mu):
-        self._is_atleast_ndim(mu, 1)
+        self._assert_ndim_atleast(mu, 1)
         if not ((mu.value >= 0).all() and (mu.value <= 1).all()):
             raise ValueError("values of mu must be in [0, 1]")
         if not np.allclose(mu.value.sum(axis=self.axis), 1):
@@ -70,7 +70,7 @@ class Categorical(RandomVariable):
 
     @logit.setter
     def logit(self, logit):
-        self._is_atleast_ndim(logit, 1)
+        self._assert_ndim_atleast(logit, 1)
         self.parameter["logit"] = logit
         self.n_category = logit.shape[self.axis]
 

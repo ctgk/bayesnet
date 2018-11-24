@@ -12,7 +12,7 @@ class Reshape(Function):
         self.shape = shape
 
     def _forward(self, x):
-        self._is_atleast_ndim(x, 1)
+        self._assert_ndim_atleast(x, 1)
         return x.reshape(*self.shape)
 
     def backward(self, delta):

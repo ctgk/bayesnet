@@ -40,7 +40,7 @@ class Dirichlet(RandomVariable):
 
     @alpha.setter
     def alpha(self, alpha):
-        self._is_atleast_ndim(alpha, 1)
+        self._assert_ndim_atleast(alpha, 1)
         if (alpha.value <= 0).any():
             raise ValueError("alpha must all be positive")
         self.parameter["alpha"] = alpha

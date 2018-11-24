@@ -54,8 +54,8 @@ class Deconvolve2d(Function):
         return tup
 
     def _check_input(self, x, y):
-        self._is_equal_to_ndim(x, 4)
-        self._is_equal_to_ndim(y, 4)
+        self._assert_ndim_equal_to(x, 4)
+        self._assert_ndim_equal_to(y, 4)
         if x.shape[3] != y.shape[2]:
             raise ValueError(
                 "shapes {} and {} not aligned: {} (dim 3) != {} (dim 2)"

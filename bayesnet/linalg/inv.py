@@ -7,7 +7,7 @@ from bayesnet.function import Function
 class Inverse(Function):
 
     def _forward(self, x):
-        self._is_equal_to_ndim(x, 2)
+        self._assert_ndim_equal_to(x, 2)
         self.output = np.linalg.inv(x)
         return self.output
 

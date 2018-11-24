@@ -10,7 +10,7 @@ class Flatten(Function):
 
     @classmethod
     def _forward(cls, x):
-        cls._is_atleast_ndim(x, 2)
+        cls._assert_ndim_atleast(x, 2)
         return x.flatten()
 
     def backward(self, delta):

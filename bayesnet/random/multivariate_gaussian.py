@@ -37,8 +37,8 @@ class MultivariateGaussian(RandomVariable):
     def _check_input(self, mu, cov):
         mu = self._convert2tensor(mu)
         cov = self._convert2tensor(cov)
-        self._is_atleast_ndim(mu, 1)
-        self._is_atleast_ndim(cov, 2)
+        self._assert_ndim_atleast(mu, 1)
+        self._assert_ndim_atleast(cov, 2)
         if cov.shape[-2:] != (mu.shape[-1], mu.shape[-1]):
             raise ValueError(
                 "Mismatching dimensionality of mu and cov: {} and {}"

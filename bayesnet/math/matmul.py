@@ -13,8 +13,8 @@ class MatMul(Function):
 
     def _autobroadcast(self, args):
         x, y = args[0], args[1]
-        self._is_atleast_ndim(x, 2)
-        self._is_atleast_ndim(y, 2)
+        self._assert_ndim_atleast(x, 2)
+        self._assert_ndim_atleast(y, 2)
         if x.shape[-1] != y.shape[-2]:
             raise ValueError(
                 "shapes {} and {} not aligned: {} (dim -1) != {} (dim -2)"
