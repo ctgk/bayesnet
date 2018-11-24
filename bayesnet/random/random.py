@@ -81,13 +81,15 @@ class RandomVariable(Function):
         p : Tensor
             value of probability density function for each input
         """
-        if not hasattr(self, "_pdf"):
-            raise NotImplementedError
         if x is None:
             if self.data is None:
                 raise ValueError("There is no given or sampled data")
             return self._pdf(self.data)
         return self._pdf(x)
+
+    @staticmethod
+    def _pdf(*args):
+        raise NotImplementedError
 
     def log_pdf(self, x=None):
         """
@@ -103,13 +105,15 @@ class RandomVariable(Function):
         output : Tensor
             logarithm of probability density function
         """
-        if not hasattr(self, "_log_pdf"):
-            raise NotImplementedError
         if x is None:
             if self.data is None:
                 raise ValueError("No given or sampled data")
             return self._log_pdf(self.data)
         return self._log_pdf(x)
+
+    @staticmethod
+    def _log_pdf(*args):
+        raise NotImplementedError
 
     def KLqp(self):
         r"""
