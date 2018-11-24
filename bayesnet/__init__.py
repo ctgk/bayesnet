@@ -20,6 +20,7 @@ from bayesnet.math.abs import abs
 from bayesnet.math.exp import exp
 from bayesnet.math.gamma import gamma
 from bayesnet.math.log import log
+from bayesnet.math.matmul import matmul
 from bayesnet.math.mean import mean
 from bayesnet.math.nansum import nansum
 from bayesnet.math.power import power
@@ -52,6 +53,7 @@ __all__ = [
     "gamma",
     "linalg",
     "log",
+    "matmul",
     "max_pooling2d",
     "mean",
     "nansum",
