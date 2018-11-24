@@ -12,7 +12,7 @@ class TestBernoulli(unittest.TestCase):
         for _ in range(100):
             a.cleargrad()
             x = bn.random.Bernoulli(logit=a, data=obs)
-            x.log_pdf().sum().backward()
+            x.log_pdf().backward(np.ones(1000))
             a.value += a.grad * 0.01
         self.assertAlmostEqual(x.mu.value, np.mean(obs))
 
