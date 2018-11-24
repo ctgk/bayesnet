@@ -41,24 +41,15 @@ class Tensor(object):
 
     @property
     def ndim(self):
-        if hasattr(self.value, "ndim"):
-            return self.value.ndim
-        else:
-            return 0
+        return getattr(self.value, "ndim", 0)
 
     @property
     def shape(self):
-        if hasattr(self.value, "shape"):
-            return self.value.shape
-        else:
-            return ()
+        return getattr(self.value, "shape", ())
 
     @property
     def size(self):
-        if hasattr(self.value, "size"):
-            return self.value.size
-        else:
-            return 1
+        return getattr(self.value, "size", 1)
 
     def backward(self, delta=1, **kwargs):
         """
@@ -69,20 +60,11 @@ class Tensor(object):
         delta : array_like
             derivative with respect to this array
         """
-        if isinstance(delta, np.ndarray):
-            if delta.shape != self.shape:
-                raise ValueError(
-                    "shapes {} and {} not aligned"
-                    .format(delta.shape, self.shape)
-                )
-        elif isinstance(delta, (int, float, np.number)):
-            if self.shape != ():
-                 raise ValueError(
-                    "delta must be np.ndarray"
-                )
-        else:
-            raise TypeError(
-                "unsupported class for delta"
+        dshape = getattr(delta, "shape", ())
+        if dshape != self.shape:
+            raise ValueError(
+                "shapes {} (delta) and {} (self) are not aligned"
+                .format(dshape, self.shape)
             )
         self._backward(delta, **kwargs)
 
