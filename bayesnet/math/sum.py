@@ -30,6 +30,8 @@ class Sum(Function):
                     axis_positive.append(axis)
             for axis in sorted(axis_positive):
                 delta = xp.expand_dims(delta, axis)
+        if not isinstance(delta, xp.ndarray):
+            delta = xp.array(delta)
         dx = xp.broadcast_to(delta, xshape)
         return dx
 
