@@ -1,5 +1,5 @@
 import numpy as np
-from bayesnet.array.broadcast import broadcast_to
+from bayesnet.array.broadcast import broadcast
 from bayesnet.function import Function
 from bayesnet.math.exp import exp
 from bayesnet.math.log import log
@@ -48,12 +48,7 @@ class Gaussian(RandomVariable):
     def _check_input(self, x, y):
         x = self._convert2tensor(x)
         y = self._convert2tensor(y)
-        if x.shape != y.shape:
-            shape = np.broadcast(x.value, y.value).shape
-            if x.shape != shape:
-                x = broadcast_to(x, shape)
-            if y.shape != shape:
-                y = broadcast_to(y, shape)
+        [x, y] = broadcast([x, y])
         return x, y
 
     @property
@@ -142,39 +137,29 @@ class Gaussian(RandomVariable):
 
 class GaussianLogPDF(Function):
 
-    def _check_input(self, x, mu, tau):
-        x = self._convert2tensor(x)
-        mu = self._convert2tensor(mu)
-        tau = self._convert2tensor(tau)
-        if not x.shape == mu.shape == tau.shape:
-            shape = np.broadcast(x.value, mu.value, tau.value).shape
-            if x.shape != shape:
-                x = broadcast_to(x, shape)
-            if mu.shape != shape:
-                mu = broadcast_to(mu, shape)
-            if tau.shape != shape:
-                tau = broadcast_to(tau, shape)
-        return x, mu, tau
+    enable_auto_broadcast = True
 
-    def forward(self, x, mu, tau):
-        x, mu, tau = self._check_input(x, mu, tau)
-        self.x = x
-        self.mu = mu
-        self.tau = tau
+    @staticmethod
+    def _autobroadcast(args):
+        return broadcast(args)
+
+    @staticmethod
+    def _forward(x, mu, tau):
         output = (
-            -0.5 * np.square(x.value - mu.value) * tau.value
-            + 0.5 * np.log(tau.value)
+            -0.5 * np.square(x - mu) * tau
+            + 0.5 * np.log(tau)
             - 0.5 * np.log(2 * np.pi)
         )
-        return Tensor(output, parent=self)
+        return output
 
     def backward(self, delta):
-        dx = -0.5 * delta * (self.x.value - self.mu.value) * self.tau.value
-        dmu = -0.5 * delta * (self.mu.value - self.x.value) * self.tau.value
+        x, mu, tau = self.args[0:3]
+        dx = -0.5 * delta * (x.value - mu.value) * tau.value
+        dmu = -0.5 * delta * (mu.value - x.value) * tau.value
         dtau = 0.5 * delta * (
-            1 / self.tau.value
-            - (self.x.value - self.mu.value) ** 2
+            1 / tau.value
+            - (x.value - mu.value) ** 2
         )
-        self.x.backward(dx)
-        self.mu.backward(dmu)
-        self.tau.backward(dtau)
+        x.backward(dx)
+        mu.backward(dmu)
+        tau.backward(dtau)
