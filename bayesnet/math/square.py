@@ -1,4 +1,4 @@
-import numpy as np
+from bayesnet import xp
 from bayesnet.tensor.constant import Constant
 from bayesnet.tensor.tensor import Tensor
 from bayesnet.function import Function
@@ -12,7 +12,7 @@ class Square(Function):
 
     @staticmethod
     def _forward(x):
-        return np.square(x)
+        return xp.square(x)
 
     @staticmethod
     def _backward(delta, x):

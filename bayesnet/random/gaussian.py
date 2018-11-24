@@ -1,4 +1,4 @@
-import numpy as np
+from bayesnet import xp
 from bayesnet.array.broadcast import broadcast
 from bayesnet.function import Function
 from bayesnet.math.exp import exp
@@ -113,7 +113,7 @@ class Gaussian(RandomVariable):
         self.parameter["std"] = 1 / sqrt(tau)
 
     def forward(self):
-        self.eps = np.random.normal(size=self.mu.shape)
+        self.eps = xp.random.normal(size=self.mu.shape)
         output = self.mu.value + self.std.value * self.eps
         if isinstance(self.mu, Constant) and isinstance(self.var, Constant):
             return Constant(output)
@@ -128,7 +128,7 @@ class Gaussian(RandomVariable):
     def _pdf(self, x):
         return (
             exp(-0.5 * square((x - self.mu) / self.std))
-            / sqrt(2 * np.pi) / self.std
+            / sqrt(2 * xp.pi) / self.std
         )
 
     def _log_pdf(self, x):
@@ -146,9 +146,9 @@ class GaussianLogPDF(Function):
     @staticmethod
     def _forward(x, mu, tau):
         output = (
-            -0.5 * np.square(x - mu) * tau
-            + 0.5 * np.log(tau)
-            - 0.5 * np.log(2 * np.pi)
+            -0.5 * xp.square(x - mu) * tau
+            + 0.5 * xp.log(tau)
+            - 0.5 * xp.log(2 * xp.pi)
         )
         return output
 

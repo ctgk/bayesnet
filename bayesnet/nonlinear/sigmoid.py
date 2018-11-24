@@ -1,4 +1,4 @@
-import numpy as np
+from bayesnet import xp
 from bayesnet.tensor.constant import Constant
 from bayesnet.tensor.tensor import Tensor
 from bayesnet.function import Function
@@ -11,7 +11,7 @@ class Sigmoid(Function):
     """
 
     def _forward(self, x):
-        self.output = np.tanh(x * 0.5) * 0.5 + 0.5
+        self.output = xp.tanh(x * 0.5) * 0.5 + 0.5
         return self.output
 
     def _backward(self, delta, x):

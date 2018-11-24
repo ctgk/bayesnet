@@ -1,5 +1,4 @@
-import numpy as np
-import scipy.special as sp
+from bayesnet import xp, sp
 from bayesnet.array.broadcast import broadcast_to
 from bayesnet.math.exp import exp
 from bayesnet.math.gamma import gamma
@@ -37,7 +36,7 @@ class Gamma(RandomVariable):
         shape = self._convert2tensor(shape)
         rate = self._convert2tensor(rate)
         if shape.shape != rate.shape:
-            shape_ = np.broadcast(shape.value, rate.value).shape
+            shape_ = xp.broadcast(shape.value, rate.value).shape
             if shape.shape != shape_:
                 shape = broadcast_to(shape, shape_)
             if rate.shape != shape_:
@@ -75,7 +74,7 @@ class Gamma(RandomVariable):
         self.parameter["rate"] = rate
 
     def forward(self):
-        self.output = np.random.gamma(self.shape.value, 1 / self.rate.value)
+        self.output = xp.random.gamma(self.shape.value, 1 / self.rate.value)
         if isinstance(self.shape, Constant) and isinstance(self.rate, Constant):
             return Constant(self.output)
         return Tensor(self.output, parent=self)
@@ -84,10 +83,10 @@ class Gamma(RandomVariable):
         a = self.shape.value
         psia = sp.digamma(a)
         psi1a = sp.polygamma(1, a)
-        sqrtpsi1a = np.sqrt(psi1a)
+        sqrtpsi1a = xp.sqrt(psi1a)
         psi2a = sp.polygamma(2, a)
         b = self.rate.value
-        eps = (np.log(self.output) - psia + np.log(b)) / sqrtpsi1a
+        eps = (xp.log(self.output) - psia + xp.log(b)) / sqrtpsi1a
         dshape = self.output * (0.5 * eps * psi2a / sqrtpsi1a + psi1a) * delta
         drate = -delta * self.output / b
         self.shape.backward(dshape)

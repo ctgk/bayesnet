@@ -1,4 +1,4 @@
-import numpy as np
+from bayesnet import xp
 from bayesnet.tensor.constant import Constant
 from bayesnet.tensor.tensor import Tensor
 from bayesnet.function import Function
@@ -8,7 +8,7 @@ class Inverse(Function):
 
     def _forward(self, x):
         self._assert_ndim_equal_to(x, 2)
-        self.output = np.linalg.inv(x)
+        self.output = xp.linalg.inv(x)
         return self.output
 
     def _backward(self, delta, x):

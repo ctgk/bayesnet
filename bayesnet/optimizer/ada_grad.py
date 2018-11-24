@@ -1,4 +1,4 @@
-import numpy as np
+from bayesnet import xp
 from bayesnet.optimizer.optimizer import Optimizer
 
 
@@ -17,7 +17,7 @@ class AdaGrad(Optimizer):
         self.epsilon = epsilon
         self.G = []
         for p in self.parameter:
-            self.G.append(np.zeros(p.shape))
+            self.G.append(xp.zeros(p.shape))
 
     def update(self):
         """
@@ -29,4 +29,4 @@ class AdaGrad(Optimizer):
                 continue
             grad = p.grad
             G += grad ** 2
-            p.value -= self.learning_rate * grad / (np.sqrt(G) + self.epsilon)
+            p.value -= self.learning_rate * grad / (xp.sqrt(G) + self.epsilon)

@@ -1,4 +1,4 @@
-import numpy as np
+from bayesnet import xp
 from bayesnet.tensor.constant import Constant
 from bayesnet.tensor.tensor import Tensor
 from bayesnet.function import Function
@@ -9,14 +9,14 @@ class LogDeterminant(Function):
     @classmethod
     def _forward(cls, x):
         cls._assert_ndim_atleast(x, 2)
-        sign, output = np.linalg.slogdet(x)
-        if np.any(sign < 1):
+        sign, output = xp.linalg.slogdet(x)
+        if xp.any(sign < 1):
             raise ValueError("The input matrix has to be positive-definite")
         return output
 
     @staticmethod
     def _backward(delta, x):
-        dx = (delta.T * np.linalg.inv(np.swapaxes(x, -1, -2)).T).T
+        dx = (delta.T * xp.linalg.inv(xp.swapaxes(x, -1, -2)).T).T
         return dx
 
 

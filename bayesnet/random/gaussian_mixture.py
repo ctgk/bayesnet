@@ -1,4 +1,4 @@
-import numpy as np
+from bayesnet import xp
 from bayesnet.array.broadcast import broadcast_to
 from bayesnet.math.exp import exp
 from bayesnet.math.log import log
@@ -43,7 +43,7 @@ class GaussianMixture(RandomVariable):
         std = self._convert2tensor(std)
 
         if not coef.shape == mu.shape == std.shape:
-            shape = np.broadcast(coef.value, mu.value, std.value).shape
+            shape = xp.broadcast(coef.value, mu.value, std.value).shape
             if coef.shape != shape:
                 coef = broadcast_to(coef, shape)
             if mu.shape != shape:
@@ -74,7 +74,7 @@ class GaussianMixture(RandomVariable):
         if (coef.value < 0).any():
             raise ValueError("value of mixing coefficient must all be positive")
 
-        if not np.allclose(coef.value.sum(axis=self.axis), 1):
+        if not xp.allclose(coef.value.sum(axis=self.axis), 1):
             raise ValueError("sum of mixing coefficients must be 1")
         self.parameter["coef"] = coef
 
@@ -104,10 +104,10 @@ class GaussianMixture(RandomVariable):
     def forward(self):
         if self.coef.ndim != 1:
             raise NotImplementedError
-        indices = np.array(
-            [np.random.choice(self.n_component, p=c) for c in self.coef.value]
+        indices = xp.array(
+            [xp.random.choice(self.n_component, p=c) for c in self.coef.value]
         )
-        output = np.random.normal(
+        output = xp.random.normal(
             loc=self.mu.value[indices],
             scale=self.std.value[indices]
         )
@@ -125,7 +125,7 @@ class GaussianMixture(RandomVariable):
     def _pdf(self, x):
         gauss = (
             exp(-0.5 * square((x - self.mu) / self.std))
-            / sqrt(2 * np.pi) / self.std
+            / sqrt(2 * xp.pi) / self.std
         )
         return (self.coef * gauss).sum(axis=self.axis)
 

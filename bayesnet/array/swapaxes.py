@@ -1,4 +1,4 @@
-import numpy as np
+from bayesnet import xp
 from bayesnet.tensor.constant import Constant
 from bayesnet.tensor.tensor import Tensor
 from bayesnet.function import Function
@@ -11,10 +11,10 @@ class Swapaxes(Function):
         self.axis2 = axis2
 
     def _forward(self, x):
-        return np.swapaxes(x, self.axis1, self.axis2)
+        return xp.swapaxes(x, self.axis1, self.axis2)
 
     def _backward(self, delta, *args):
-        return np.swapaxes(delta, self.axis2, self.axis1)
+        return xp.swapaxes(delta, self.axis2, self.axis1)
 
 
 def swapaxes(x, axis1, axis2):
@@ -23,7 +23,7 @@ def swapaxes(x, axis1, axis2):
 
     Parameters
     ----------
-    x : np.ndarray
+    x : Tensor
         input array
     axis1: int
         first axis
@@ -32,7 +32,7 @@ def swapaxes(x, axis1, axis2):
 
     Returns
     -------
-    output : np.ndarray
+    output : Tensor
         interchanged array
     """
     return Swapaxes(axis1, axis2).forward(x)

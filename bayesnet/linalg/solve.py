@@ -1,4 +1,4 @@
-import numpy as np
+from bayesnet import xp
 from bayesnet.array.broadcast import broadcast_to
 from bayesnet.tensor.constant import Constant
 from bayesnet.tensor.tensor import Tensor
@@ -19,7 +19,7 @@ class Solve(Function):
                 .format(a.shape[-2:], b.shape[-2:])
             )
         if a.shape[:-2] != b.shape[:-2]:
-            shape = np.broadcast(a.value[..., 0, 0], b.value[..., 0, 0]).shape
+            shape = xp.broadcast(a.value[..., 0, 0], b.value[..., 0, 0]).shape
             if a.shape[:-2] != shape:
                 a = broadcast_to(a, shape + a.shape[-2:])
             if b.shape[:-2] != shape:
@@ -27,12 +27,12 @@ class Solve(Function):
         return [a, b]
 
     def _forward(self, a, b):
-        self.output = np.linalg.solve(a, b)
+        self.output = xp.linalg.solve(a, b)
         return self.output
 
     def _backward(self, delta, a, b):
-        db = np.linalg.solve(np.swapaxes(a, -1, -2), delta)
-        da = np.einsum("...ij,...kj->...ik", -db, self.output)
+        db = xp.linalg.solve(xp.swapaxes(a, -1, -2), delta)
+        da = xp.einsum("...ij,...kj->...ik", -db, self.output)
         return da, db
 
 

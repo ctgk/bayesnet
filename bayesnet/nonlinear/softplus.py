@@ -1,4 +1,4 @@
-import numpy as np
+from bayesnet import xp
 from bayesnet.tensor.constant import Constant
 from bayesnet.tensor.tensor import Tensor
 from bayesnet.function import Function
@@ -8,11 +8,11 @@ class Softplus(Function):
 
     @staticmethod
     def _forward(x):
-        return np.maximum(x, 0) + np.log1p(np.exp(-np.abs(x)))
+        return xp.maximum(x, 0) + xp.log1p(xp.exp(-xp.abs(x)))
 
     @staticmethod
     def _backward(delta, x):
-        dx = (np.tanh(0.5 * x) * 0.5 + 0.5) * delta
+        dx = (xp.tanh(0.5 * x) * 0.5 + 0.5) * delta
         return dx
 
 

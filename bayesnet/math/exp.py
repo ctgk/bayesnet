@@ -1,4 +1,4 @@
-import numpy as np
+from bayesnet import xp
 from bayesnet.tensor.constant import Constant
 from bayesnet.tensor.tensor import Tensor
 from bayesnet.function import Function
@@ -7,7 +7,7 @@ from bayesnet.function import Function
 class Exp(Function):
 
     def _forward(self, x):
-        self.output = np.exp(x)
+        self.output = xp.exp(x)
         return self.output
 
     def _backward(self, delta, x):

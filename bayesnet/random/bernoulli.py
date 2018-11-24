@@ -1,4 +1,4 @@
-import numpy as np
+from bayesnet import xp
 from bayesnet.array.broadcast import broadcast
 from bayesnet.function import Function
 from bayesnet.math.log import log
@@ -67,7 +67,7 @@ class Bernoulli(RandomVariable):
         self.parameter["logit"] = logit
 
     def forward(self):
-        return (np.random.uniform(size=self.mu.shape) < self.mu.value).astype(np.int)
+        return (xp.random.uniform(size=self.mu.shape) < self.mu.value).astype(xp.int)
 
     def _pdf(self, x):
         return self.mu ** x * (1 - self.mu) ** (1 - x)
@@ -101,18 +101,18 @@ class SigmoidCrossEntropy(Function):
     @staticmethod
     def _forward(x, t):
         # y = sigmoid(x)
-        # np.clip(y, 1e-10, 1 - 1e-10, out=y)
-        # return np.sum(-t * np.log(y) - (1 - t) * np.log(1 - y))
+        # xp.clip(y, 1e-10, 1 - 1e-10, out=y)
+        # return xp.sum(-t * xp.log(y) - (1 - t) * xp.log(1 - y))
         loss = (
-            np.maximum(x, 0)
+            xp.maximum(x, 0)
             - t * x
-            + np.log1p(np.exp(-np.abs(x)))
+            + xp.log1p(xp.exp(-xp.abs(x)))
         )
         return loss
 
     @staticmethod
     def _backward(delta, x, t):
-        y = np.tanh(x * 0.5) * 0.5 + 0.5
+        y = xp.tanh(x * 0.5) * 0.5 + 0.5
         dx = delta * (y - t)
         dt = -delta * x
         return dx, dt

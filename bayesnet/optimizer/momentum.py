@@ -1,4 +1,4 @@
-import numpy as np
+from bayesnet import xp
 from bayesnet.optimizer.optimizer import Optimizer
 
 
@@ -17,7 +17,7 @@ class Momentum(Optimizer):
         self.momentum = momentum
         self.inertia = []
         for p in self.parameter:
-            self.inertia.append(np.zeros(p.shape))
+            self.inertia.append(xp.zeros(p.shape))
 
     def update(self):
         self.increment_iteration()

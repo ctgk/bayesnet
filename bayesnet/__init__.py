@@ -1,3 +1,9 @@
+try:
+    import cupy as xp
+    import cupyx.scipy.special as sp
+except ImportError:
+    import numpy as xp
+    import scipy.special as sp
 from bayesnet.tensor.constant import Constant
 from bayesnet.tensor.parameter import Parameter
 from bayesnet.tensor.tensor import Tensor
@@ -32,6 +38,8 @@ from bayesnet import sampler
 
 
 __all__ = [
+    "xp",
+    "sp",
     "Constant",
     "Network",
     "Parameter",

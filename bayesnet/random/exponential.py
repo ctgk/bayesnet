@@ -1,4 +1,4 @@
-import numpy as np
+from bayesnet import xp
 from bayesnet.math.exp import exp
 from bayesnet.math.log import log
 from bayesnet.random.random import RandomVariable
@@ -43,7 +43,7 @@ class Exponential(RandomVariable):
         self.parameter["rate"] = rate
 
     def forward(self):
-        eps = np.random.standard_exponential(size=self.rate.shape)
+        eps = xp.random.standard_exponential(size=self.rate.shape)
         self.output = eps / self.rate.value
         if isinstance(self.rate, Constant):
             return Constant(self.output)

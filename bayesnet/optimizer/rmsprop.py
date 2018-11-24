@@ -1,4 +1,4 @@
-import numpy as np
+from bayesnet import xp
 from bayesnet.optimizer.optimizer import Optimizer
 
 
@@ -18,7 +18,7 @@ class RMSProp(Optimizer):
         self.epsilon = epsilon
         self.mean_squared_grad = []
         for p in self.parameter:
-            self.mean_squared_grad.append(np.zeros(p.shape))
+            self.mean_squared_grad.append(xp.zeros(p.shape))
 
     def update(self):
         """
@@ -32,5 +32,5 @@ class RMSProp(Optimizer):
             msg *= self.rho
             msg += (1 - self.rho) * grad ** 2
             p.value -= (
-                self.learning_rate * grad / (np.sqrt(msg) + self.epsilon)
+                self.learning_rate * grad / (xp.sqrt(msg) + self.epsilon)
             )

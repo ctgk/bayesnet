@@ -1,4 +1,4 @@
-import numpy as np
+from bayesnet import xp
 from bayesnet.optimizer.optimizer import Optimizer
 
 
@@ -14,8 +14,8 @@ class AdaDelta(Optimizer):
         self.mean_squared_deriv = []
         self.mean_squared_update = []
         for p in self.parameter:
-            self.mean_squared_deriv.append(np.zeros(p.shape))
-            self.mean_squared_update.append(np.zeros(p.shape))
+            self.mean_squared_deriv.append(xp.zeros(p.shape))
+            self.mean_squared_update.append(xp.zeros(p.shape))
 
     def update(self):
         self.increment_iteration()
@@ -25,7 +25,7 @@ class AdaDelta(Optimizer):
             grad = p.grad
             msd *= self.rho
             msd += (1 - self.rho) * grad ** 2
-            delta = np.sqrt((msu + self.epsilon) / (msd + self.epsilon)) * grad
+            delta = xp.sqrt((msu + self.epsilon) / (msd + self.epsilon)) * grad
             msu *= self.rho
             msu *= (1 - self.rho) * delta ** 2
             p.value -= delta

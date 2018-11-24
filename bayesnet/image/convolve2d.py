@@ -1,4 +1,4 @@
-import numpy as np
+from bayesnet import xp
 from bayesnet.tensor.tensor import Tensor
 from bayesnet.function import Function
 from bayesnet.image.util import img2patch, patch2img
@@ -53,20 +53,20 @@ class Convolve2d(Function):
 
     def _forward(self, x, y):
         self._check_input(x, y)
-        img = np.pad(x, [(p,) for p in self.pad], "constant")
+        img = xp.pad(x, [(p,) for p in self.pad], "constant")
         self.shape = img.shape
         self.patch = img2patch(img, y.shape[:2], self.stride)
-        return np.tensordot(self.patch, y, axes=((3, 4, 5), (0, 1, 2)))
+        return xp.tensordot(self.patch, y, axes=((3, 4, 5), (0, 1, 2)))
 
     def _backward(self, delta, x, y):
         dx = patch2img(
-            np.tensordot(delta, y, (3, 3)),
+            xp.tensordot(delta, y, (3, 3)),
             self.stride,
             self.shape
         )
         slices = tuple(slice(p, len_ - p) for p, len_ in zip(self.pad, self.shape))
         dx = dx[slices]
-        dy = np.tensordot(self.patch, delta, axes=((0, 1, 2),) * 2)
+        dy = xp.tensordot(self.patch, delta, axes=((0, 1, 2),) * 2)
         return dx, dy
 
 

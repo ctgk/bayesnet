@@ -1,4 +1,4 @@
-import numpy as np
+from bayesnet import xp
 from bayesnet.tensor.constant import Constant
 from bayesnet.tensor.tensor import Tensor
 from bayesnet.function import Function
@@ -15,9 +15,9 @@ class Product(Function):
         self.keepdims = keepdims
 
     def _forward(self, x):
-        self.output = np.prod(x, axis=self.axis, keepdims=True)
+        self.output = xp.prod(x, axis=self.axis, keepdims=True)
         if not self.keepdims:
-            output = np.squeeze(self.output)
+            output = xp.squeeze(self.output)
             if output.size == 1:
                 output = output.item()
         else:
@@ -27,7 +27,7 @@ class Product(Function):
     def _backward(self, delta, x):
         if not self.keepdims and self.axis is not None:
             for ax in self.axis:
-                delta = np.expand_dims(delta, ax)
+                delta = xp.expand_dims(delta, ax)
         dx = delta * self.output / x
         return dx
 

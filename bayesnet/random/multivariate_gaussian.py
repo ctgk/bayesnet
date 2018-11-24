@@ -1,4 +1,4 @@
-import numpy as np
+from bayesnet import xp
 from bayesnet.array.broadcast import broadcast_to
 from bayesnet.linalg.cholesky import cholesky
 from bayesnet.linalg.det import det
@@ -45,7 +45,7 @@ class MultivariateGaussian(RandomVariable):
                 .format(mu.shape[-1], cov.shape[-2:])
             )
         if mu.shape[:-1] != cov.shape[:-2]:
-            shape = np.broadcast(mu.value[..., 0], cov.value[..., 0, 0]).shape
+            shape = xp.broadcast(mu.value[..., 0], cov.value[..., 0, 0]).shape
             if mu.shape[:-1] != shape:
                 mu = broadcast_to(mu, shape + (mu.shape[-1],))
             if cov.shape[:-2] != shape:
@@ -68,20 +68,20 @@ class MultivariateGaussian(RandomVariable):
     def cov(self, cov):
         try:
             self.L = cholesky(cov)
-        except np.linalg.LinAlgError:
+        except xp.linalg.LinAlgError:
             raise ValueError("cov must be positive-difinite matrix")
         self.parameter["cov"] = cov
 
     def forward(self):
-        self.eps = np.random.normal(size=self.mu.shape)
-        output = self.mu.value + np.einsum("...ij,...j->...i", self.L.value, self.eps)
+        self.eps = xp.random.normal(size=self.mu.shape)
+        output = self.mu.value + xp.einsum("...ij,...j->...i", self.L.value, self.eps)
         if isinstance(self.mu, Constant) and isinstance(self.cov, Constant):
             return Constant(output)
         return Tensor(output, self)
 
     def backward(self, delta):
         dmu = delta
-        dL = np.einsum("...i,...j->...ij", delta, self.eps)
+        dL = xp.einsum("...i,...j->...ij", delta, self.eps)
         self.mu.backward(dmu)
         self.L.backward(dL)
 
@@ -90,7 +90,7 @@ class MultivariateGaussian(RandomVariable):
         d = d.reshape(*d.shape, 1)
         return (
             exp(-0.5 * (solve(self.cov, d) * d).sum(axis=(-2, -1)))
-            / (2 * np.pi) ** (self.mu.shape[-1] * 0.5)
+            / (2 * xp.pi) ** (self.mu.shape[-1] * 0.5)
             / sqrt(det(self.cov))
         )
 
@@ -99,6 +99,6 @@ class MultivariateGaussian(RandomVariable):
         d = d.reshape(*d.shape, 1)
         return (
             -0.5 * (solve(self.cov, d) * d).sum(axis=(-2, -1))
-            - (self.mu.shape[-1] * 0.5) * np.log(2 * np.pi)
+            - (self.mu.shape[-1] * 0.5) * xp.log(2 * xp.pi)
             - 0.5 * logdet(self.cov)
         )

@@ -1,4 +1,4 @@
-import numpy as np
+from bayesnet import xp
 from bayesnet.optimizer.optimizer import Optimizer
 
 
@@ -47,8 +47,8 @@ class Adam(Optimizer):
         self.moment1 = []
         self.moment2 = []
         for p in self.parameter:
-            self.moment1.append(np.zeros(p.shape))
-            self.moment2.append(np.zeros(p.shape))
+            self.moment1.append(xp.zeros(p.shape))
+            self.moment2.append(xp.zeros(p.shape))
 
     def update(self):
         """
@@ -64,4 +64,4 @@ class Adam(Optimizer):
                 continue
             m1 += (1 - self.beta1) * (p.grad - m1)
             m2 += (1 - self.beta2) * (p.grad ** 2 - m2)
-            p.value += lr * m1 / (np.sqrt(m2) + self.epsilon)
+            p.value += lr * m1 / (xp.sqrt(m2) + self.epsilon)

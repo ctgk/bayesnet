@@ -1,4 +1,4 @@
-import numpy as np
+from bayesnet import xp
 from bayesnet.tensor.tensor import Tensor
 from bayesnet.function import Function
 from bayesnet.image.util import img2patch, patch2img
@@ -47,7 +47,7 @@ class MaxPooling2d(Function):
 
     def _forward(self, x):
         self._assert_ndim_equal_to(x, 4)
-        img = np.pad(x, [(p,) for p in self.pad], "constant")
+        img = xp.pad(x, [(p,) for p in self.pad], "constant")
         patch = img2patch(img, self.pool_size, self.stride)
         n_batch, xlen_out, ylen_out, _, _, in_channels = patch.shape
         patch = patch.reshape(n_batch, xlen_out, ylen_out, -1, in_channels)
@@ -56,10 +56,10 @@ class MaxPooling2d(Function):
         return patch.max(axis=3)
 
     def _backward(self, delta, x):
-        delta_patch = np.zeros(delta.shape + (np.prod(self.pool_size),))
-        index = np.where(delta == delta) + (self.index.ravel(),)
+        delta_patch = xp.zeros(delta.shape + (xp.prod(self.pool_size),))
+        index = xp.where(delta == delta) + (self.index.ravel(),)
         delta_patch[index] = delta.ravel()
-        delta_patch = np.reshape(delta_patch, delta.shape + self.pool_size)
+        delta_patch = xp.reshape(delta_patch, delta.shape + self.pool_size)
         delta_patch = delta_patch.transpose(0, 1, 2, 4, 5, 3)
         dx = patch2img(delta_patch, self.stride, self.shape)
         slices = tuple(slice(p, len_ - p) for p, len_ in zip(self.pad, self.shape))

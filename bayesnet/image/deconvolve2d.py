@@ -1,4 +1,4 @@
-import numpy as np
+from bayesnet import xp
 from bayesnet.tensor.tensor import Tensor
 from bayesnet.function import Function
 from bayesnet.image.util import img2patch, patch2img
@@ -71,7 +71,7 @@ class Deconvolve2d(Function):
             )
         else:
             shape = self.shape
-        patch = np.tensordot(x, y, (3, 3))
+        patch = xp.tensordot(x, y, (3, 3))
         output = patch2img(
             patch,
             self.stride,
@@ -85,10 +85,10 @@ class Deconvolve2d(Function):
         return output
 
     def _backward(self, delta, x, y):
-        delta = np.pad(delta, [(p,) for p in self.pad], "constant")
+        delta = xp.pad(delta, [(p,) for p in self.pad], "constant")
         dpatch = img2patch(delta, y.shape[:2], self.stride)
-        dx = np.tensordot(dpatch, y, axes=((3, 4, 5), (0, 1, 2)))
-        dy = np.tensordot(dpatch, x, axes=((0, 1, 2),) * 2)
+        dx = xp.tensordot(dpatch, y, axes=((3, 4, 5), (0, 1, 2)))
+        dy = xp.tensordot(dpatch, x, axes=((0, 1, 2),) * 2)
         return dx, dy
 
 

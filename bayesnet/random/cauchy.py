@@ -1,4 +1,4 @@
-import numpy as np
+from bayesnet import xp
 from bayesnet.array.broadcast import broadcast_to
 from bayesnet.math.log import log
 from bayesnet.math.square import square
@@ -33,7 +33,7 @@ class Cauchy(RandomVariable):
         loc = self._convert2tensor(loc)
         scale = self._convert2tensor(scale)
         if loc.shape != scale.shape:
-            shape = np.broadcast(loc.value, scale.value).shape
+            shape = xp.broadcast(loc.value, scale.value).shape
             if loc.shape != shape:
                 loc = broadcast_to(loc, shape)
             if scale.shape != shape:
@@ -64,7 +64,7 @@ class Cauchy(RandomVariable):
         self.parameter["scale"] = scale
 
     def forward(self):
-        self.eps = np.random.standard_cauchy(size=self.loc.shape)
+        self.eps = xp.random.standard_cauchy(size=self.loc.shape)
         self.output = self.scale.value * self.eps + self.loc.value
         if isinstance(self.loc, Constant):
             return Constant(self.output)
@@ -78,12 +78,12 @@ class Cauchy(RandomVariable):
 
     def _pdf(self, x):
         return (
-            1 / (np.pi * self.scale * (1 + square((x - self.loc) / self.scale)))
+            1 / (xp.pi * self.scale * (1 + square((x - self.loc) / self.scale)))
         )
 
     def _log_pdf(self, x):
         return (
-            -np.log(np.pi)
+            -xp.log(xp.pi)
             - log(self.scale)
             - log(1 + square((x - self.loc) / self.scale))
         )

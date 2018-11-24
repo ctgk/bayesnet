@@ -1,4 +1,4 @@
-import numpy as np
+from bayesnet import xp
 from bayesnet.tensor.constant import Constant
 from bayesnet.tensor.tensor import Tensor
 from bayesnet.function import Function
@@ -29,7 +29,7 @@ class Split(Function):
         x = self._convert2tensor(x)
         self._assert_ndim_atleast(x, 1)
         self.x = x
-        output = np.split(x.value, self.indices_or_sections, self.axis)
+        output = xp.split(x.value, self.indices_or_sections, self.axis)
         if isinstance(self.x, Constant):
             return tuple([Constant(out) for out in output])
         self.n_output = len(output)
@@ -39,7 +39,7 @@ class Split(Function):
     def backward(self, delta, n):
         self.delta[n] = delta
         if all([d is not None for d in self.delta]):
-            dx = np.concatenate(self.delta, axis=self.axis)
+            dx = xp.concatenate(self.delta, axis=self.axis)
             self.x.backward(dx)
 
 

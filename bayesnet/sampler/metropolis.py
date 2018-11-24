@@ -1,5 +1,5 @@
 import random
-import numpy as np
+from bayesnet import xp
 from bayesnet.network import Network
 from bayesnet.random.random import RandomVariable
 
@@ -39,7 +39,7 @@ def metropolis(model, call_args, sample_size=100, downsample=1, **kwargs):
         run_model()
         log_posterior_new = model.log_pdf().value
 
-        accept_proba = np.exp(log_posterior_new - log_posterior)
+        accept_proba = xp.exp(log_posterior_new - log_posterior)
         if random.random() < accept_proba:
             log_posterior = log_posterior_new
         else:
@@ -53,7 +53,7 @@ def metropolis(model, call_args, sample_size=100, downsample=1, **kwargs):
         run_model()
         log_posterior_new = model.log_pdf().value
 
-        accept_proba = np.exp(log_posterior_new - log_posterior)
+        accept_proba = xp.exp(log_posterior_new - log_posterior)
         if random.random() < accept_proba:
             log_posterior = log_posterior_new
             if i % downsample == 0:

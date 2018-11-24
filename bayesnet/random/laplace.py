@@ -1,4 +1,4 @@
-import numpy as np
+from bayesnet import xp
 from bayesnet.array.broadcast import broadcast_to
 from bayesnet.math.abs import abs
 from bayesnet.math.exp import exp
@@ -34,7 +34,7 @@ class Laplace(RandomVariable):
         loc = self._convert2tensor(loc)
         scale = self._convert2tensor(scale)
         if loc.shape != scale.shape:
-            shape = np.broadcast(loc.value, scale.value).shape
+            shape = xp.broadcast(loc.value, scale.value).shape
             if loc.shape != shape:
                 loc = broadcast_to(loc, shape)
             if scale.shape != shape:
@@ -65,8 +65,8 @@ class Laplace(RandomVariable):
         self.parameter["scale"] = scale
 
     def forward(self):
-        eps = 0.5 - np.random.uniform(size=self.loc.shape)
-        self.eps = np.sign(eps) * np.log(1 - 2 * np.abs(eps))
+        eps = 0.5 - xp.random.uniform(size=self.loc.shape)
+        self.eps = xp.sign(eps) * xp.log(1 - 2 * xp.abs(eps))
         self.output = self.loc.value - self.scale.value * self.eps
         if isinstance(self.loc, Constant) and isinstance(self.scale, Constant):
             return Constant(self.output)
@@ -82,4 +82,4 @@ class Laplace(RandomVariable):
         return 0.5 * exp(-abs(x - self.loc) / self.scale) / self.scale
 
     def _log_pdf(self, x):
-        return np.log(0.5) - abs(x - self.loc) / self.scale - log(self.scale)
+        return xp.log(0.5) - abs(x - self.loc) / self.scale - log(self.scale)

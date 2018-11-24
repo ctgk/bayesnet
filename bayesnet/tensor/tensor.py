@@ -1,4 +1,4 @@
-import numpy as np
+from bayesnet import xp
 
 
 class Tensor(object):
@@ -18,7 +18,7 @@ class Tensor(object):
         parent : Function
             parent function that outputted this tensor
         """
-        if not isinstance(value, (int, float, np.number, np.ndarray)):
+        if not isinstance(value, (int, float, xp.number, xp.ndarray)):
             raise TypeError(
                 "Unsupported class for Tensor: {}".format(type(value))
             )
@@ -30,7 +30,7 @@ class Tensor(object):
         return self.__repr__()
 
     def __repr__(self):
-        if isinstance(self.value, np.ndarray):
+        if isinstance(self.value, xp.ndarray):
             return (
                 "{0}(shape={1.shape}, dtype={1.dtype})"
                 .format(self.__class__.__name__, self.value)
@@ -61,7 +61,7 @@ class Tensor(object):
         delta : array_like
             derivative with respect to this array
         """
-        if not isinstance(delta, (int, float, np.number, np.ndarray)):
+        if not isinstance(delta, (int, float, xp.number, xp.ndarray)):
             raise TypeError(f"unsupported class for delta: {type(delta)}")
         dshape = getattr(delta, "shape", ())
         if dshape != self.shape:

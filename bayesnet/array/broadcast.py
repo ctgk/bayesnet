@@ -1,4 +1,4 @@
-import numpy as np
+from bayesnet import xp
 from bayesnet.tensor.constant import Constant
 from bayesnet.tensor.tensor import Tensor
 from bayesnet.function import Function
@@ -13,7 +13,7 @@ class BroadcastTo(Function):
         self.shape = shape
 
     def _forward(self, x):
-        output = np.broadcast_to(x, self.shape)
+        output = xp.broadcast_to(x, self.shape)
         return output
 
     @staticmethod
@@ -23,8 +23,8 @@ class BroadcastTo(Function):
         xshape = getattr(x, "shape", ())
         if delta.ndim != xdim:
             dx = dx.sum(axis=tuple(range(dx.ndim - xdim)))
-            if isinstance(dx, np.number):
-                dx = np.array(dx)
+            if isinstance(dx, xp.number):
+                dx = xp.array(dx)
         axis = tuple(i for i, len_ in enumerate(xshape) if len_ == 1)
         if axis:
             dx = dx.sum(axis=axis, keepdims=True)
@@ -52,7 +52,7 @@ def broadcast(args):
     list
         list of Tensor whose shapes are aligned
     """
-    shape = np.broadcast(*(arg.value for arg in args)).shape
+    shape = xp.broadcast(*(arg.value for arg in args)).shape
     for i, arg in enumerate(args):
         if arg.shape != shape:
             args[i] = BroadcastTo(shape).forward(arg)

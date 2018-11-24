@@ -1,4 +1,4 @@
-import numpy as np
+from bayesnet import xp
 from bayesnet.tensor.constant import Constant
 from bayesnet.tensor.tensor import Tensor
 from bayesnet.function import Function
@@ -11,7 +11,7 @@ class Sqrt(Function):
     """
 
     def _forward(self, x):
-        self.output = np.sqrt(x)
+        self.output = xp.sqrt(x)
         return self.output
 
     def _backward(self, delta, x):

@@ -1,4 +1,4 @@
-import numpy as np
+from bayesnet import xp
 from bayesnet.tensor.constant import Constant
 from bayesnet.tensor.tensor import Tensor
 from bayesnet.function import Function
@@ -8,11 +8,11 @@ class Determinant(Function):
 
     def _forward(self, x):
         self._assert_ndim_atleast(x, 2)
-        self.output = np.linalg.det(x)
+        self.output = xp.linalg.det(x)
         return self.output
 
     def _backward(self, delta, x):
-        dx = delta * self.output * np.linalg.inv(np.swapaxes(x, -1, -2))
+        dx = delta * self.output * xp.linalg.inv(xp.swapaxes(x, -1, -2))
         return dx
 
 

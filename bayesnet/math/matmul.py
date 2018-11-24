@@ -1,4 +1,4 @@
-import numpy as np
+from bayesnet import xp
 from bayesnet.array.broadcast import broadcast_to
 from bayesnet.tensor.constant import Constant
 from bayesnet.tensor.tensor import Tensor
@@ -21,7 +21,7 @@ class MatMul(Function):
                 .format(x.shape, y.shape, x.shape[-1], y.shape[-2])
             )
         if x.shape[:-2] != y.shape[:-2]:
-            shape = np.broadcast(x[..., 0, 0], y.value[..., 0, 0]).shape
+            shape = xp.broadcast(x[..., 0, 0], y.value[..., 0, 0]).shape
             if x.shape[:-2] != shape:
                 x = broadcast_to(x, shape + x.shape[-2:])
             if y.shape[:-2] != shape:
@@ -34,8 +34,8 @@ class MatMul(Function):
 
     @staticmethod
     def _backward(delta, x, y):
-        dx = delta @ np.swapaxes(y, -1, -2)
-        dy = np.swapaxes(x, -1, -2) @ delta
+        dx = delta @ xp.swapaxes(y, -1, -2)
+        dy = xp.swapaxes(x, -1, -2) @ delta
         return dx, dy
 
 

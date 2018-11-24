@@ -1,4 +1,4 @@
-import numpy as np
+from bayesnet import xp
 from bayesnet.array.broadcast import broadcast
 from bayesnet.function import Function
 from bayesnet.math.log import log
@@ -56,7 +56,7 @@ class Categorical(RandomVariable):
         self._assert_ndim_atleast(mu, 1)
         if not ((mu.value >= 0).all() and (mu.value <= 1).all()):
             raise ValueError("values of mu must be in [0, 1]")
-        if not np.allclose(mu.value.sum(axis=self.axis), 1):
+        if not xp.allclose(mu.value.sum(axis=self.axis), 1):
             raise ValueError(f"mu must be normalized along axis {self.axis}")
         self.parameter["mu"] = mu
         self.n_category = mu.shape[self.axis]
@@ -76,13 +76,13 @@ class Categorical(RandomVariable):
 
     def forward(self):
         if self.mu.ndim == 1:
-            index = np.random.choice(self.n_category, p=self.mu.value)
-            return np.eye(self.n_category)[index]
+            index = xp.random.choice(self.n_category, p=self.mu.value)
+            return xp.eye(self.n_category)[index]
         elif self.mu.ndim == 2:
-            indices = np.array(
-                [np.random.choice(self.n_category, p=p.value) for p in self.mu.value]
+            indices = xp.array(
+                [xp.random.choice(self.n_category, p=p.value) for p in self.mu.value]
             )
-            return np.eye(self.n_category)[indices]
+            return xp.eye(self.n_category)[indices]
         else:
             raise NotImplementedError
 
@@ -108,13 +108,13 @@ class SoftmaxCrossEntropy(Function):
         return broadcast(args)
 
     def _forward(self, x, t):
-        self.y = np.exp(x - np.max(x, self.axis, keepdims=True))
-        self.y /= np.sum(self.y, self.axis, keepdims=True)
-        np.clip(self.y, 1e-10, 1, out=self.y)
-        loss = -t * np.log(self.y)
+        self.y = xp.exp(x - xp.max(x, self.axis, keepdims=True))
+        self.y /= xp.sum(self.y, self.axis, keepdims=True)
+        xp.clip(self.y, 1e-10, 1, out=self.y)
+        loss = -t * xp.log(self.y)
         return loss
 
     def _backward(self, delta, x, t):
         dx = delta * (self.y - t)
-        dt = - delta * np.log(self.y)
+        dt = - delta * xp.log(self.y)
         return dx, dt

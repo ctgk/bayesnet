@@ -1,4 +1,4 @@
-import scipy.special as sp
+from bayesnet import sp
 from bayesnet.function import Function
 from bayesnet.tensor.constant import Constant
 from bayesnet.tensor.tensor import Tensor

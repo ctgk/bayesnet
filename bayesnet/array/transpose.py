@@ -1,4 +1,4 @@
-import numpy as np
+from bayesnet import xp
 from bayesnet.tensor.constant import Constant
 from bayesnet.tensor.tensor import Tensor
 from bayesnet.function import Function
@@ -12,13 +12,13 @@ class Transpose(Function):
     def _forward(self, x):
         if self.axes is not None:
             self._assert_ndim_equal_to(x, len(self.axes))
-        return np.transpose(x, self.axes)
+        return xp.transpose(x, self.axes)
 
     def _backward(self, delta, *args):
         if self.axes is None:
-            return np.transpose(delta)
+            return xp.transpose(delta)
         else:
-            return np.transpose(delta, np.argsort(self.axes))
+            return xp.transpose(delta, xp.argsort(self.axes))
 
 
 def transpose(x, axes=None):

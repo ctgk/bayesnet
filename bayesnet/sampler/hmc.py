@@ -1,5 +1,5 @@
 import random
-import numpy as np
+from bayesnet import xp
 from bayesnet.network import Network
 
 
@@ -24,7 +24,7 @@ def hmc(model, call_args, parameter=None, sample_size=100, step_size=1e-3, n_ste
 
     Returns
     -------
-    sample : dict of list of np.ndarray
+    sample : dict of list of xp.ndarray
         samples from the model given observations
     """
 
@@ -72,8 +72,8 @@ def hmc(model, call_args, parameter=None, sample_size=100, step_size=1e-3, n_ste
         kinetic_energy = 0
         for key, v in variable.items():
             previous[key] = v.value
-            velocity[key] = np.random.normal(size=v.shape)
-            kinetic_energy += 0.5 * np.square(velocity[key]).sum()
+            velocity[key] = xp.random.normal(size=v.shape)
+            kinetic_energy += 0.5 * xp.square(velocity[key]).sum()
             velocity[key] += 0.5 * v.grad * step_size
             v.value = v.value + step_size * velocity[key]
         hamiltonian = kinetic_energy - log_posterior.value
@@ -91,10 +91,10 @@ def hmc(model, call_args, parameter=None, sample_size=100, step_size=1e-3, n_ste
         kinetic_energy_new = 0
         for key, v in velocity.items():
             v += 0.5 * step_size * variable[key].grad
-            kinetic_energy_new += 0.5 * np.square(v).sum()
+            kinetic_energy_new += 0.5 * xp.square(v).sum()
 
         hamiltonian_new = kinetic_energy_new - log_posterior_new.value
-        accept_proba = np.exp(hamiltonian - hamiltonian_new)
+        accept_proba = xp.exp(hamiltonian - hamiltonian_new)
 
         if random.random() < accept_proba:
             for key, v in variable.items():

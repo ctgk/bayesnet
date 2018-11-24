@@ -1,4 +1,4 @@
-import numpy as np
+from bayesnet import xp
 from bayesnet.tensor.constant import Constant
 from bayesnet.tensor.tensor import Tensor
 from bayesnet.function import Function
@@ -21,7 +21,7 @@ class Sum(Function):
 
     def _backward(self, delta, x):
         xdim, xshape = getattr(x, "ndim", 0), getattr(x, "shape", ())
-        if isinstance(delta, np.ndarray) and (not self.keepdims) and (self.axis is not None):
+        if isinstance(delta, xp.ndarray) and (not self.keepdims) and (self.axis is not None):
             axis_positive = []
             for axis in self.axis:
                 if axis < 0:
@@ -29,8 +29,8 @@ class Sum(Function):
                 else:
                     axis_positive.append(axis)
             for axis in sorted(axis_positive):
-                delta = np.expand_dims(delta, axis)
-        dx = np.broadcast_to(delta, xshape)
+                delta = xp.expand_dims(delta, axis)
+        dx = xp.broadcast_to(delta, xshape)
         return dx
 
 

@@ -1,4 +1,4 @@
-import numpy as np
+from bayesnet import xp
 from bayesnet.math.gamma import gamma
 from bayesnet.math.log import log
 from bayesnet.math.product import prod
@@ -47,7 +47,7 @@ class Dirichlet(RandomVariable):
 
     def forward(self):
         if self.alpha.ndim == 1:
-            return Tensor(np.random.dirichlet(self.alpha.value), parent=self)
+            return Tensor(xp.random.dirichlet(self.alpha.value), parent=self)
         else:
             raise NotImplementedError
 

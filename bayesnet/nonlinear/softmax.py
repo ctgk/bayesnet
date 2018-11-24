@@ -1,4 +1,4 @@
-import numpy as np
+from bayesnet import xp
 from bayesnet.tensor.constant import Constant
 from bayesnet.tensor.tensor import Tensor
 from bayesnet.function import Function
@@ -12,8 +12,8 @@ class Softmax(Function):
         self.axis = axis
 
     def _forward(self, x):
-        y = x - np.max(x, self.axis, keepdims=True)
-        np.exp(y, out=y)
+        y = x - xp.max(x, self.axis, keepdims=True)
+        xp.exp(y, out=y)
         y /= y.sum(self.axis, keepdims=True)
         self.output = y
         return self.output
