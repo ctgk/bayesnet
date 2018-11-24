@@ -10,10 +10,10 @@ class TestCholesky(unittest.TestCase):
             [2., -1],
             [-1., 5.]
         ])
-        L = np.linalg.cholesky(A)
+        L_expected = np.linalg.cholesky(A)
         Ap = bn.Parameter(A)
-        L_test = bn.linalg.cholesky(Ap)
-        self.assertTrue((L == L_test.value).all())
+        L_actual = bn.linalg.cholesky(Ap).value
+        self.assertTrue((L_expected == L_actual).all())
 
         T = np.array([
             [1., 0.],
@@ -21,9 +21,8 @@ class TestCholesky(unittest.TestCase):
         ])
         for _ in range(1000):
             Ap.cleargrad()
-            L_ = bn.linalg.cholesky(Ap)
-            loss = bn.square(T - L_).sum()
-            loss.backward()
+            L = bn.linalg.cholesky(Ap)
+            L.backward(2 * (L.value - T))
             Ap.value -= 0.1 * Ap.grad
 
         self.assertTrue(np.allclose(Ap.value, T @ T.T))
