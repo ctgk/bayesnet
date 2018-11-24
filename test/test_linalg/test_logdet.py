@@ -17,8 +17,7 @@ class TestLogdet(unittest.TestCase):
         for _ in range(100):
             A.cleargrad()
             logdetA = bn.linalg.logdet(A)
-            loss = bn.square(logdetA - 1)
-            loss.backward()
+            logdetA.backward(2 * (logdetA.value - 1))
             A.value -= 0.1 * A.grad
         self.assertAlmostEqual(logdetA.value, 1)
 

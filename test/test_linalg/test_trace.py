@@ -23,8 +23,8 @@ class TestTrace(unittest.TestCase):
         a = bn.Parameter(a)
         for _ in range(100):
             a.cleargrad()
-            loss = bn.square(bn.linalg.trace(a) - 2)
-            loss.backward()
+            t = bn.linalg.trace(a)
+            t.backward(2 * (t.value - 2))
             a.value -= 0.1 * a.grad
         self.assertEqual(bn.linalg.trace(a).value, 2)
 

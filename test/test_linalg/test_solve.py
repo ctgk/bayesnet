@@ -20,8 +20,7 @@ class TestSolve(unittest.TestCase):
             A.cleargrad()
             B.cleargrad()
             AinvB = bn.linalg.solve(A, B)
-            loss = bn.square(AinvB - 1).sum()
-            loss.backward()
+            AinvB.backward(2 * (AinvB.value - 1))
             A.value -= A.grad
             B.value -= B.grad
         self.assertTrue(np.allclose(AinvB.value, 1))

@@ -17,8 +17,7 @@ class TestDeterminant(unittest.TestCase):
         for _ in range(100):
             A.cleargrad()
             detA = bn.linalg.det(A)
-            loss = bn.square(detA - 1)
-            loss.backward()
+            detA.backward(2 * (detA.value - 1))
             A.value -= 0.1 * A.grad
         self.assertAlmostEqual(detA.value, 1.)
 

@@ -24,8 +24,7 @@ class TestInverse(unittest.TestCase):
         for _ in range(100):
             A.cleargrad()
             Ainv = bn.linalg.inv(A)
-            loss = bn.square(Ainv - B).sum()
-            loss.backward()
+            Ainv.backward(2 * (Ainv.value - B))
             A.value -= 0.1 * A.grad
 
         self.assertTrue(np.allclose(A.value, np.linalg.inv(B)))
