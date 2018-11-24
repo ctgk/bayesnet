@@ -24,6 +24,7 @@ class Tensor(object):
             )
         self.value = value
         self.parent = parent
+        self.grad = None
 
     def __format__(self, *args, **kwargs):
         return self.__repr__()
@@ -60,12 +61,18 @@ class Tensor(object):
         delta : array_like
             derivative with respect to this array
         """
+        if not isinstance(delta, (int, float, np.number, np.ndarray)):
+            raise TypeError(f"unsupported class for delta: {type(delta)}")
         dshape = getattr(delta, "shape", ())
         if dshape != self.shape:
             raise ValueError(
                 "shapes {} (delta) and {} (self) are not aligned"
                 .format(dshape, self.shape)
             )
+        if self.grad is None:
+            self.grad = delta
+        else:
+            self.grad += delta
         self._backward(delta, **kwargs)
 
     def _backward(self, delta, **kwargs):
