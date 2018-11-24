@@ -24,19 +24,16 @@ class TestDeconvolve2d(unittest.TestCase):
             )
         )
 
+        x = bn.Parameter(img)
         p = bn.Parameter(kernel)
-        bn.sum(bn.square(bn.deconvolve2d(img, p, 2, 1))).backward()
-        grad_backprop = p.grad
-        grad_numerical = np.zeros_like(grad_backprop)
-        eps = 1e-8
-        for i, j in itertools.product(range(3), repeat=2):
-            e = np.zeros_like(kernel)
-            e[i, j] += eps
-            loss_p = bn.sum(bn.square(bn.deconvolve2d(img, kernel + e, 2, 1))).value
-            loss_m = bn.sum(bn.square(bn.deconvolve2d(img, kernel - e, 2, 1))).value
-            grad_numerical[i, j] = (loss_p - loss_m) / (2 * eps)
-
-        self.assertTrue(np.allclose(grad_backprop, grad_numerical))
+        for _ in range(1000):
+            x.cleargrad()
+            p.cleargrad()
+            output = bn.deconvolve2d(x, p)
+            output.backward(2 * (output.value - 0))
+            x.value -= x.grad * 0.01
+            p.value -= p.grad * 0.01
+        self.assertTrue(np.allclose(bn.deconvolve2d(x, p).value, 0))
 
 
 if __name__ == '__main__':
