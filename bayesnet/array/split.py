@@ -9,12 +9,14 @@ class Nth(Function):
     def __init__(self, n):
         self.n = n
 
-    @staticmethod
-    def _forward(x):
-        return x
+    def forward(self, x):
+        self.x = x
+        if isinstance(x, Constant):
+            return Constant(x.value)
+        return Tensor(x.value, parent=self)
 
     def backward(self, delta):
-        self.args[0].backward(delta, n=self.n)
+        self.x.backward(delta, n=self.n)
 
 
 class Split(Function):
