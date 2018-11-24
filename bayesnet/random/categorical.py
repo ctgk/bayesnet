@@ -1,5 +1,5 @@
 import numpy as np
-from bayesnet.array.broadcast import broadcast_to
+from bayesnet.array.broadcast import broadcast
 from bayesnet.function import Function
 from bayesnet.math.log import log
 from bayesnet.math.product import prod
@@ -98,36 +98,25 @@ class Categorical(RandomVariable):
 
 class SoftmaxCrossEntropy(Function):
 
+    enable_auto_broadcast = True
+
     def __init__(self, axis=-1):
         self.axis = axis
 
-    def _check_input(self, x, t):
-        x = self._convert2tensor(x)
-        t = self._convert2tensor(t)
-        if x.shape != t.shape:
-            shape = np.broadcast(x.value, t.value).shape
-            if x.shape != shape:
-                x = broadcast_to(x, shape)
-            if t.shape != shape:
-                t = broadcast_to(t, shape)
-        return x, t
+    @staticmethod
+    def _autobroadcast(args):
+        return broadcast(args)
 
-    def _softmax(self, array):
-        y = np.exp(array - np.max(array, self.axis, keepdims=True))
-        y /= np.sum(y, self.axis, keepdims=True)
-        return y
-
-    def forward(self, x, t):
-        x, t = self._check_input(x, t)
-        self.x = x
-        self.t = t
-        self.y = self._softmax(x.value)
+    def _forward(self, x, t):
+        self.y = np.exp(x - np.max(x, self.axis, keepdims=True))
+        self.y /= np.sum(self.y, self.axis, keepdims=True)
         np.clip(self.y, 1e-10, 1, out=self.y)
-        loss = -t.value * np.log(self.y)
-        return Tensor(loss, parent=self)
+        loss = -t * np.log(self.y)
+        return loss
 
     def backward(self, delta):
-        dx = delta * (self.y - self.t.value)
+        x, t = self.args[0], self.args[1]
+        dx = delta * (self.y - t.value)
         dt = - delta * np.log(self.y)
-        self.x.backward(dx)
-        self.t.backward(dt)
+        x.backward(dx)
+        t.backward(dt)
