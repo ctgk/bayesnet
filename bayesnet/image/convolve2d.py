@@ -43,8 +43,6 @@ class Convolve2d(Function):
         return tup
 
     def _check_input(self, x, y):
-        x = self._convert2tensor(x)
-        y = self._convert2tensor(y)
         self._is_equal_to_ndim(x, 4)
         self._is_equal_to_ndim(y, 4)
         if x.shape[3] != y.shape[2]:
@@ -52,28 +50,26 @@ class Convolve2d(Function):
                 "shapes {} and {} not aligned: {} (dim 3) != {} (dim 2)"
                 .format(x.shape, y.shape, x.shape[3], y.shape[2])
             )
-        return x, y
 
-    def forward(self, x, y):
-        x, y = self._check_input(x, y)
-        self.x = x
-        self.y = y
-        img = np.pad(x.value, [(p,) for p in self.pad], "constant")
+    def _forward(self, x, y):
+        self._check_input(x, y)
+        img = np.pad(x, [(p,) for p in self.pad], "constant")
         self.shape = img.shape
         self.patch = img2patch(img, y.shape[:2], self.stride)
-        return Tensor(np.tensordot(self.patch, y.value, axes=((3, 4, 5), (0, 1, 2))), parent=self)
+        return np.tensordot(self.patch, y, axes=((3, 4, 5), (0, 1, 2)))
 
     def backward(self, delta):
+        x, y = self.args[0], self.args[1]
         dx = patch2img(
-            np.tensordot(delta, self.y.value, (3, 3)),
+            np.tensordot(delta, y.value, (3, 3)),
             self.stride,
             self.shape
         )
         slices = tuple(slice(p, len_ - p) for p, len_ in zip(self.pad, self.shape))
         dx = dx[slices]
         dy = np.tensordot(self.patch, delta, axes=((0, 1, 2),) * 2)
-        self.x.backward(dx)
-        self.y.backward(dy)
+        x.backward(dx)
+        y.backward(dy)
 
 
 def convolve2d(x, y, stride=1, pad=0):
