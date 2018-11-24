@@ -54,8 +54,6 @@ class Deconvolve2d(Function):
         return tup
 
     def _check_input(self, x, y):
-        x = self._convert2tensor(x)
-        y = self._convert2tensor(y)
         self._is_equal_to_ndim(x, 4)
         self._is_equal_to_ndim(y, 4)
         if x.shape[3] != y.shape[2]:
@@ -63,12 +61,9 @@ class Deconvolve2d(Function):
                 "shapes {} and {} not aligned: {} (dim 3) != {} (dim 2)"
                 .format(x.shape, y.shape, x.shape[3], y.shape[2])
             )
-        return x, y
 
-    def forward(self, x, y):
-        x, y = self._check_input(x, y)
-        self.x = x
-        self.y = y
+    def _forward(self, x, y):
+        self._check_input(x, y)
         if self.shape is None:
             shape = tuple(
                 s * (xlen - 1) + ylen
@@ -76,26 +71,27 @@ class Deconvolve2d(Function):
             )
         else:
             shape = self.shape
-        patch = np.tensordot(x.value, y.value, (3, 3))
+        patch = np.tensordot(x, y, (3, 3))
         output = patch2img(
             patch,
             self.stride,
-            (len(x.value),) + shape + (x.shape[-1],)
+            (len(x),) + shape + (x.shape[-1],)
         )
         output = output[
             :,
             self.pad[1]: output.shape[1] - self.pad[1],
             self.pad[2]: output.shape[2] - self.pad[2]
         ]
-        return Tensor(output, parent=self)
+        return output
 
     def backward(self, delta):
+        x, y = self.args[0], self.args[1]
         delta = np.pad(delta, [(p,) for p in self.pad], "constant")
-        dpatch = img2patch(delta, self.y.shape[:2], self.stride)
-        dx = np.tensordot(dpatch, self.y.value, axes=((3, 4, 5), (0, 1, 2)))
-        dy = np.tensordot(dpatch, self.x.value, axes=((0, 1, 2),) * 2)
-        self.x.backward(dx)
-        self.y.backward(dy)
+        dpatch = img2patch(delta, y.shape[:2], self.stride)
+        dx = np.tensordot(dpatch, y.value, axes=((3, 4, 5), (0, 1, 2)))
+        dy = np.tensordot(dpatch, x.value, axes=((0, 1, 2),) * 2)
+        x.backward(dx)
+        y.backward(dy)
 
 
 def deconvolve2d(x, y, stride=1, pad=0, shape=None):
