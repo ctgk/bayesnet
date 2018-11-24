@@ -1,4 +1,4 @@
-import numpy as np
+from bayesnet import xp
 from bayesnet.tensor.constant import Constant
 from bayesnet.tensor.tensor import Tensor
 
@@ -42,7 +42,7 @@ class Function(object):
 
     @staticmethod
     def _convert2tensor(x):
-        if isinstance(x, (int, float, np.number, np.ndarray)):
+        if isinstance(x, (int, float, xp.number, xp.ndarray)):
             x = Constant(x)
         elif not isinstance(x, Tensor):
             raise TypeError(
