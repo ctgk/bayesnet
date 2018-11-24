@@ -13,6 +13,8 @@ class BroadcastTo(Function):
         self.shape = shape
 
     def _forward(self, x):
+        if not isinstance(x, xp.ndarray):
+            x = xp.array(x)
         output = xp.broadcast_to(x, self.shape)
         return output
 
