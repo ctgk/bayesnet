@@ -129,6 +129,15 @@ class Tensor(object):
     def __rsub__(self, arg):
         raise NotImplementedError
 
+    def flatten(self):
+        raise NotImplementedError
+
+    def reshape(self):
+        raise NotImplementedError
+
+    def swapaxes(self):
+        raise NotImplementedError
+
     def mean(self):
         raise NotImplementedError
 
