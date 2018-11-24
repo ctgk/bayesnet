@@ -45,17 +45,15 @@ class MaxPooling2d(Function):
             )
         return tup
 
-    def forward(self, x):
-        x = self._convert2tensor(x)
+    def _forward(self, x):
         self._is_equal_to_ndim(x, 4)
-        self.x = x
-        img = np.pad(x.value, [(p,) for p in self.pad], "constant")
+        img = np.pad(x, [(p,) for p in self.pad], "constant")
         patch = img2patch(img, self.pool_size, self.stride)
         n_batch, xlen_out, ylen_out, _, _, in_channels = patch.shape
         patch = patch.reshape(n_batch, xlen_out, ylen_out, -1, in_channels)
         self.shape = img.shape
         self.index = patch.argmax(axis=3)
-        return Tensor(patch.max(axis=3), parent=self)
+        return patch.max(axis=3)
 
     def backward(self, delta):
         delta_patch = np.zeros(delta.shape + (np.prod(self.pool_size),))
@@ -64,9 +62,9 @@ class MaxPooling2d(Function):
         delta_patch = np.reshape(delta_patch, delta.shape + self.pool_size)
         delta_patch = delta_patch.transpose(0, 1, 2, 4, 5, 3)
         dx = patch2img(delta_patch, self.stride, self.shape)
-        slices = [slice(p, len_ - p) for p, len_ in zip(self.pad, self.shape)]
+        slices = tuple(slice(p, len_ - p) for p, len_ in zip(self.pad, self.shape))
         dx = dx[slices]
-        self.x.backward(dx)
+        self.args[0].backward(dx)
 
 
 def max_pooling2d(x, pool_size, stride=1, pad=0):
