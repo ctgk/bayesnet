@@ -17,18 +17,14 @@ class Softmax(Function):
         y /= y.sum(self.axis, keepdims=True)
         return y
 
-    def forward(self, x):
-        x = self._convert2tensor(x)
-        self.x = x
+    def _forward(self, x):
         self.output = self._softmax(x.value)
-        if isinstance(x, Constant):
-            return Constant(self.output)
-        return Tensor(self.output, parent=self)
+        return self.output
 
     def backward(self, delta):
         dx = self.output * delta
         dx -= self.output * dx.sum(self.axis, keepdims=True)
-        self.x.backward(dx)
+        self.args[0].backward(dx)
 
 
 def softmax(x, axis=-1):

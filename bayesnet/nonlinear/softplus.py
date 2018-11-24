@@ -6,17 +6,14 @@ from bayesnet.function import Function
 
 class Softplus(Function):
 
-    def forward(self, x):
-        x = self._convert2tensor(x)
-        self.x = x
-        output = np.maximum(x.value, 0) + np.log1p(np.exp(-np.abs(x.value)))
-        if isinstance(x, Constant):
-            return Constant(output)
-        return Tensor(output, parent=self)
+    @staticmethod
+    def _forward(x):
+        return np.maximum(x.value, 0) + np.log1p(np.exp(-np.abs(x.value)))
 
     def backward(self, delta):
-        dx = (np.tanh(0.5 * self.x.value) * 0.5 + 0.5) * delta
-        self.x.backward(dx)
+        x = self.args[0]
+        dx = (np.tanh(0.5 * x.value) * 0.5 + 0.5) * delta
+        x.backward(dx)
 
 
 def softplus(x):
