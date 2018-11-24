@@ -12,7 +12,7 @@ class Log(Function):
 
     @staticmethod
     def _forward(x):
-        return np.log(x.value)
+        return np.log(x)
 
     def backward(self, delta):
         x = self.args[0]

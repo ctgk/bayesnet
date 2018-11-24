@@ -11,7 +11,7 @@ class Sigmoid(Function):
     """
 
     def _forward(self, x):
-        self.output = np.tanh(x.value * 0.5) * 0.5 + 0.5
+        self.output = np.tanh(x * 0.5) * 0.5 + 0.5
         return self.output
 
     def backward(self, delta):

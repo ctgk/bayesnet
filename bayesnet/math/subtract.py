@@ -17,7 +17,7 @@ class Subtract(Function):
 
     @staticmethod
     def _forward(x, y):
-        return x.value - y.value
+        return x - y
 
     def backward(self, delta):
         self.args[0].backward(delta)

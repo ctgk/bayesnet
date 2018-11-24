@@ -8,7 +8,7 @@ class Inverse(Function):
 
     def _forward(self, x):
         self._is_equal_to_ndim(x, 2)
-        self.output = np.linalg.inv(x.value)
+        self.output = np.linalg.inv(x)
         return self.output
 
     def backward(self, delta):

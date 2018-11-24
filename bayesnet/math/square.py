@@ -12,7 +12,7 @@ class Square(Function):
 
     @staticmethod
     def _forward(x):
-        return np.square(x.value)
+        return np.square(x)
 
     def backward(self, delta):
         x = self.args[0]

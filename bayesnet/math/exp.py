@@ -7,7 +7,7 @@ from bayesnet.function import Function
 class Exp(Function):
 
     def _forward(self, x):
-        self.output = np.exp(x.value)
+        self.output = np.exp(x)
         return self.output
 
     def backward(self, delta):

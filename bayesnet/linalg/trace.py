@@ -8,7 +8,7 @@ class Trace(Function):
 
     def _forward(self, x):
         self._is_equal_to_ndim(x, 2)
-        return np.trace(x.value)
+        return np.trace(x)
 
     def backward(self, delta):
         x = self.args[0]

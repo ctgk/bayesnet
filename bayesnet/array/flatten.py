@@ -11,7 +11,7 @@ class Flatten(Function):
     @classmethod
     def _forward(cls, x):
         cls._is_atleast_ndim(x, 2)
-        return x.value.flatten()
+        return x.flatten()
 
     def backward(self, delta):
         x = self.args[0]

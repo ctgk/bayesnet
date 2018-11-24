@@ -7,8 +7,8 @@ from bayesnet.function import Function
 class Abs(Function):
 
     def _forward(self, x):
-        self.sign = np.sign(x.value)
-        return np.abs(x.value)
+        self.sign = np.sign(x)
+        return np.abs(x)
 
     def backward(self, delta):
         dx = self.sign * delta

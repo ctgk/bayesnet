@@ -17,7 +17,7 @@ class NanSum(Function):
         self.keepdims = keepdims
 
     def _forward(self, x):
-        return np.nansum(x.value, axis=self.axis, keepdims=self.keepdims)
+        return np.nansum(x, axis=self.axis, keepdims=self.keepdims)
 
     def backward(self, delta):
         x = self.args[0]

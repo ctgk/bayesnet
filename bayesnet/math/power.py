@@ -16,7 +16,7 @@ class Power(Function):
         return broadcast(args)
 
     def _forward(self, x, y):
-        self.output = np.power(x.value, y.value)
+        self.output = np.power(x, y)
         return self.output
 
     def backward(self, delta):

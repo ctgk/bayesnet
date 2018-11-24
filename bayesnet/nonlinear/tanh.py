@@ -7,7 +7,7 @@ from bayesnet.function import Function
 class Tanh(Function):
 
     def _forward(self, x):
-        self.output = np.tanh(x.value)
+        self.output = np.tanh(x)
         return self.output
 
     def backward(self, delta):

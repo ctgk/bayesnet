@@ -14,18 +14,18 @@ class Function(object):
         if self.enable_auto_broadcast:
             args = self._autobroadcast(args)
         self.args = args
-        output = self._forward(*self.args)
+        output = self._forward(*tuple(arg.value for arg in self.args))
         if all(isinstance(arg, Constant) for arg in self.args):
             return Constant(output)
         else:
             return Tensor(output, parent=self)
 
     @staticmethod
-    def _autobroadcast(args):
+    def _autobroadcast(arg):
         raise NotImplementedError
 
     @staticmethod
-    def _forward(self):
+    def _forward(*args):
         raise NotImplementedError
 
     @staticmethod
@@ -40,17 +40,19 @@ class Function(object):
 
     @staticmethod
     def _is_equal_to_ndim(x, ndim):
-        if x.ndim != ndim:
+        xdim = getattr(x, "ndim", 0)
+        if xdim != ndim:
             raise ValueError(
                 "dimensionality of the input must be {}, not {}"
-                .format(ndim, x.ndim)
+                .format(ndim, xdim)
             )
 
     @staticmethod
     def _is_atleast_ndim(x, ndim):
-        if x.ndim < ndim:
+        xdim = getattr(x, "ndim", 0)
+        if xdim < ndim:
             raise ValueError(
                 "dimensionality of the input must be"
                 " larger or equal to {}, not {}"
-                .format(ndim, x.ndim)
+                .format(ndim, xdim)
             )

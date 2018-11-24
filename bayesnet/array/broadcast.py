@@ -13,7 +13,7 @@ class BroadcastTo(Function):
         self.shape = shape
 
     def _forward(self, x):
-        output = np.broadcast_to(x.value, self.shape)
+        output = np.broadcast_to(x, self.shape)
         return output
 
     def backward(self, delta):

@@ -17,7 +17,7 @@ class Divide(Function):
 
     @staticmethod
     def _forward(x, y):
-        return x.value / y.value
+        return x / y
 
     def backward(self, delta):
         x, y = self.args[0], self.args[1]

@@ -11,7 +11,7 @@ class Nth(Function):
 
     @staticmethod
     def _forward(x):
-        return x.value
+        return x
 
     def backward(self, delta):
         self.args[0].backward(delta, n=self.n)

@@ -15,7 +15,7 @@ class Product(Function):
         self.keepdims = keepdims
 
     def _forward(self, x):
-        self.output = np.prod(x.value, axis=self.axis, keepdims=True)
+        self.output = np.prod(x, axis=self.axis, keepdims=True)
         if not self.keepdims:
             output = np.squeeze(self.output)
             if output.size == 1:

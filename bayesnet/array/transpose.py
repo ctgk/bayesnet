@@ -12,7 +12,7 @@ class Transpose(Function):
     def _forward(self, x):
         if self.axes is not None:
             self._is_equal_to_ndim(x, len(self.axes))
-        return np.transpose(x.value, self.axes)
+        return np.transpose(x, self.axes)
 
     def backward(self, delta):
         if self.axes is None:

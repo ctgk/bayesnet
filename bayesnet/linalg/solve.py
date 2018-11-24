@@ -27,7 +27,7 @@ class Solve(Function):
         return [a, b]
 
     def _forward(self, a, b):
-        self.output = np.linalg.solve(a.value, b.value)
+        self.output = np.linalg.solve(a, b)
         return self.output
 
     def backward(self, delta):

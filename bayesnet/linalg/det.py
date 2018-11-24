@@ -8,7 +8,7 @@ class Determinant(Function):
 
     def _forward(self, x):
         self._is_atleast_ndim(x, 2)
-        self.output = np.linalg.det(x.value)
+        self.output = np.linalg.det(x)
         return self.output
 
     def backward(self, delta):

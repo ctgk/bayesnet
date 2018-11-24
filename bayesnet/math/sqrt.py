@@ -11,7 +11,7 @@ class Sqrt(Function):
     """
 
     def _forward(self, x):
-        self.output = np.sqrt(x.value)
+        self.output = np.sqrt(x)
         return self.output
 
     def backward(self, delta):

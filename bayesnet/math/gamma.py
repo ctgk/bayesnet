@@ -7,7 +7,7 @@ from bayesnet.tensor.tensor import Tensor
 class Gamma(Function):
 
     def _forward(self, x):
-        self.output = sp.gamma(x.value)
+        self.output = sp.gamma(x)
         return self.output
 
     def backward(self, delta):

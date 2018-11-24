@@ -21,7 +21,7 @@ class MatMul(Function):
                 .format(x.shape, y.shape, x.shape[-1], y.shape[-2])
             )
         if x.shape[:-2] != y.shape[:-2]:
-            shape = np.broadcast(x.value[..., 0, 0], y.value[..., 0, 0]).shape
+            shape = np.broadcast(x[..., 0, 0], y.value[..., 0, 0]).shape
             if x.shape[:-2] != shape:
                 x = broadcast_to(x, shape + x.shape[-2:])
             if y.shape[:-2] != shape:
@@ -30,7 +30,7 @@ class MatMul(Function):
 
     @staticmethod
     def _forward(x, y):
-        return x.value @ y.value
+        return x @ y
 
     def backward(self, delta):
         x, y = self.args[0], self.args[1]

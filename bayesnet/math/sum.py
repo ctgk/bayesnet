@@ -17,7 +17,7 @@ class Sum(Function):
         self.keepdims = keepdims
 
     def _forward(self, x):
-        return x.value.sum(axis=self.axis, keepdims=self.keepdims)
+        return x.sum(axis=self.axis, keepdims=self.keepdims)
 
     def backward(self, delta):
         x = self.args[0]

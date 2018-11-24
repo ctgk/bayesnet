@@ -7,7 +7,7 @@ from bayesnet.function import Function
 class Cholesky(Function):
 
     def _forward(self, x):
-        self.output = np.linalg.cholesky(x.value)
+        self.output = np.linalg.cholesky(x)
         return self.output
 
     def backward(self, delta):

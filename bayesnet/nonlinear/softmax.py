@@ -11,14 +11,11 @@ class Softmax(Function):
             raise TypeError("axis must be int")
         self.axis = axis
 
-    def _softmax(self, array):
-        y = array - np.max(array, self.axis, keepdims=True)
+    def _forward(self, x):
+        y = x - np.max(x, self.axis, keepdims=True)
         np.exp(y, out=y)
         y /= y.sum(self.axis, keepdims=True)
-        return y
-
-    def _forward(self, x):
-        self.output = self._softmax(x.value)
+        self.output = y
         return self.output
 
     def backward(self, delta):

@@ -8,7 +8,7 @@ class Softplus(Function):
 
     @staticmethod
     def _forward(x):
-        return np.maximum(x.value, 0) + np.log1p(np.exp(-np.abs(x.value)))
+        return np.maximum(x, 0) + np.log1p(np.exp(-np.abs(x)))
 
     def backward(self, delta):
         x = self.args[0]
