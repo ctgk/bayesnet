@@ -1,5 +1,5 @@
 import numpy as np
-from bayesnet.array.broadcast import broadcast_to
+from bayesnet.array.broadcast import broadcast
 from bayesnet.function import Function
 from bayesnet.math.log import log
 from bayesnet.nonlinear.sigmoid import sigmoid
@@ -92,36 +92,28 @@ class SigmoidCrossEntropy(Function):
     y : ndarray
         corresponding target binaries
     """
+    enable_auto_broadcast = True
 
-    def _check_input(self, x, t):
-        x = self._convert2tensor(x)
-        t = self._convert2tensor(t)
-        if x.shape != t.shape:
-            shape = np.broadcast(x.value, t.value).shape
-            if x.shape != shape:
-                x = broadcast_to(x, shape)
-            if t.shape != shape:
-                t = broadcast_to(t, shape)
-        return x, t
+    @staticmethod
+    def _autobroadcast(args):
+        return broadcast(args)
 
-
-    def forward(self, x, t):
-        x, t = self._check_input(x, t)
-        self.x = x
-        self.t = t
+    @staticmethod
+    def _forward(x, t):
         # y = self.forward(x)
         # np.clip(y, 1e-10, 1 - 1e-10, out=y)
         # return np.sum(-t * np.log(y) - (1 - t) * np.log(1 - y))
         loss = (
-            np.maximum(x.value, 0)
-            - t.value * x.value
-            + np.log1p(np.exp(-np.abs(x.value)))
+            np.maximum(x, 0)
+            - t * x
+            + np.log1p(np.exp(-np.abs(x)))
         )
-        return Tensor(loss, parent=self)
+        return loss
 
     def backward(self, delta):
-        y = np.tanh(self.x.value * 0.5) * 0.5 + 0.5
-        dx = delta * (y - self.t.value)
-        dt = - delta * self.x.value
-        self.x.backward(dx)
-        self.t.backward(dt)
+        x, t = self.args[0], self.args[1]
+        y = np.tanh(x.value * 0.5) * 0.5 + 0.5
+        dx = delta * (y - t.value)
+        dt = -delta * x.value
+        x.backward(dx)
+        t.backward(dt)
