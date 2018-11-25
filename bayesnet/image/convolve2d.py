@@ -53,7 +53,7 @@ class Convolve2d(Function):
 
     def _forward(self, x, y):
         self._check_input(x, y)
-        img = xp.pad(x, [(p,) for p in self.pad], "constant")
+        img = xp.pad(x, [(p, p) for p in self.pad], "constant")
         self.shape = img.shape
         self.patch = img2patch(img, y.shape[:2], self.stride)
         return xp.tensordot(self.patch, y, axes=((3, 4, 5), (0, 1, 2)))
