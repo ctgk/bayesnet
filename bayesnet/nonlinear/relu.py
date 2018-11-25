@@ -11,7 +11,7 @@ class ReLU(Function):
 
     @staticmethod
     def _forward(x):
-        return x.value.clip(min=0)
+        return x.clip(min=0)
 
     @staticmethod
     def _backward(delta, x):
