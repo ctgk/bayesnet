@@ -1,9 +1,9 @@
 import numpy as np
 import scipy.special as sp
-from bayesnet.array.broadcast import broadcast_to
+from bayesnet.array.broadcast import broadcast_to, broadcast
+from bayesnet.function import Function
 from bayesnet.math.exp import exp
 from bayesnet.math.gamma import gamma
-from bayesnet.math.log import log
 from bayesnet.random.random import RandomVariable
 from bayesnet.tensor.constant import Constant
 from bayesnet.tensor.tensor import Tensor
@@ -102,9 +102,32 @@ class Gamma(RandomVariable):
         )
 
     def _log_pdf(self, x):
-        return (
-            self.shape * log(self.rate)
-            + (self.shape - 1) * log(x)
-            - self.rate * x
-            - log(gamma(self.shape))
+        return GammaLogPDF().forward(x, self.shape, self.rate)
+
+
+class GammaLogPDF(Function):
+    enable_auto_broadcast = True
+
+    @staticmethod
+    def _autobroadcast(args):
+        return broadcast(args)
+
+    @staticmethod
+    def _forward(x, shape, rate):
+        output = (
+            shape * np.log(rate)
+            + (shape - 1) * np.log(x)
+            - rate * x
+            - np.log(sp.gamma(shape))
         )
+        return output
+
+    @staticmethod
+    def _backward(delta, x, shape, rate):
+        dx = (shape - 1) / x - rate
+        dx *= delta
+        dshape = np.log(x) + np.log(rate) - sp.digamma(shape)
+        dshape *= delta
+        drate = shape / rate - x
+        drate *= delta
+        return dx, dshape, drate
