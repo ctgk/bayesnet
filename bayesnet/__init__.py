@@ -27,6 +27,7 @@ from bayesnet.nonlinear.softmax import softmax
 from bayesnet.nonlinear.softplus import softplus
 from bayesnet.nonlinear.tanh import tanh
 from bayesnet.normalize.batch_nomalization import BatchNormalization
+from bayesnet.random.dropout import dropout
 from bayesnet import optimizer
 from bayesnet.network import Network
 from bayesnet import sampler
@@ -43,6 +44,7 @@ __all__ = [
     "abs",
     "convolve2d",
     "deconvolve2d",
+    "dropout",
     "exp",
     "flatten",
     "gamma",

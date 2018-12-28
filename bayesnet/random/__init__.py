@@ -2,6 +2,7 @@ from bayesnet.random.bernoulli import Bernoulli
 from bayesnet.random.categorical import Categorical
 from bayesnet.random.cauchy import Cauchy
 from bayesnet.random.dirichlet import Dirichlet
+from bayesnet.random.dropout import dropout
 from bayesnet.random.exponential import Exponential
 from bayesnet.random.gamma import Gamma
 from bayesnet.random.gaussian import Gaussian
@@ -20,5 +21,6 @@ __all__ = [
     "Gaussian",
     "GaussianMixture",
     "Laplace",
-    "MultivariateGaussian"
+    "MultivariateGaussian",
+    "dropout"
 ]

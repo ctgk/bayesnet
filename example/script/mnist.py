@@ -1,3 +1,4 @@
+import argparse
 import numpy as np
 import scipy.stats as st
 from sklearn.datasets import fetch_mldata
@@ -31,12 +32,13 @@ class CNN(bn.Network):
 
         h = h.reshape(-1, 4 * 4 * 20)
         h = bn.relu(h @ self.w3 + self.b3)
+        h = bn.dropout(h, 0.2, is_dropping=(y is not None))
 
         self.py = bn.random.Categorical(logit=h @ self.w4 + self.b4, data=y)
         return self.py.mu.value
 
 
-def main():
+def main(args):
     np.random.seed(1234)
 
     mnist = fetch_mldata("MNIST original")
@@ -51,33 +53,41 @@ def main():
     cnn = CNN()
     optimizer = bn.optimizer.Adam(cnn, 1e-3)
 
+    bn.Config.is_training = True
     while True:
         indices = np.random.permutation(len(x_train))
-        for index in range(0, len(x_train), 50):
+        for index in range(0, len(x_train), args.minibatch):
             cnn.clear()
-            x_batch = x_train[indices[index: index+50]]
-            y_batch = y_train[indices[index: index+50]]
+            x_batch = x_train[indices[index: index+args.minibatch]]
+            y_batch = y_train[indices[index: index+args.minibatch]]
             proba = cnn(x_batch, y_batch)
             log_likelihood = cnn.log_pdf()
-            if optimizer.n_iter % 100 == 0:
+            if optimizer.n_iter % (args.iteration // 100) == 0:
                 accuracy = accuracy_score(np.argmax(y_batch, axis=-1), np.argmax(proba, axis=-1))
                 print(f"step {optimizer.n_iter:04}", end=", ")
                 print(f"accuracy {accuracy:.2f}", end=", ")
                 print(f"Log Likelihood {log_likelihood.value:g}")
             log_likelihood.backward()
             optimizer.update()
-            if optimizer.n_iter == 1000:
+            if optimizer.n_iter == args.iteration:
                 break
         else:
             continue
         break
 
+    bn.Config.is_training = False
     label_pred = []
     for i in range(0, len(x_test), 50):
         label_pred.append(np.argmax(cnn(x_test[i: i+50]), axis=-1))
     label_pred = np.asarray(label_pred).ravel()
+    print("accuracy: ", accuracy_score(label_test, label_pred))
+    print("Confusion matrix: (truth x prediction)")
     print(confusion_matrix(label_test, label_pred))
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-i", "--iteration", type=int, default=10000, help="number of iterations to update parameter")
+    parser.add_argument("-m", "--minibatch", type=int, default=10, help="minibatch size for training")
+    args = parser.parse_args()
+    main(args)
