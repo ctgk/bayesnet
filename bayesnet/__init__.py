@@ -26,12 +26,16 @@ from bayesnet.nonlinear.sigmoid import sigmoid
 from bayesnet.nonlinear.softmax import softmax
 from bayesnet.nonlinear.softplus import softplus
 from bayesnet.nonlinear.tanh import tanh
+from bayesnet.normalize.batch_nomalization import BatchNormalization
 from bayesnet import optimizer
 from bayesnet.network import Network
 from bayesnet import sampler
+from bayesnet.config import Config
 
 
 __all__ = [
+    "BatchNormalization",
+    "Config",
     "Constant",
     "Network",
     "Parameter",
